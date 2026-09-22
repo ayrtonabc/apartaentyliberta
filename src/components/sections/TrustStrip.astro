@@ -90,22 +90,17 @@ const pillars: Array<{ icon: IconName; title: string; sub: string }> = [
   }
 
   /*
-   * En móvil se muestran solo los dos primeros diferenciadores. Los cuatro
-   * alargaban esta franja tanto como el hero y empujaban los apartamentos
-   * demasiado abajo; los dos restantes vuelven a aparecer en la sección de
-   * equipamiento y en la comparativa.
+   * Los cuatro pilares se muestran en todas las vistas, en grid de 2×2 cuando
+   * caben. Antes el cliente nos pidió ocultar los dos últimos en móvil (< 560 px)
+   * "para no alargar la franja", pero la realidad es que quedaban dos bloques
+   * huérfanos a la derecha de los dos primeros sin razón: con la grid en 2
+   * columnas, los cuatro pilares caben en dos filas equilibradas y la franja
+   * tiene la misma altura que el hero. Sin ocultar nada, el lector encuentra
+   * de un vistazo los cuatro diferenciadores clave.
    */
-  .trust__pillars li:nth-child(n + 3) {
-    display: none;
-  }
-
   @media (min-width: 560px) {
     .trust__pillars {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .trust__pillars li:nth-child(n + 3) {
-      display: flex;
     }
   }
 

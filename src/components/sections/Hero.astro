@@ -9,8 +9,12 @@
  *   - `poster` con el primer fotograma: se ve algo nítido al instante mientras
  *     el vídeo carga, y cubre a quien tenga el vídeo desactivado o
  *     `prefers-reduced-motion`.
- *   - El móvil descarga una variante de 960 px en vez de la de 1440 px. Un MP4
- *     no admite srcset, así que el cambio se hace con <source media>.
+ *   - El mismo vídeo se sirve en todos los viewports. Antes había una
+ *     variante móvil de 960 px y la de escritorio de 1440 px (con <source
+ *     media>), pero el cliente marcó la versión móvil como fea y pidió
+ *     que se usara el mismo vídeo en ambos. Coste: algo más de bytes en
+ *     móvil; el `preload="metadata"` y `prefers-reduced-motion` lo
+ *     amortiguan.
  *   - El titular y el subtítulo llevan su propia sombra corta: el plano tiene
  *     agua y cielo muy claros y el texto necesita contraste propio.
  *   - La barra de consulta de fechas cierra la portada. Es lo último que se ve
@@ -57,8 +61,10 @@ const searchHref = localeLink(locale, "/rezerwacja/wyniki/");
       - `aria-hidden` porque es decorativo; el titular ya describe el lugar.
       - `tabindex="-1"` para que no entre en el orden de tabulación: sin él,
         algunos navegadores lo hacen enfocable y aparece un marco de foco.
-      - Las dos fuentes son el mismo vídeo a distinta resolución, no formatos
-        alternativos: el navegador elige por `media` y solo descarga una.
+      - Una sola fuente para todos los viewports: el navegador la toma y
+        la escala al ancho del contenedor. Antes había dos fuentes con
+        `<source media>` (móvil/escritorio); el cliente pidió que se use
+        el mismo vídeo en ambos.
     */}
     <video
       class="hero__video"
@@ -73,7 +79,15 @@ const searchHref = localeLink(locale, "/rezerwacja/wyniki/");
       tabindex="-1"
       data-hero-video
     >
-      <source src="/assets/video/hero-movil.mp4" type="video/mp4" media="(max-width: 767px)" />
+      <!--
+        UNA sola fuente para todos los viewports. Antes había `hero-movil.mp4`
+        (versión de 960 px) para móvil y `hero.mp4` para escritorio, pero el
+        cliente marcó la versión móvil como fea y pidió que se use el mismo
+        vídeo de escritorio en ambos. El archivo es más pesado en móvil,
+        pero `preload="metadata"` limita la primera carga y
+        `prefers-reduced-motion` ya oculta todo el elemento si el usuario
+        lo pide.
+      -->
       <source src="/assets/video/hero.mp4" type="video/mp4" />
     </video>
     <div class="hero__scrim"></div>

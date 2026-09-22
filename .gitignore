@@ -1,5 +1,6 @@
 # build
 dist/
+.vercel/
 .astro/
 
 # deps

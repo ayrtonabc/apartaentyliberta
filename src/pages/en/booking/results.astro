@@ -1,0 +1,12 @@
+---
+/**
+ * /en/booking/results/ — resultados de la búsqueda (inglés).
+ *
+ * SSR: lee la disponibilidad en cada petición.
+ */
+import SearchResults from "~/components/sections/SearchResults.astro";
+
+export const prerender = false;
+---
+
+<SearchResults locale="en" />

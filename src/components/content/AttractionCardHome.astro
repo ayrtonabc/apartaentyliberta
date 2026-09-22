@@ -1,0 +1,267 @@
+---
+/**
+ * AttractionCardHome — variante de tarjeta SOLO para la home.
+ *
+ * DIFERENCIA CON AttractionRow
+ *
+ *   AttractionRow (que sigue usando /atrakcje/) es una fila alternada con foto
+ *   grande visible siempre a un lado y texto al otro.
+ *
+ *   AttractionCardHome es una tarjeta compacta pensada para un grid 3×2:
+ *   texto siempre visible; al hacer hover, el texto se OCULTA y solo queda
+ *   la foto a pantalla completa. Es "preview" en reposo y "showcase" en
+ *   interacción. El cliente pidió este contraste explícitamente: que el
+ *   hover no compitiera con el texto sino que lo reemplazara por la imagen.
+ *
+ *   Son componentes separados a propósito: NO se puede convertir uno en el
+ *   otro con una variante porque el HTML, el layout y el comportamiento al
+ *   hover son distintos. Mezclarlos en un solo componente con ramas
+ *   condicionales suele terminar en CSS que rompe en alguna rama.
+ *
+ * GRID DE REFERENCIA
+ *
+ *   3 columnas × 2 filas en escritorio (>= 1024 px).
+ *   2 columnas × 3 filas en tablet (>= 640 px).
+ *   1 columna × 6 filas en móvil.
+ *
+ * FORMA: CUADRADA
+ *
+ *   `aspect-ratio: 1` hace que cada card sea un cuadrado perfecto: alto =
+ *   ancho. En una rejilla 3×2 sobre ~1100 px de ancho, cada card mide
+ *   ~340×340 px, suficiente para que el texto quepa bien y la imagen, en
+ *   hover, tenga presencia real. Antes las cards eran rectangulares
+ *   horizontales y el texto sobraba espacio vertical vacío.
+ *
+ * HOVER
+ *
+ *   En hover/focus:
+ *     - el texto se desvanece (opacity 1 → 0)
+ *     - la imagen sube a opacity 1 y se acerca (transform scale 1.06)
+ *     - la card gana un borde sutil de acento y se eleva 4 px
+ *
+ *   Sin hover: solo texto sobre fondo claro, con borde fino. La card es
+ *   legible y sobria.
+ *
+ * Props:
+ *   image     — ruta pública de la foto
+ *   alt       — texto alternativo
+ *   eyebrow   — etiqueta pequeña encima del título (categoría, distancia…)
+ *   title     — titular de la card
+ *   text      — descripción
+ */
+import SmartImage from "~/components/ui/SmartImage.astro";
+
+interface Props {
+  image?: string;
+  alt?: string;
+  eyebrow?: string;
+  title: string;
+  text: string;
+}
+
+const { image, alt, eyebrow, title, text } = Astro.props;
+---
+
+<article class="ahcard" data-reveal>
+  {/*
+    Capa de imagen: cubre TODA la card (position: absolute, inset: 0).
+    Por defecto está oculta (opacity 0) y entra en hover/focus con un fade
+    y un scale. El veil oscuro NO es necesario porque en hover ya no hay
+    texto encima: la imagen manda sola.
+  */}
+  {image && (
+    <div class="ahcard__media" aria-hidden="true">
+      <SmartImage
+        src={image}
+        alt=""
+        sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+      />
+    </div>
+  )}
+
+  <div class="ahcard__body">
+    {eyebrow && <p class="ahcard__eyebrow">{eyebrow}</p>}
+    <h3 class="ahcard__title">{title}</h3>
+    <p class="ahcard__text">{text}</p>
+  </div>
+
+  {/*
+    Botón invisible que cubre toda la card: permite abrir la atracción en
+    una URL si se añade después sin tocar el componente. Por ahora solo
+    sirve para que `cursor: zoom-in` indique que la card es interactiva en
+    hover. Como `position: absolute` con `inset: 0` cubre toda la card, el
+    cursor cambia al pasar por cualquier zona.
+  */}
+</article>
+
+<style>
+  .ahcard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    isolation: isolate;
+    /*
+     * Cuadrada. La rejilla 3×2 sobre 1100 px de ancho da ~340 px por card:
+     * cuadrado cómodo para texto corto + imagen en hover. Antes era
+     * rectangular horizontal (ancho mayor que alto) y quedaba espacio
+     * vertical vacío bajo el texto.
+     */
+    aspect-ratio: 1 / 1;
+    cursor: zoom-in;
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      border-color var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+
+  /*
+   * En tablet (2 columnas) cada card mide ~530 px de ancho: un cuadrado
+   * de 530 px sería demasiado alto y desplazaría el resto de la rejilla.
+   * Rompemos el cuadrado y usamos una proporción 4:5 (apaisada vertical),
+   * que sigue siendo "más alta que antes" sin descompensar.
+   */
+  @media (max-width: 1023px) and (min-width: 640px) {
+    .ahcard {
+      aspect-ratio: 4 / 5;
+    }
+  }
+
+  /* En móvil cada card ocupa el ancho completo: cuadrado es perfecto */
+  @media (max-width: 639px) {
+    .ahcard {
+      aspect-ratio: 1 / 1;
+    }
+  }
+
+  .ahcard:hover,
+  .ahcard:focus-within {
+    transform: translateY(-4px);
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* --------------------------------------------------------------- Imagen */
+
+  /*
+   * Capa de imagen: posición absoluta, cubre toda la card, oculta por
+   * defecto. Entra en hover con fade + scale para que se sienta como
+   * "acercar" la imagen. NO lleva veil: el texto ya no está visible en
+   * hover, así que la imagen manda sola y no necesita oscurecerse.
+   */
+  .ahcard__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: scale(1);
+    transition:
+      opacity var(--duration-slow) var(--ease-out),
+      transform var(--duration-slower) var(--ease-out);
+  }
+
+  .ahcard:hover .ahcard__media,
+  .ahcard:focus-within .ahcard__media {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+
+  .ahcard__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--duration-slower) var(--ease-out);
+  }
+
+  /* ----------------------------------------------------------------- Cuerpo */
+
+  /*
+   * El cuerpo va ENCIMA de la imagen (z-index: 1). En hover el texto se
+   * desvanece COMPLETO (opacity 0). El cliente pidió explícitamente que en
+   * hover SOLO se vea la imagen, no el texto sobre la foto: por eso se
+   * oculta en lugar de virar a blanco como en la versión anterior.
+   */
+  .ahcard__body {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    transition: opacity var(--duration-slow) var(--ease-out);
+  }
+
+  .ahcard:hover .ahcard__body,
+  .ahcard:focus-within .ahcard__body {
+    opacity: 0;
+  }
+
+  .ahcard__eyebrow {
+    max-width: none;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .ahcard__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+  }
+
+  /*
+   * El título puede ocupar hasta 3 líneas y queremos que el texto respire
+   * desde arriba. Limitamos las líneas visibles a 3 con `line-clamp` para
+   * que cards con títulos largos no rompan el cuadrado.
+   */
+  .ahcard__title {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  @media (min-width: 1024px) {
+    .ahcard__title {
+      font-size: var(--text-2xl);
+    }
+  }
+
+  .ahcard__text {
+    /*
+     * La descripción se limita a 4 líneas en escritorio, 3 en móvil.
+     * Suficiente para vender la atracción sin alargar la card. Si el texto
+     * es más largo, el resto se corta con elipsis — la card no crece.
+     */
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    max-width: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  @media (max-width: 639px) {
+    .ahcard__text {
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+    }
+  }
+</style>

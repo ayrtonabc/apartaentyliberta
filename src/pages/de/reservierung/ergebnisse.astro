@@ -1,0 +1,12 @@
+---
+/**
+ * /de/reservierung/ergebnisse/ — resultados de la búsqueda (alemán).
+ *
+ * SSR: lee la disponibilidad en cada petición.
+ */
+import SearchResults from "~/components/sections/SearchResults.astro";
+
+export const prerender = false;
+---
+
+<SearchResults locale="de" />

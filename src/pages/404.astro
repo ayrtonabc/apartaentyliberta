@@ -1,0 +1,172 @@
+---
+/**
+ * 404 — página no encontrada.
+ * Mantiene la marca incluso en el error y reconduce al usuario hacia los
+ * apartamentos o la reserva en lugar de dejarle en un callejón sin salida.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+import { apartments } from "~/data/apartments";
+import Icon from "~/components/ui/Icon.astro";
+import SmartImage from "~/components/ui/SmartImage.astro";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+
+/**
+ * El 404 se sirve on-demand: con el adaptador de Node es la ruta de reserva del
+ * servidor, así que no puede prerenderizarse (debe resolverse en runtime para
+ * cualquier URL inexistente).
+ */
+export const prerender = false;
+
+const suggestions = [
+  { href: localeLink(locale, "/apartamenty/"), label: tr.nav.apartments },
+  { href: localeLink(locale, "/cennik/"), label: tr.nav.prices },
+  { href: localeLink(locale, "/lokalizacja/"), label: tr.nav.location },
+  { href: localeLink(locale, "/atrakcje/"), label: tr.nav.attractions },
+  { href: localeLink(locale, "/rezerwacja/"), label: tr.nav.booking },
+  { href: localeLink(locale, "/faq/"), label: tr.nav.faq },
+];
+
+---
+
+<BaseLayout
+  title={tr.error.notFound}
+  description={tr.error.notFoundMessage}
+  noindex={true}
+  canonicalPath="/"
+>
+  <section class="nf">
+    <div class="container nf__inner">
+      <div class="nf__text" data-reveal>
+        <span class="eyebrow">{tr.error.notFoundEyebrow}</span>
+        <h1 class="nf__title">{tr.error.notFound}</h1>
+        <p class="lead">{tr.error.notFoundMessage}</p>
+
+        <div class="btn-group">
+          <a class="btn btn--primary btn--lg" href={localeLink(locale, "/apartamenty/")}>
+            {tr.cta.viewApartments}
+          </a>
+          <a class="btn btn--outline btn--lg" href={localeLink(locale, "/")}>
+            {tr.error.backHome}
+          </a>
+        </div>
+
+        <nav class="nf__links" aria-label={tr.a11y.mainNav}>
+          <span class="nf__links-title">{tr.footer.explore}</span>
+          <ul role="list">
+            {suggestions.map((item) => (
+              <li>
+                <a href={item.href}>
+                  {item.label}
+                  <Icon name="arrow-right" size={14} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      <figure class="nf__figure" data-reveal style="--reveal-delay:100ms">
+        <SmartImage
+          src={`/assets/apartments/${apartments[1].id}/exterior-noc.jpg`}
+          alt={
+            locale === "pl"
+              ? "Apartamenty Liberta wieczorem nad Jeziorem Szeląg"
+              : locale === "de"
+                ? "Apartamenty Liberta am Abend am Szeląg-See"
+                : "Apartamenty Liberta at night on Lake Szeląg"
+          }
+          sizes="(min-width: 1024px) 45vw, 100vw"
+          priority
+        />
+      </figure>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    padding-top: calc(var(--header-height) + var(--space-16));
+    padding-bottom: var(--space-24);
+  }
+
+  @media (min-width: 1024px) {
+    .nf {
+      padding-top: calc(var(--header-height-lg) + var(--space-20));
+    }
+  }
+
+  .nf__inner {
+    display: grid;
+    gap: var(--space-10);
+    align-items: center;
+  }
+
+  @media (min-width: 1024px) {
+    .nf__inner {
+      grid-template-columns: 1.1fr 1fr;
+      gap: var(--space-16);
+    }
+  }
+
+  .nf__title {
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-5);
+    font-size: var(--text-5xl);
+  }
+
+  .nf__links {
+    margin-top: var(--space-12);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .nf__links-title {
+    display: block;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-4);
+  }
+
+  .nf__links ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .nf__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    transition: border-color var(--transition-base), color var(--transition-base);
+  }
+
+  .nf__links a:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .nf__figure {
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    aspect-ratio: 4 / 3;
+    box-shadow: var(--shadow-lg);
+  }
+
+  @media (min-width: 1024px) {
+    .nf__figure {
+      aspect-ratio: 4 / 5;
+    }
+  }
+</style>

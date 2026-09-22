@@ -1,0 +1,40 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Apartamenty w okolicach Olsztynka"
+  description="Apartamenty Liberta — komfortowe domki nad Jeziorem Szeląg, 40 km od Olsztynka. Bania, klimatyzacja, plaża, widok. Od 700 zł/noc."
+>
+  <section class="section">
+    <div class="container container--narrow" style="padding-top: calc(var(--header-height) + var(--space-12));">
+      <span class="eyebrow">Olsztynek</span>
+      <h1 style="margin-top: var(--space-3);">Apartamenty niedaleko Olsztynka</h1>
+      <p class="lead" style="margin: var(--space-6) auto 0;">
+        Olsztynek to niewielkie miasto 40 km od naszych apartamentów — warto zobaczyć Muzeum Budownictwa Ludowego, największy skansen w Polsce.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--bg">
+    <div class="container">
+      <div class="split">
+        <div>
+          <h2>Co warto zobaczyć w Olsztynku</h2>
+          <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); font-size: var(--text-lg);">
+            <li>✓ Muzeum Budownictwa Ludowego — Park Etnograficzny</li>
+            <li>✓ Historyczna starówka</li>
+            <li>✓ Lokalne targi i festyny</li>
+            <li>✓ Spływy kajakowe rzeką Drwęcą</li>
+            <li>✓ Trasy rowerowe w Puszczy Napiwodzko-Ramuckiej</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="/assets/apartments/liberta-iv/luksus.jpg" alt="Apartamenty niedaleko Olsztynka" loading="lazy" decoding="async" width="1400" height="1050" />
+        </figure>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

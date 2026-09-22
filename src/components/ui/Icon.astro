@@ -1,0 +1,113 @@
+---
+/**
+ * Icon — set de iconos SVG inline del sitio.
+ *
+ * Un único mapa de paths evita dependencias externas y mantiene el bundle
+ * mínimo. Los iconos se dibujan en trazo (stroke) para heredar el color.
+ * El tipo IconName se exporta desde ~/data/icons.
+ */
+import type { IconName } from "~/data/icons";
+
+interface Props {
+  name: IconName;
+  class?: string;
+  size?: number;
+  /** Relleno en lugar de trazo (para estrellas, comillas...) */
+  fill?: boolean;
+}
+
+const { name, class: className, size, fill = false } = Astro.props;
+
+const paths: Record<string, string> = {
+  wifi: '<path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>',
+  wind: '<path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>',
+  thermometer: '<path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>',
+  flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  utensils: '<path d="M3 2v7c0 1.1.9 2 2 2h2v11h2V2H3zm18 0v7c0 1.1-.9 2-2 2h-2v11h-2V2h6zM7 2v7h2V2H7z"/>',
+  "utensils-crossed": '<path d="M16 2l4 4-6 6 2 2 6-6 2 2M8 2L2 8l4 4 3-3M14 14L4 24"/>',
+  oven: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><circle cx="8" cy="6" r="1"/><circle cx="12" cy="6" r="1"/><rect x="7" y="12" width="10" height="6" rx="1"/>',
+  microwave: '<rect x="2" y="5" width="20" height="14" rx="2"/><rect x="5" y="8" width="9" height="8" rx="1"/><path d="M18 9h.01M18 12h.01M18 15h.01"/>',
+  toaster: '<path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v5H4z"/><path d="M8 6V4M12 6V4M16 6V4M4 15v3h16v-3"/>',
+  kettle: '<path d="M8 8h8l2 4v6a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-6z"/><path d="M10 8V5h4v3M6 12H3M18 12h3"/>',
+  fridge: '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M6 10h12M9 5v2M9 13v3"/>',
+  tv: '<rect x="2" y="7" width="20" height="14" rx="2"/><polyline points="17 2 12 7 7 2"/>',
+  play: '<polygon points="6 4 20 12 6 20"/>',
+  bed: '<path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/>',
+  "bed-double": '<path d="M2 20v-8h20v8M2 12V4M22 12V4M6 12V8h12v4"/>',
+  bath: '<path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5M9 6h11M9 6v11"/>',
+  "bath-tub": '<rect x="3" y="8" width="18" height="8" rx="3"/><path d="M7 8V6a2 2 0 0 1 2-2h1M6 16l-1 4M18 16l1 4"/>',
+  hairdryer: '<path d="M4 8a6 6 0 0 1 6-6h8v12h-8a6 6 0 0 1-6-6z"/><path d="M10 14v6a2 2 0 0 0 4 0v-4"/>',
+  iron: '<path d="M3 16h15a3 3 0 0 0 3-3V9H8a5 5 0 0 0-5 5z"/><path d="M8 9V6h8M3 19h18"/>',
+  terrace: '<path d="M3 10h18M12 10V3M5 10l-2 11M19 10l2 11M9 21h6"/>',
+  grill: '<path d="M4 6h16l-2 7a5 5 0 0 1-5 4h-2a5 5 0 0 1-5-4z"/><path d="M9 17l-1 5M15 17l1 5M8 6V4M12 6V4M16 6V4"/>',
+  bbq: '<path d="M4 6h16l-2 7a5 5 0 0 1-5 4h-2a5 5 0 0 1-5-4z"/><path d="M9 17l-1 5M15 17l1 5"/>',
+  hottub: '<path d="M3 12h18v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M6 9c0-1 1-1.5 1-2.5S6 5 6 5M10 9c0-1 1-1.5 1-2.5S10 5 10 5M14 9c0-1 1-1.5 1-2.5S14 5 14 5M18 9c0-1 1-1.5 1-2.5S18 5 18 5"/>',
+  sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>',
+  sunrise: '<path d="M12 2v4M4.9 10.9 3.5 9.5M19.1 10.9l1.4-1.4M2 18h20M6 18a6 6 0 0 1 12 0"/><path d="M8 6l4-4 4 4"/>',
+  parking: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>',
+  lake: '<path d="M2 17c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/><path d="M2 21c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/><path d="m6 12 6-8 6 8"/>',
+  waves: '<path d="M2 8c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 5-2"/><path d="M2 14c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 5-2"/>',
+  sail: '<path d="M12 3v14M12 3 5 17h7M12 6l6 11h-6"/><path d="M3 20h18l-2 2H5z"/>',
+  kayak: '<path d="M4 18c4 0 6-12 16-12M20 18C16 18 14 6 4 6"/><path d="M9 5l6 14"/>',
+  canoe: '<path d="M3 12c0 4 4 7 9 7s9-3 9-7z"/><path d="M7 12 12 4l5 8"/>',
+  fish: '<path d="M2 12c4-5 9-6 12-6s6 3 8 6c-2 3-5 6-8 6s-8-1-12-6z"/><circle cx="9" cy="11" r="1"/><path d="M19 9l3-2v10l-3-2"/>',
+  golf: '<path d="M12 3v14"/><circle cx="12" cy="20" r="2"/><path d="M12 4l6 2-6 2"/>',
+  horse: '<path d="M4 20v-4l3-3 4-6 3-3 2 3 3 2-1 4-3 1v6"/><circle cx="8" cy="6" r="1.6"/>',
+  crosshair: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>',
+  castle: '<path d="M3 21V8l4-2v3l5-3 5 3V6l4 2v13z"/><path d="M10 21v-6h4v6"/>',
+  ferris: '<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+  music: '<circle cx="7" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M10 18V6l11-2v12"/>',
+  trampoline: '<ellipse cx="12" cy="9" rx="9" ry="4"/><path d="M3 9v4c0 2.2 4 4 9 4s9-1.8 9-4V9M6 15l-1 6M18 15l1 6"/>',
+  tree: '<path d="M12 3 6 13h4l-4 7h12l-4-7h4z"/><path d="M12 20v2"/>',
+  snow: '<path d="M12 2v20M4 6l16 12M20 6 4 18"/>',
+  leaf: '<path d="M4 20c0-8 6-14 16-16 0 10-5 16-13 16z"/><path d="M4 20c4-4 8-6 12-7"/>',
+  star: '<path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.2-5.9 3.2 1.2-6.5L2.5 9.5l6.6-.9z"/>',
+  quote: '<path d="M5 21V11a6 6 0 0 1 6-6v3a3 3 0 0 0-3 3h3v10zm10 0V11a6 6 0 0 1 6-6v3a3 3 0 0 0-3 3h3v10z"/>',
+  check: '<path d="M20 6L9 17l-5-5"/>',
+  "arrow-right": '<path d="M5 12h14M13 5l7 7-7 7"/>',
+  "arrow-down": '<path d="M12 5v14M5 13l7 7 7-7"/>',
+  "chevron-down": '<path d="M6 9l6 6 6-6"/>',
+  close: '<path d="M18 6 6 18M6 6l12 12"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  users: '<path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 20v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/>',
+  ruler: '<path d="M3 15 15 3l6 6L9 21z"/><path d="M7 11l2 2M11 7l2 2M15 3l6 6"/>',
+  phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  mail: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+  pin: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  sparkles: '<path d="M12 3l1.8 4.7L18.5 9.5 13.8 11.3 12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.9 2.1 2.1.9-2.1.9L19 21l-.9-2.1-2.1-.9 2.1-.9z"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>',
+  award: '<circle cx="12" cy="9" r="6"/><path d="M8.2 14 6 22l6-3 6 3-2.2-8"/>',
+  key: '<circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.5 12.5 20 3M17 6l3 3M14 9l2 2"/>',
+  car: '<path d="M5 17h14M3 17v-4l2-5h14l2 5v4"/><circle cx="7.5" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/>',
+  plane: '<path d="M17.8 19.8 16 14l-4-1-2 5-2-1 1-4-4-1 1-3 3 1 3-3-3-2 1-2 4 2 3-3a2 2 0 1 1 3 3l-3 3 2 4-2 1-2-3-3 3 1 3z"/>',
+  train: '<rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 11h14M8 16l-2 5M16 16l2 5M9 20h6"/><circle cx="9" cy="13.5" r=".6"/><circle cx="15" cy="13.5" r=".6"/>',
+  dog: '<path d="M10 5 8 3v4M14 5l2-2v4"/><rect x="8" y="7" width="8" height="9" rx="4"/><path d="M10 16v4M14 16v4"/><circle cx="10.5" cy="11" r=".6"/><circle cx="13.5" cy="11" r=".6"/>',
+  baby: '<circle cx="12" cy="8" r="5"/><path d="M10 7h.01M14 7h.01M10 10c1.2 1 2.8 1 4 0"/><path d="M6 21v-3a6 6 0 0 1 12 0v3"/>',
+  "no-pets": '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/><path d="M9 15c1.8-1.5 4.2-1.5 6 0"/>',
+  playground: '<path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-6h6v6"/><path d="M12 3v4"/>',
+  badminton: '<path d="M14 4 6 12l6 6 8-8z"/><path d="M6 12 3 21l9-3"/><path d="M16 6l4 4"/>',
+  bike: '<circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>',
+  book: '<path d="M4 4h7a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 4h-3a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H20z"/>',
+  boardgame: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/><circle cx="15" cy="15" r="1.5"/>',
+  firepit: '<path d="M12 3c2 4 5 5 5 9a5 5 0 0 1-10 0c0-4 3-5 5-9z"/><path d="M4 21l16-2M4 19l16 2"/>',
+  bar: '<path d="M4 4h16l-6 7v9"/><path d="M10 20h8"/><path d="M8 8h8"/>',
+  stove: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="10" r="2.5"/><circle cx="15.5" cy="10" r="2.5"/><path d="M8 17h8"/>',
+  washer: '<rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="14" r="5"/><path d="M8 6h.01M12 6h.01M16 6h.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  external: '<path d="M14 3h7v7M21 3l-9 9"/><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/>',
+};
+
+const path = paths[name] ?? paths.info;
+---
+
+<svg
+  class:list={["icon", className]}
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill={fill ? "currentColor" : "none"}
+  stroke={fill ? "none" : "currentColor"}
+  aria-hidden="true"
+  set:html={path}
+/>

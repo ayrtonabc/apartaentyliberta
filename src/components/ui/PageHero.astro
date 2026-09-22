@@ -1,0 +1,140 @@
+---
+/**
+ * PageHero — cabecera estándar de páginas interiores.
+ * Mantiene el mismo ritmo y la misma separación respecto a la barra fija.
+ */
+import Icon from "~/components/ui/Icon.astro";
+
+export type Crumb = { name: string; href?: string };
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  crumbs?: Crumb[];
+  /** Alineación del bloque de texto */
+  align?: "left" | "center";
+  /** Fondo alternativo */
+  tone?: "default" | "muted";
+  size?: "md" | "lg";
+}
+
+const { eyebrow, title, lead, crumbs, align = "left", tone = "default", size = "md" } = Astro.props;
+---
+
+<section class:list={["phero", tone === "muted" && "phero--muted"]}>
+  <div class="container">
+    {crumbs && crumbs.length > 0 && (
+      <nav class="phero__crumbs" aria-label="Breadcrumb">
+        <ol>
+          {crumbs.map((crumb, index) => (
+            <li>
+              {crumb.href && index < crumbs.length - 1 ? (
+                <a href={crumb.href}>{crumb.name}</a>
+              ) : (
+                <span aria-current={index === crumbs.length - 1 ? "page" : undefined}>{crumb.name}</span>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
+
+    <div class:list={["phero__text", align === "center" && "phero__text--center"]}>
+      {eyebrow && (
+        <p class="eyebrow">
+          <span class="phero__dot" aria-hidden="true"></span>
+          {eyebrow}
+        </p>
+      )}
+      <h1 class:list={["phero__title", size === "lg" && "phero__title--lg"]}>{title}</h1>
+      {lead && <p class="lead phero__lead">{lead}</p>}
+    </div>
+  </div>
+</section>
+
+<style>
+  .phero {
+    padding-top: calc(var(--header-height) + var(--space-12));
+    padding-bottom: var(--space-10);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  @media (min-width: 1024px) {
+    .phero {
+      padding-top: calc(var(--header-height-lg) + var(--space-16));
+      padding-bottom: var(--space-14);
+    }
+  }
+
+  .phero--muted {
+    background: var(--color-bg-muted);
+  }
+
+  .phero__crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+
+  .phero__crumbs li:not(:last-child)::after {
+    content: "/";
+    margin-left: var(--space-2);
+    opacity: 0.5;
+  }
+
+  .phero__crumbs a {
+    color: var(--color-text-muted);
+  }
+
+  .phero__crumbs a:hover {
+    color: var(--color-accent);
+  }
+
+  .phero__crumbs [aria-current] {
+    color: var(--color-text);
+  }
+
+  .phero__text {
+    max-width: 62rem;
+  }
+
+  .phero__text--center {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .phero__dot {
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    margin-right: var(--space-3);
+  }
+
+  .phero__title {
+    margin-top: var(--space-4);
+    font-size: var(--text-5xl);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tighter);
+  }
+
+  .phero__title--lg {
+    font-size: var(--text-6xl);
+  }
+
+  .phero__lead {
+    margin-top: var(--space-6);
+    max-width: 60ch;
+  }
+
+  .phero__text--center .phero__lead {
+    margin-inline: auto;
+  }
+</style>

@@ -1,0 +1,32 @@
+---
+/**
+ * /de/bewertungen/ — opiniones de huéspedes (alemán).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import ReviewsPage from "~/components/sections/ReviewsPage.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "de";
+const tr = t(locale);
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.reviews.eyebrow, path: "/opinie/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Gästebewertungen — 9,9/10 auf Booking.com"
+  description="Echte Gästebewertungen von Apartamenty Liberta in Stare Jabłonki: 9,9/10 auf Booking.com und 5,0 bei Google. Lesen Sie, was Gäste über den Hot Tub, den Seeblick und die Betreuung schreiben."
+  canonicalPath="/opinie/"
+  ogImage="/og-terrace.jpg"
+  schema={schema}
+>
+  <ReviewsPage locale={locale} />
+</BaseLayout>

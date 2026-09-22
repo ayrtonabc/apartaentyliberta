@@ -1,0 +1,199 @@
+---
+/**
+ * SocialLinks — iconos de redes reutilizables (cabecera y pie).
+ *
+ * Marcas del propietario. Facebook y Booking.com son los archivos SVG que
+ * exportó (CorelDRAW) y están dibujados en BLANCO; Instagram, que no tiene
+ * archivo, se traza inline en SVG.
+ *
+ * Cómo se resuelve el color:
+ *   - Sobre el hero (cabecera sin fondo) las tres marcas se muestran tal cual:
+ *     blancas.
+ *   - Cuando la cabecera coge su fondo claro al hacer scroll, las marcas blancas
+ *     se invierten a oscuro con un filtro CSS. Esa excepción vive en
+ *     Header.astro, que es quien conoce ese estado.
+ *   - En el pie, sobre fondo oscuro, siempre blancas.
+ *
+ * Así no hacen falta dos versiones de cada archivo.
+ *
+ * Props:
+ *   variant — "inline" (cabecera, compacto) · "boxed" (pie, con círculo)
+ */
+import { site } from "~/data/site";
+
+interface Props {
+  variant?: "inline" | "boxed";
+  class?: string;
+}
+
+const { variant = "inline", class: className } = Astro.props;
+
+/**
+ * Las tres marcas son archivos del propietario, en public/assets/brand/.
+ *
+ * Los tres están dibujados en blanco y los tres llenan su viewBox de borde a
+ * borde, así que con un lado cuadrado miden exactamente lo mismo. Antes
+ * Instagram se trazaba aquí a mano porque no había archivo; ahora lo hay y el
+ * trazado se retiró.
+ *
+ * El color se resuelve con un filtro CSS (ver más abajo), no con versiones
+ * duplicadas de cada archivo.
+ */
+const links = [
+  {
+    key: "facebook",
+    label: "Facebook",
+    href: site.social.facebook,
+    src: "/assets/brand/facebook-mark.svg",
+  },
+  {
+    key: "instagram",
+    label: "Instagram",
+    href: site.social.instagram,
+    src: "/assets/brand/instagram-mark.svg",
+  },
+  {
+    key: "booking",
+    label: "Booking.com",
+    href: site.social.booking,
+    src: "/assets/brand/booking-mark.svg",
+  },
+];
+---
+
+<ul class:list={["social", `social--${variant}`, className]} role="list">
+  {links.map((link) => (
+    <li>
+      <a
+        class:list={["social__link", `social__link--${link.key}`]}
+        href={link.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`${link.label} (${site.name})`}
+      >
+        {/*
+          Los tres son archivos de marca, así que siempre es un <img>. Antes
+          había una rama para el SVG trazado a mano de Instagram; al llegar el
+          archivo del propietario, esa rama dejó de usarse y se retiró.
+        */}
+        <img
+          class="social__img"
+          src={link.src}
+          alt=""
+          width="20"
+          height="20"
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .social {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .social__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    opacity: 0.78;
+    transition: opacity var(--transition-base), background-color var(--transition-base),
+      border-color var(--transition-base), transform var(--transition-base);
+  }
+
+  .social__link:hover {
+    opacity: 1;
+  }
+
+  /*
+   * TAMAÑO — los tres iconos miden lo mismo.
+   *
+   * Los archivos del propietario son cuadrados y su dibujo llena el marco de
+   * borde a borde, así que se dimensionan con un lado cuadrado. El trazado de
+   * Instagram se construyó igual (ver arriba): sin margen interno.
+   *
+   * El tamaño se define en una sola variable por contexto, para que no se
+   * desincronice el SVG y la imagen.
+   */
+  .social {
+    --social-icon: 1.05rem;
+  }
+
+  .social__link svg {
+    width: var(--social-icon);
+    height: var(--social-icon);
+  }
+
+  /*
+   * Marcas del propietario (Facebook y Booking.com). Los dos archivos están
+   * dibujados en blanco.
+   *
+   * Por defecto se invierten a oscuro, porque el estado normal de la cabecera
+   * tras hacer scroll y el de las páginas interiores es sobre fondo claro.
+   * Sobre el hero se anula el filtro desde Header.astro, que es quien conoce
+   * ese estado: ahí las marcas se muestran blancas, tal como salieron.
+   */
+  .social__img {
+    display: block;
+    width: var(--social-icon);
+    height: var(--social-icon);
+    max-height: none;
+    object-fit: contain;
+    background: none;
+    filter: brightness(0) saturate(100%) opacity(0.82);
+    transition: filter var(--transition-base), opacity var(--transition-base);
+  }
+
+  .social__link:hover .social__img {
+    filter: brightness(0) saturate(100%) opacity(1);
+  }
+
+  /* En el pie, sobre fondo oscuro, las marcas se muestran tal cual: en blanco. */
+  .social--boxed .social__img {
+    filter: none;
+    opacity: 0.92;
+  }
+
+  .social--boxed .social__link:hover .social__img {
+    opacity: 1;
+  }
+
+  /* --- Cabecera: compacto, sin caja --- */
+  .social--inline .social__link {
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-full);
+  }
+
+  .social--inline .social__link:hover {
+    background: var(--color-accent-faded);
+  }
+
+  /* --- Pie: con círculo, sobre fondo oscuro --- */
+  .social--boxed {
+    /* En el pie los círculos son más grandes, así que el icono también */
+    --social-icon: 1.15rem;
+    gap: var(--space-3);
+  }
+
+  .social--boxed .social__link {
+    width: 2.5rem;
+    height: 2.5rem;
+    opacity: 1;
+    border: 1px solid var(--on-dark-border);
+    border-radius: var(--radius-full);
+    color: var(--color-text-inverse);
+  }
+
+  .social--boxed .social__link:hover {
+    background: var(--on-dark-bg);
+    border-color: var(--on-dark-border-strong);
+    transform: translateY(-2px);
+  }
+</style>

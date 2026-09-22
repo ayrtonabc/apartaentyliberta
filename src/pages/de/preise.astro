@@ -1,0 +1,32 @@
+---
+/**
+ * /de/preise/ — precios (alemán).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import PricingPage from "~/components/sections/PricingPage.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "de";
+const tr = t(locale);
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.pricing.title, path: "/cennik/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Preise der Ferienwohnungen am Szeląg-See"
+  description="Transparente Preise bei Apartamenty Liberta: ab 700 PLN pro Nacht in der Nebensaison, 900 PLN in der Hochsaison. Hot Tub, Brennholz, Parkplatz, WLAN und Netflix inklusive. 5 % Rabatt ab 7 Nächten."
+  canonicalPath="/cennik/"
+  ogImage="/og-terrace.jpg"
+  schema={schema}
+>
+  <PricingPage locale={locale} />
+</BaseLayout>

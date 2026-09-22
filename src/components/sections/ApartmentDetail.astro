@@ -1,0 +1,756 @@
+---
+/**
+ * ApartmentDetail — ficha completa de un apartamento.
+ *
+ * Componente compartido por /apartamenty/[slug], /en/apartments/[slug] y
+ * /de/ferienwohnungen/[slug]. La versión anterior duplicaba este contenido en
+ * tres archivos casi idénticos con textos y etiquetas en polaco filtrados a
+ * las versiones inglesa y alemana; aquí hay una sola fuente traducida.
+ */
+import { type Locale, localeLink, t } from "~/lib/i18n";
+import { apartments, type Apartment } from "~/data/apartments";
+import { formatPLN } from "~/lib/format";
+import { site } from "~/data/site";
+import { getAmenities } from "~/data/amenities";
+
+import SmartImage from "~/components/ui/SmartImage.astro";
+import Icon from "~/components/ui/Icon.astro";
+import Gallery, { type GalleryPhoto } from "~/components/content/Gallery.astro";
+import BookingForm from "~/components/content/BookingForm.astro";
+import MapEmbed from "~/components/content/MapEmbed.astro";
+import ApartmentCard from "~/components/content/ApartmentCard.astro";
+
+interface Props {
+  apartment: Apartment;
+  locale: Locale;
+}
+
+const { apartment, locale } = Astro.props;
+const tr = t(locale);
+
+const name = apartment.names[locale];
+const description = apartment.description[locale];
+const highlights = apartment.highlights[locale];
+const layout = apartment.layout[locale];
+
+const heroSrc = `/assets/apartments/${apartment.id}/${apartment.photos.hero}`;
+
+/** Mosaico: hero + galería propia del apartamento. */
+const galleryPhotos: GalleryPhoto[] = [
+  {
+    src: heroSrc,
+    alt: `${name} — ${tr.apartment.view}`,
+    category: "exterior",
+    span: "big",
+  },
+  ...apartment.photos.gallery.map((file, index) => {
+    const base = file.replace(/\.(jpe?g|png|webp)$/i, "");
+    const isInterior = /salon|kuchnia|sypialnia|lazienka|lozko|luksus/.test(base);
+    const labels: Record<string, Record<Locale, string>> = {
+      "salon-aneks-1": { pl: "Salon z aneksem kuchennym", en: "Living room with kitchenette", de: "Wohnzimmer mit Küchenzeile" },
+      "salon-aneks-2": { pl: "Salon z widokiem na jezioro", en: "Living room with lake view", de: "Wohnzimmer mit Seeblick" },
+      "salon-parter": { pl: "Salon na parterze", en: "Ground-floor living room", de: "Wohnzimmer im Erdgeschoss" },
+      kuchnia: { pl: "W pełni wyposażona kuchnia", en: "Fully equipped kitchen", de: "Voll ausgestattete Küche" },
+      "sypialnia-parter": { pl: "Sypialnia na parterze", en: "Ground-floor bedroom", de: "Schlafzimmer im Erdgeschoss" },
+      "sypialnia-pietro-1": { pl: "Sypialnia na piętrze", en: "Upstairs bedroom", de: "Schlafzimmer im Obergeschoss" },
+      "sypialnia-pietro-2": { pl: "Sypialnia z widokiem", en: "Bedroom with a view", de: "Schlafzimmer mit Aussicht" },
+      "sypialnia-pietro-3": { pl: "Sypialnia dwuosobowa", en: "Double bedroom", de: "Doppelzimmer" },
+      "sypialnia-pietro-4": { pl: "Sypialnia dla dzieci", en: "Children's bedroom", de: "Kinderzimmer" },
+      lazienka: { pl: "Łazienka z prysznicem", en: "Bathroom with shower", de: "Badezimmer mit Dusche" },
+      "lazienka-parter-1": { pl: "Łazienka na parterze", en: "Ground-floor bathroom", de: "Badezimmer im Erdgeschoss" },
+      "lazienka-parter-2": { pl: "Druga łazienka", en: "Second bathroom", de: "Zweites Badezimmer" },
+      "lozko-detal": { pl: "Detal sypialni", en: "Bedroom detail", de: "Schlafzimmer-Detail" },
+      luksus: { pl: "Wnętrze o podwyższonym standardzie", en: "Premium interior finish", de: "Hochwertige Innenausstattung" },
+      "bania-goralska": { pl: "Prywatna balia góralska", en: "Private wood-fired hot tub", de: "Privater Holz-Hot-Tub" },
+      taras: { pl: "Zadaszony taras z meblami", en: "Covered terrace with furniture", de: "Überdachte Terrasse mit Möbeln" },
+      "exterior-dzien": { pl: "Apartament z zewnątrz", en: "The apartment from outside", de: "Die Wohnung von außen" },
+      "exterior-noc": { pl: "Apartament wieczorem", en: "The apartment at night", de: "Die Wohnung am Abend" },
+    };
+    return {
+      src: `/assets/apartments/${apartment.id}/${file}`,
+      alt: labels[base]?.[locale] ?? `${name} — ${index + 1}`,
+      category: (isInterior ? "interior" : "exterior") as GalleryPhoto["category"],
+    };
+  }),
+];
+
+const amenities = getAmenities(apartment.amenitiesKeys);
+
+const specs = [
+  { icon: "ruler" as const, value: `${apartment.specs.sizeM2} m²`, label: tr.apartment.size },
+  {
+    icon: "users" as const,
+    value: `${apartment.specs.sleeps}+${apartment.specs.extraSleeps}`,
+    label: tr.apartment.sleeps,
+  },
+  { icon: "bed" as const, value: `${apartment.specs.bedrooms}`, label: tr.apartment.bedrooms },
+  { icon: "bath" as const, value: `${apartment.specs.bathrooms}`, label: tr.apartment.bathrooms },
+  {
+    icon: "waves" as const,
+    value: `${apartment.specs.distanceToLakeM} m`,
+    label: tr.apartment.distanceToLake,
+  },
+];
+
+const otherApartments = apartments.filter((a) => a.id !== apartment.id);
+---
+
+<!-- ============================================================== MIGAS -->
+<nav class="crumbs" aria-label={tr.a11y.breadcrumb}>
+  <div class="container">
+    <ol>
+      <li><a href={localeLink(locale, "/")}>{tr.nav.home}</a></li>
+      <li><a href={localeLink(locale, "/apartamenty/")}>{tr.nav.apartments}</a></li>
+      <li aria-current="page">{name}</li>
+    </ol>
+  </div>
+</nav>
+
+<!-- =============================================================== HERO -->
+<section class="ahero">
+  <div class="ahero__media">
+    <SmartImage
+      src={heroSrc}
+      alt={`${name} — ${tr.apartment.view}`}
+      sizes="100vw"
+      priority
+      position="center 55%"
+    />
+    <div class="ahero__scrim"></div>
+  </div>
+
+  <div class="container ahero__inner">
+    <span class="badge badge--glass">{tr.apartment.apartmentAria} {apartment.number}</span>
+    <h1 class="ahero__title">{name}</h1>
+    <p class="ahero__lede">{highlights[0]}</p>
+
+    <ul class="ahero__specs" role="list">
+      {specs.map((spec) => (
+        <li>
+          <Icon name={spec.icon} size={20} />
+          <span class="ahero__spec-value">{spec.value}</span>
+          <span class="ahero__spec-label">{spec.label}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================== CUERPO -->
+<div class="container adetail">
+  <div class="adetail__main">
+    <!-- Descripción -->
+    <section class="adetail__section" data-reveal>
+      <span class="eyebrow">{tr.apartment.description}</span>
+      <h2 class="adetail__title">{name}</h2>
+      <div class="prose">
+        <p>{description}</p>
+      </div>
+    </section>
+
+    <!-- Puntos fuertes -->
+    <section class="adetail__section" data-reveal>
+      <span class="eyebrow">{tr.apartment.highlights}</span>
+      <ul class="ahighlights" role="list">
+        {highlights.map((highlight) => (
+          <li>
+            <span class="ahighlights__check"><Icon name="check" size={16} /></span>
+            <span>{highlight}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- Distribución -->
+    <section class="adetail__section" data-reveal>
+      <span class="eyebrow">{tr.apartment.layout}</span>
+      <h2 class="adetail__title adetail__title--sm">
+        {locale === "pl" ? "Dwa poziomy, trzy sypialnie" : locale === "de" ? "Zwei Ebenen, drei Schlafzimmer" : "Two levels, three bedrooms"}
+      </h2>
+      <ol class="alayout" role="list">
+        {layout.map((line, index) => (
+          <li>
+            <span class="alayout__num">{index + 1}</span>
+            <span>{line}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- Equipamiento -->
+    <section class="adetail__section" data-reveal>
+      <span class="eyebrow">{tr.apartment.amenities}</span>
+      <h2 class="adetail__title adetail__title--sm">{tr.apartment.inAllApartments}</h2>
+      <ul class="aamen" role="list">
+        {amenities.map((amenity) => (
+          <li>
+            <Icon name={amenity.icon} size={18} />
+            <span>{amenity.labels[locale]}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- Galería -->
+    <section class="adetail__section" data-reveal>
+      <span class="eyebrow">{tr.apartment.gallery}</span>
+      <h2 class="adetail__title adetail__title--sm">
+        {galleryPhotos.length} {tr.apartment.photos}
+      </h2>
+      <Gallery photos={galleryPhotos} />
+    </section>
+
+    <!-- Precios -->
+    <section class="adetail__section" data-reveal id="cennik">
+      <span class="eyebrow">{tr.pricing.title}</span>
+      <h2 class="adetail__title adetail__title--sm">{tr.home.pricingTitle}</h2>
+
+      <div class="atable">
+        <div class="atable__row">
+          <span class="atable__season">{tr.pricing.lowSeason}</span>
+          <span class="atable__price">
+            {formatPLN(apartment.pricing.lowSeasonPLN)}
+            <em>{tr.apartment.perNight}</em>
+          </span>
+          <span class="atable__note">{tr.pricing.lowSeasonDates}</span>
+        </div>
+        <div class="atable__row atable__row--accent">
+          <span class="atable__season">{tr.pricing.highSeason}</span>
+          <span class="atable__price">
+            {formatPLN(apartment.pricing.highSeasonPLN)}
+            <em>{tr.apartment.perNight}</em>
+          </span>
+          <span class="atable__note">{tr.pricing.highSeasonDates}</span>
+        </div>
+      </div>
+
+      <ul class="atable__extras" role="list">
+        <li><strong>{tr.pricing.discounts}:</strong> {tr.pricing.discount7} · {tr.pricing.discount13}</li>
+        <li><strong>{tr.pricing.minStay}:</strong> {tr.pricing.minStayDates}</li>
+      </ul>
+
+      <a class="link-arrow" href={localeLink(locale, "/cennik/")}>{tr.home.pricingFull}</a>
+    </section>
+
+    <!-- Ubicación -->
+    <section class="adetail__section" data-reveal>
+      <span class="eyebrow">{tr.nav.location}</span>
+      <h2 class="adetail__title adetail__title--sm">{tr.home.locationTitle}</h2>
+      <p class="lead">{tr.home.locationLead}</p>
+      <div class="amap">
+        <MapEmbed zoom={13} />
+      </div>
+      <p class="amap__addr">
+        <Icon name="pin" size={16} />
+        {site.address.full}
+      </p>
+    </section>
+  </div>
+
+  <!-- Panel de reserva fijo -->
+  <aside class="adetail__aside">
+    <div class="abook" data-reveal>
+      <div class="abook__head">
+        <span class="abook__eyebrow">{tr.apartment.stickyTitle}</span>
+        <span class="abook__price">
+          <em>{tr.apartment.from}</em>
+          {formatPLN(apartment.pricing.lowSeasonPLN)}
+          <span>{tr.apartment.perNight}</span>
+        </span>
+      </div>
+      <p class="abook__text">{tr.apartment.stickyText}</p>
+
+      <BookingForm apartmentId={apartment.id} compact />
+
+      <div class="abook__trust">
+        <span><Icon name="shield" size={15} /> {tr.trust.verified}</span>
+        <span><Icon name="clock" size={15} /> {tr.form.fastReply}</span>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- =============================================== OTROS APARTAMENTOS -->
+<section class="section section--bg">
+  <div class="container">
+    <div class="section-head-split">
+      <div class="section-head-split__text" data-reveal>
+        <span class="eyebrow">{tr.apartment.sameStandard}</span>
+        <h2>{tr.apartment.other}</h2>
+        <p class="lead">{tr.apartment.compareLead}</p>
+      </div>
+      <a class="btn btn--outline" href={localeLink(locale, "/apartamenty/")} data-reveal>
+        {tr.cta.backToApartments}
+      </a>
+    </div>
+
+    <div class="aothers">
+      {otherApartments.map((other, index) => (
+        <ApartmentCard apartment={other} layout="vertical" index={index} locale={locale} />
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* -------------------------------------------------------------- Migas */
+
+  .crumbs {
+    padding-top: calc(var(--header-height) + var(--space-6));
+    padding-bottom: var(--space-4);
+    background: var(--color-bg);
+  }
+
+  @media (min-width: 1024px) {
+    .crumbs {
+      padding-top: calc(var(--header-height-lg) + var(--space-6));
+    }
+  }
+
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+
+  .crumbs li:not(:last-child)::after {
+    content: "/";
+    margin-left: var(--space-2);
+    opacity: 0.5;
+  }
+
+  .crumbs a {
+    color: var(--color-text-muted);
+  }
+
+  .crumbs a:hover {
+    color: var(--color-accent);
+  }
+
+  .crumbs li[aria-current] {
+    color: var(--color-text);
+    font-weight: var(--weight-medium);
+  }
+
+  /* --------------------------------------------------------------- Hero */
+
+  .ahero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 68svh;
+    padding-block: var(--space-16) var(--space-12);
+    color: var(--color-text-inverse);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  @media (min-width: 1024px) {
+    .ahero {
+      min-height: 74svh;
+    }
+  }
+
+  .ahero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .ahero__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(6, 14, 11, 0.9) 0%, rgba(6, 14, 11, 0.38) 55%, rgba(6, 14, 11, 0.2) 100%);
+  }
+
+  .ahero__title {
+    margin-top: var(--space-4);
+    font-size: var(--text-5xl);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tighter);
+    color: var(--color-text-inverse);
+    text-shadow: 0 2px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  .ahero__lede {
+    margin-top: var(--space-4);
+    font-size: var(--text-lg);
+    color: var(--on-dark-text);
+    max-width: 52ch;
+  }
+
+  .ahero__specs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--on-dark-border);
+  }
+
+  @media (min-width: 640px) {
+    .ahero__specs {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  .ahero__specs li {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    color: var(--on-dark-text);
+  }
+
+  .ahero__specs :global(.icon) {
+    color: #7fc59c;
+    margin-bottom: var(--space-1);
+  }
+
+  .ahero__spec-value {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: 1;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ahero__spec-label {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--on-dark-text-muted);
+  }
+
+  /* -------------------------------------------------------------- Cuerpo */
+
+  .adetail {
+    display: grid;
+    gap: var(--space-12);
+    padding-block: var(--space-16);
+  }
+
+  @media (min-width: 1024px) {
+    .adetail {
+      grid-template-columns: minmax(0, 1fr) 23rem;
+      gap: var(--space-16);
+      padding-block: var(--space-20);
+    }
+  }
+
+  .adetail__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    min-width: 0;
+  }
+
+  .adetail__title {
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-5);
+    font-size: var(--text-4xl);
+  }
+
+  .adetail__title--sm {
+    font-size: var(--text-3xl);
+  }
+
+  /* Puntos fuertes */
+
+  .ahighlights {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .ahighlights li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+  }
+
+  .ahighlights__check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    background: var(--color-accent-faded);
+    color: var(--color-accent);
+    margin-top: 0.1em;
+  }
+
+  /* Distribución */
+
+  .alayout {
+    display: grid;
+    gap: var(--space-4);
+    counter-reset: step;
+  }
+
+  .alayout li {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+  }
+
+  .alayout__num {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--color-accent);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Equipamiento */
+
+  .aamen {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3) var(--space-6);
+  }
+
+  @media (min-width: 560px) {
+    .aamen {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .aamen {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .aamen li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .aamen :global(.icon) {
+    color: var(--color-accent);
+  }
+
+  /* Tabla de precios */
+
+  .atable {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-bg-elevated);
+  }
+
+  .atable__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  @media (min-width: 640px) {
+    .atable__row {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: var(--space-6);
+    }
+  }
+
+  .atable__row--accent {
+    background: var(--color-accent-faded);
+  }
+
+  .atable__season {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text);
+  }
+
+  .atable__price {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: 1;
+    color: var(--color-accent);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .atable__price em {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-left: var(--space-2);
+  }
+
+  .atable__note {
+    grid-column: 1 / -1;
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+
+  .atable__extras {
+    display: grid;
+    gap: var(--space-2);
+    margin-block: var(--space-5);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .atable__extras strong {
+    color: var(--color-text);
+  }
+
+  /* Mapa */
+
+  .amap {
+    margin-top: var(--space-5);
+    height: 22rem;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-line);
+  }
+
+  .amap__addr {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  .amap__addr :global(.icon) {
+    color: var(--color-accent);
+  }
+
+  /* Panel de reserva */
+
+  .adetail__aside {
+    min-width: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .abook {
+      position: sticky;
+      top: calc(var(--header-height-lg) + var(--space-6));
+    }
+  }
+
+  .abook {
+    padding: var(--space-6);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+  }
+
+  .abook__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-bottom: var(--space-5);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .abook__eyebrow {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .abook__price {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .abook__price em {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+    margin-right: var(--space-1);
+  }
+
+  .abook__price span {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+
+  .abook__text {
+    margin-block: var(--space-4) var(--space-5);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  .abook__trust {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-line);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  .abook__trust span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .abook__trust :global(.icon) {
+    color: var(--color-accent);
+  }
+
+  /* Otros apartamentos */
+
+  .aothers {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 640px) {
+    .aothers {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .aothers {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

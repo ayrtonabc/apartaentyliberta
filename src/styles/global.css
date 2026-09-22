@@ -1,0 +1,14 @@
+/* ============================================================================
+   GLOBAL — Punto de entrada único del sistema de diseño.
+   ----------------------------------------------------------------------------
+   Al importar un solo archivo desde el layout, Vite agrupa todo el CSS del
+   sitio (tokens + base + tipografía + layout + componentes + utilidades) en un
+   único bundle cacheable, en lugar de generar un <link> por cada hoja.
+   ============================================================================ */
+
+@import "./tokens.css";
+@import "./base.css";
+@import "./typography.css";
+@import "./layout.css";
+@import "./components.css";
+@import "./utilities.css";

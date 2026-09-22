@@ -1,0 +1,32 @@
+---
+/**
+ * /en/booking/ — reserva (inglés).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import BookingPage from "~/components/sections/BookingPage.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "en";
+const tr = t(locale);
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.nav.booking, path: "/rezerwacja/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Book an apartment on Lake Szeląg"
+  description="Book directly with the owner — no platform commission. Check availability, send your dates and get confirmation within 24 hours. A 30% deposit confirms the booking."
+  canonicalPath="/rezerwacja/"
+  ogImage="/og-terrace.jpg"
+  schema={schema}
+>
+  <BookingPage locale={locale} />
+</BaseLayout>

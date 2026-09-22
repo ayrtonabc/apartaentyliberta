@@ -1,0 +1,28 @@
+---
+/**
+ * Home (PL) — idioma por defecto, sin prefijo de URL.
+ * El cuerpo vive en el componente compartido HomeContent para que las tres
+ * versiones de idioma compartan estructura y diseño.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import HomeContent from "~/components/sections/HomeContent.astro";
+import { getLocaleFromUrl } from "~/lib/i18n";
+import { buildFaqSchema } from "~/lib/seo";
+import { getFaq } from "~/data/faq";
+
+const locale = getLocaleFromUrl(Astro.url);
+const faqSchema = buildFaqSchema(getFaq(locale));
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Apartamenty z balią i widokiem na Jezioro Szeląg"
+  description="Cztery luksusowe apartamenty 80 m² z prywatną balią góralską, 105 m od Jeziora Szeląg Wielki w Starych Jabłonkach na Mazurach. Klimatyzacja, taras, Netflix. Od 700 zł za noc."
+  canonicalPath="/"
+  ogImage="/og-default.jpg"
+  preloadImage="/assets/hero/hero-1.webp"
+  schema={faqSchema}
+>
+  <HomeContent locale={locale} />
+</BaseLayout>

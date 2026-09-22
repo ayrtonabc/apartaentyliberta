@@ -1,0 +1,1051 @@
+---
+/**
+ * SearchResults — página de resultados de la búsqueda del hero.
+ *
+ * QUÉ PASA AQUÍ
+ *
+ * El buscador de la portada envía sus fechas por GET. Antes caía directamente
+ * sobre el formulario de reserva, que no daba ninguna respuesta a "¿hay sitio?":
+ * el huésped rellenaba otro formulario y esperaba un correo. Ahora la búsqueda
+ * tiene su propia página de resultados, con el mismo lenguaje que usan las webs
+ * de reservas: primero un estado de búsqueda, después el resultado.
+ *
+ * ESTA PÁGINA ES SSR (prerender = false) porque lee la disponibilidad en cada
+ * petición. Si se prerenderizara, quedaría congelada con las fechas del build.
+ *
+ * LO QUE SE PUEDE AFIRMAR Y LO QUE NO
+ *
+ * El iCal de Booking es agregado de la propiedad: dice si la casa está llena,
+ * no qué unidad. Por eso los cuatro apartamentos aparecen con el MISMO estado y
+ * la página lo dice con todas las letras en lugar de fingir un reparto que el
+ * dato no sostiene. Ver `availabilityByApartment` en src/lib/availability.ts.
+ */
+import { type Locale, localeLink, t } from "~/lib/i18n";
+import {
+  addDays,
+  availabilityByApartment,
+  checkAvailability,
+  findNearestAvailable,
+  loadBookedRanges,
+  nightsBetween,
+  todayIso,
+} from "~/lib/availability";
+import { apartments } from "~/data/apartments";
+import { formatPLN } from "~/lib/format";
+
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Icon from "~/components/ui/Icon.astro";
+import SmartImage from "~/components/ui/SmartImage.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const tr = t(locale);
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const checkInParam = Astro.url.searchParams.get("checkIn") ?? "";
+const checkOutParam = Astro.url.searchParams.get("checkOut") ?? "";
+const guestsParam = Number(Astro.url.searchParams.get("guests") ?? "0");
+
+const checkIn = DATE_RE.test(checkInParam) ? checkInParam : "";
+const checkOut = DATE_RE.test(checkOutParam) ? checkOutParam : "";
+const guests = Number.isFinite(guestsParam) && guestsParam > 0 ? Math.min(guestsParam, 8) : 0;
+
+/** Una búsqueda es válida si trae fechas y la salida es posterior a la entrada. */
+const noches = checkIn && checkOut ? nightsBetween(checkIn, checkOut) : 0;
+const busquedaValida = noches > 0;
+
+const { ranges, source } = await loadBookedRanges();
+
+const resultado = busquedaValida ? checkAvailability(ranges, checkIn, checkOut) : { available: false, conflicts: [] };
+const disponibles = busquedaValida
+  ? availabilityByApartment(apartments, ranges, checkIn, checkOut)
+  : apartments.map((a) => ({ id: a.id, available: false }));
+const hayDisponibles = disponibles.some((d) => d.available);
+
+/** Fechas alternativas: solo tiene sentido buscarlas si NO hay disponibilidad. */
+const alternativas =
+  busquedaValida && !resultado.available ? findNearestAvailable(ranges, checkIn, checkOut) : {};
+
+/**
+ * Rango ocupado que bloquea la búsqueda, para poder decir CUÁNDO está libre la
+ * casa. Se toma el primer conflicto: es el que explica el "no".
+ */
+const conflicto = resultado.conflicts[0];
+
+const copy = {
+  pl: {
+    searching: "Szukamy wolnych terminów…",
+    searchingNote: "Sprawdzamy kalendarz apartamentów",
+    foundTitle: "Dostępne w wybranych terminach",
+    foundLead: "Te daty są wolne. Wybierz apartament i wyślij zapytanie — potwierdzamy w kilka godzin.",
+    busyTitle: "Termin zajęty",
+    busyLead: "W wybranych datach nie mamy wolnego apartamentu. Poniżej najbliższe wolne terminy.",
+    invalidTitle: "Uzupełnij daty",
+    invalidLead: "Wybierz datę przyjazdu i wyjazdu, żeby sprawdzić dostępność.",
+    nights: "nocy",
+    guests: "gości",
+    checkin: "Przyjazd",
+    checkout: "Wyjazd",
+    changeDates: "Zmień daty",
+    searchAgain: "Szukaj ponownie",
+    evening: "Wieczór",
+    occupied: "Zajęte",
+    free: "Wolne",
+    blockedBy: "Zajęte od",
+    to: "do",
+    nearestBefore: "Najbliższy wolny termin przed",
+    nearestAfter: "Najbliższy wolny termin po",
+    sameCalendar:
+      "Wszystkie apartamenty mają ten sam kalendarz, więc wolny termin oznacza cztery wolne apartamenty. Przy potwierdzeniu proponujemy konkretny.",
+    allFour: "Cztery apartamenty, identyczny standard",
+    from: "od",
+    perNight: "/ noc",
+    forNights: "za",
+    select: "Wybierz ten termin",
+    ask: "Zapytaj o te daty",
+    seeApartment: "Zobacz apartament",
+    summary: "Podsumowanie",
+    noConflict: "Brak kolizji w kalendarzu",
+  },
+  en: {
+    searching: "Searching for available dates…",
+    searchingNote: "Checking the apartment calendar",
+    foundTitle: "Available on your dates",
+    foundLead: "These dates are free. Pick an apartment and send your enquiry — we confirm within hours.",
+    busyTitle: "Those dates are taken",
+    busyLead: "We have no apartment free on the dates you chose. Here are the nearest available stays.",
+    invalidTitle: "Add your dates",
+    invalidLead: "Choose an arrival and a departure date to check availability.",
+    nights: "nights",
+    guests: "guests",
+    checkin: "Arrival",
+    checkout: "Departure",
+    changeDates: "Change dates",
+    searchAgain: "Search again",
+    evening: "Evening",
+    occupied: "Taken",
+    free: "Free",
+    blockedBy: "Booked from",
+    to: "to",
+    nearestBefore: "Nearest free dates before",
+    nearestAfter: "Nearest free dates after",
+    sameCalendar:
+      "All apartments share one calendar, so a free date means all four are free. We suggest a specific one when we confirm.",
+    allFour: "Four apartments, identical standard",
+    from: "from",
+    perNight: "/ night",
+    forNights: "for",
+    select: "Choose these dates",
+    ask: "Ask about these dates",
+    seeApartment: "View apartment",
+    summary: "Summary",
+    noConflict: "No clash in the calendar",
+  },
+  de: {
+    searching: "Wir suchen freie Termine…",
+    searchingNote: "Kalender der Ferienwohnungen wird geprüft",
+    foundTitle: "Für Ihre Daten verfügbar",
+    foundLead: "Diese Daten sind frei. Wählen Sie eine Wohnung und senden Sie die Anfrage — wir bestätigen innerhalb weniger Stunden.",
+    busyTitle: "Dieser Termin ist belegt",
+    busyLead: "Für Ihre Daten ist keine Wohnung frei. Hier die nächstgelegenen freien Termine.",
+    invalidTitle: "Daten ergänzen",
+    invalidLead: "Bitte An- und Abreisedatum wählen, um die Verfügbarkeit zu prüfen.",
+    nights: "Nächte",
+    guests: "Gäste",
+    checkin: "Anreise",
+    checkout: "Abreise",
+    changeDates: "Daten ändern",
+    searchAgain: "Erneut suchen",
+    evening: "Abend",
+    occupied: "Belegt",
+    free: "Frei",
+    blockedBy: "Belegt ab",
+    to: "bis",
+    nearestBefore: "Nächster freier Termin davor",
+    nearestAfter: "Nächster freier Termin danach",
+    sameCalendar:
+      "Alle Wohnungen teilen einen Kalender: ein freier Termin bedeutet vier freie Wohnungen. Die konkrete Wohnung schlagen wir bei der Bestätigung vor.",
+    allFour: "Vier Ferienwohnungen, identischer Standard",
+    from: "ab",
+    perNight: "/ Nacht",
+    forNights: "für",
+    select: "Diesen Termin wählen",
+    ask: "Für diese Daten anfragen",
+    seeApartment: "Wohnung ansehen",
+    summary: "Übersicht",
+    noConflict: "Keine Überschneidung im Kalender",
+  },
+}[locale];
+
+/** Fecha larga en el idioma de la página, sin depender del locale del sistema. */
+const meses: Record<Locale, string[]> = {
+  pl: ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"],
+  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+};
+
+const fmtFecha = (iso: string) => {
+  if (!iso) return "—";
+  const [y, m, d] = iso.split("-");
+  return `${Number(d)} ${meses[locale][Number(m) - 1]} ${y}`;
+};
+
+const rango = (from: string, to: string) => `${fmtFecha(from)} → ${fmtFecha(to)}`;
+
+/** Enlace a la reserva con las fechas puestas. */
+const linkReserva = (from: string, to: string) => {
+  const q = new URLSearchParams({ checkIn: from, checkOut: to });
+  if (guests) q.set("guests", String(guests));
+  return `${localeLink(locale, "/rezerwacja/")}?${q.toString()}`;
+};
+
+/**
+ * Ocupación de los próximos 60 días, para una tira de calendario.
+ *
+ * Es lo que convierte el "no hay sitio" en información útil: el huésped ve de un
+ * vistazo dónde está el hueco en lugar de probar fechas a ciegas.
+ */
+const hoy = todayIso();
+const horizonte = 60;
+const dias = Array.from({ length: horizonte }, (_, i) => {
+  const fecha = addDays(hoy, i);
+  return {
+    iso: fecha,
+    libre: checkAvailability(ranges, fecha, addDays(fecha, 1)).available,
+    dia: Number(fecha.slice(8, 10)),
+    primerDiaDelMes: fecha.slice(8, 10) === "01",
+    mes: meses[locale][Number(fecha.slice(5, 7)) - 1],
+  };
+});
+
+const origenDatos =
+  source === "cache"
+    ? locale === "pl"
+      ? "Kalendarz Booking.com"
+      : locale === "de"
+        ? "Booking.com-Kalender"
+        : "Booking.com calendar"
+    : locale === "pl"
+      ? "Dane przykładowe"
+      : locale === "de"
+        ? "Beispieldaten"
+        : "Sample data";
+---
+
+<BaseLayout
+  title={
+    locale === "pl"
+      ? "Wyniki wyszukiwania — Apartamenty Liberta"
+      : locale === "de"
+        ? "Suchergebnisse — Apartamenty Liberta"
+        : "Search results — Apartamenty Liberta"
+  }
+  description={
+    locale === "pl"
+      ? "Sprawdź dostępność apartamentów w Starych Jabłonkach na wybrane daty."
+      : locale === "de"
+        ? "Prüfen Sie die Verfügbarkeit der Ferienwohnungen in Stare Jabłonki für Ihre Daten."
+        : "Check apartment availability in Stare Jabłonki for your dates."
+  }
+  canonicalPath="/rezerwacja/wyniki/"
+  noindex
+>
+  <!-- ================================================== ESTADO DE BÚSQUEDA -->
+  <!--
+    La animación de "buscando" es la que usan las webs de reservas: da tiempo a
+    que la página cargue y a que el resultado se lea como una respuesta a una
+    consulta, no como una página que aparece de golpe.
+  -->
+  <div class="srch" data-search-results>
+    <div class="srch__overlay" data-srch-overlay aria-hidden="true">
+      <div class="srch__spinner" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="srch__overlay-title">{copy.searching}</p>
+      <p class="srch__overlay-note">{copy.searchingNote}</p>
+    </div>
+
+    <div class="container">
+      <!-- ============================================ CABECERA DE RESULTADO -->
+      <header class="srch__head" data-reveal>
+        <p class="srch__crumbs">
+          <a href={localeLink(locale, "/")}>{tr.nav.home}</a>
+          <span aria-hidden="true">/</span>
+          <a href={localeLink(locale, "/rezerwacja/")}>{tr.nav.booking}</a>
+        </p>
+
+        {busquedaValida ? (
+          <h1 class="srch__title" data-srch-title>
+            {hayDisponibles ? copy.foundTitle : copy.busyTitle}
+          </h1>
+        ) : (
+          <h1 class="srch__title">{copy.invalidTitle}</h1>
+        )}
+
+        <p class="srch__lead" data-srch-lead>
+          {busquedaValida ? (hayDisponibles ? copy.foundLead : copy.busyLead) : copy.invalidLead}
+        </p>
+
+        <!-- Resumen de la búsqueda: qué se pidió, en una línea -->
+        {busquedaValida && (
+          <dl class="srch__summary">
+            <div>
+              <dt>{copy.checkin}</dt>
+              <dd>{fmtFecha(checkIn)}</dd>
+            </div>
+            <div>
+              <dt>{copy.checkout}</dt>
+              <dd>{fmtFecha(checkOut)}</dd>
+            </div>
+            <div>
+              <dt>{copy.summary}</dt>
+              <dd>{noches} {copy.nights}{guests ? ` · ${guests} ${copy.guests}` : ""}</dd>
+            </div>
+          </dl>
+        )}
+
+        <!-- Formulario para repetir la búsqueda sin volver a la portada -->
+        <form class="srch__form" method="get" action={localeLink(locale, "/rezerwacja/wyniki/")}>
+          <div class="srch__field">
+            <label for="srch-in">{copy.checkin}</label>
+            <input type="date" id="srch-in" name="checkIn" value={checkIn} min={hoy} required />
+          </div>
+          <div class="srch__field">
+            <label for="srch-out">{copy.checkout}</label>
+            <input type="date" id="srch-out" name="checkOut" value={checkOut} min={hoy} required />
+          </div>
+          <div class="srch__field srch__field--sm">
+            <label for="srch-guests">{tr.form.guests}</label>
+            <input type="number" id="srch-guests" name="guests" min="1" max="8" value={guests || 6} />
+          </div>
+          <button class="btn btn--primary srch__submit" type="submit">{copy.searchAgain}</button>
+        </form>
+      </header>
+
+      <!-- ===================================================== APARTAMENTOS -->
+      {busquedaValida && (
+        <section class="srch__results" aria-live="polite">
+          <p class="srch__note">
+            <Icon name="info" size={15} />
+            {copy.sameCalendar}
+          </p>
+
+          <ul class="srch__list" role="list">
+            {apartments.map((apartment, index) => {
+              const estado = disponibles.find((d) => d.id === apartment.id);
+              return (
+                <li
+                  class:list={["srch__card", estado?.available ? "is-free" : "is-busy"]}
+                  data-reveal
+                  style={`--reveal-delay:${index * 60}ms`}
+                >
+                  <figure class="srch__media">
+                    <SmartImage
+                      src={`/assets/apartments/${apartment.id}/exterior-dzien.jpg`}
+                      alt={apartment.names[locale]}
+                      sizes="(min-width: 900px) 30vw, 100vw"
+                    />
+                    <span class:list={["srch__badge", estado?.available && "srch__badge--free"]}>
+                      <Icon name={estado?.available ? "check" : "info"} size={13} />
+                      {estado?.available ? copy.free : copy.occupied}
+                    </span>
+                  </figure>
+
+                  <div class="srch__body">
+                    <h2 class="srch__name">{apartment.names[locale]}</h2>
+                    <p class="srch__specs">
+                      {apartment.specs.sizeM2} m² · {apartment.specs.sleeps}+{apartment.specs.extraSleeps} ·{" "}
+                      {apartment.specs.bedrooms} {tr.apartment.bedrooms}
+                    </p>
+
+                    <p class="srch__price">
+                      <span>{copy.from}</span>
+                      <strong class="tnum">{formatPLN(apartment.pricing.lowSeasonPLN)}</strong>
+                      <span>{copy.perNight}</span>
+                    </p>
+
+                    {estado?.available ? (
+                      <a class="btn btn--primary srch__cta" href={linkReserva(checkIn, checkOut)}>
+                        {copy.ask}
+                      </a>
+                    ) : (
+                      <span class="srch__cta srch__cta--disabled">
+                        {conflicto
+                          ? `${copy.blockedBy} ${fmtFecha(conflicto.start)} ${copy.to} ${fmtFecha(conflicto.end)}`
+                          : copy.occupied}
+                      </span>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      <!-- ================================================ FECHAS ALTERNATIVAS -->
+      {busquedaValida && !hayDisponibles && (alternativas.antes || alternativas.despues) && (
+        <section class="srch__alt">
+          <h2 class="srch__alt-title">
+            {locale === "pl"
+              ? "Najbliższe wolne terminy"
+              : locale === "de"
+                ? "Nächstgelegene freie Termine"
+                : "Nearest available dates"}
+          </h2>
+
+          <div class="srch__alt-grid">
+            {alternativas.antes && (
+              <a class="srch__alt-card" href={linkReserva(alternativas.antes.start, alternativas.antes.end)}>
+                <span class="srch__alt-label">{copy.nearestBefore}</span>
+                <strong class="srch__alt-range">
+                  {rango(alternativas.antes.start, alternativas.antes.end)}
+                </strong>
+                <span class="srch__alt-nights">
+                  {nightsBetween(alternativas.antes.start, alternativas.antes.end)} {copy.nights}
+                </span>
+                <span class="srch__alt-cta">
+                  {copy.select}
+                  <Icon name="arrow-right" size={14} />
+                </span>
+              </a>
+            )}
+
+            {alternativas.despues && (
+              <a class="srch__alt-card" href={linkReserva(alternativas.despues.start, alternativas.despues.end)}>
+                <span class="srch__alt-label">{copy.nearestAfter}</span>
+                <strong class="srch__alt-range">
+                  {rango(alternativas.despues.start, alternativas.despues.end)}
+                </strong>
+                <span class="srch__alt-nights">
+                  {nightsBetween(alternativas.despues.start, alternativas.despues.end)} {copy.nights}
+                </span>
+                <span class="srch__alt-cta">
+                  {copy.select}
+                  <Icon name="arrow-right" size={14} />
+                </span>
+              </a>
+            )}
+          </div>
+        </section>
+      )}
+
+      <!-- ========================================================= CALENDARIO -->
+      <section class="srch__cal">
+        <div class="srch__cal-head">
+          <h2 class="srch__alt-title">
+            {locale === "pl"
+              ? "Najbliższe 60 dni"
+              : locale === "de"
+                ? "Die nächsten 60 Tage"
+                : "The next 60 days"}
+          </h2>
+          <p class="srch__cal-source">{origenDatos}</p>
+        </div>
+
+        <ul class="srch__cal-strip" role="list">
+          {dias.map((d) => (
+            <li
+              class:list={["srch__day", d.libre ? "is-free" : "is-busy", d.primerDiaDelMes && "is-first"]}
+              title={`${d.iso} · ${d.libre ? copy.free : copy.occupied}`}
+            >
+              {d.primerDiaDelMes && <span class="srch__day-month">{d.mes}</span>}
+              <span class="srch__day-num">{d.dia}</span>
+            </li>
+          ))}
+        </ul>
+
+        <p class="srch__legend">
+          <span class="srch__legend-item"><i class="is-free"></i>{copy.free}</span>
+          <span class="srch__legend-item"><i class="is-busy"></i>{copy.occupied}</span>
+        </p>
+      </section>
+
+      <p class="srch__back">
+        <a class="btn btn--outline" href={localeLink(locale, "/rezerwacja/")}>
+          {locale === "pl"
+            ? "Przejdź do formularza rezerwacji"
+            : locale === "de"
+              ? "Zum Buchungsformular"
+              : "Go to the booking form"}
+        </a>
+      </p>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  /* ==================================================== ESTADO DE BÚSQUEDA */
+
+  .srch {
+    padding-top: calc(var(--header-height) + var(--space-10));
+    padding-bottom: var(--space-16);
+    background: var(--color-bg);
+  }
+
+  @media (min-width: 1024px) {
+    .srch {
+      padding-top: calc(var(--header-height-lg) + var(--space-10));
+    }
+  }
+
+  /*
+   * La capa de "buscando".
+   *
+   * Se quita sola: el script le pone `hidden` cuando el contenido está listo, y
+   * si el script no llega a ejecutarse, un `animation` la desvanece igualmente a
+   * los 1,2 s. Es decir: sin JS la página se ve, no se queda tapada.
+   */
+  .srch__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-drawer);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    background: var(--color-bg);
+    animation: srch-fade-out 0.45s var(--ease-out) 1.15s forwards;
+  }
+
+  .srch__overlay[hidden] {
+    display: none;
+  }
+
+  @keyframes srch-fade-out {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* Sin animación no hay salida automática: se oculta de inmediato */
+    .srch__overlay {
+      display: none;
+    }
+  }
+
+  .srch__spinner {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .srch__spinner span {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    animation: srch-bounce 0.9s var(--ease-out) infinite;
+  }
+
+  .srch__spinner span:nth-child(2) {
+    animation-delay: 0.12s;
+  }
+
+  .srch__spinner span:nth-child(3) {
+    animation-delay: 0.24s;
+  }
+
+  @keyframes srch-bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.45;
+    }
+    50% {
+      transform: translateY(-0.4rem);
+      opacity: 1;
+    }
+  }
+
+  .srch__overlay-title {
+    max-width: none;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+  }
+
+  .srch__overlay-note {
+    max-width: none;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  /* ================================================== CABECERA DE RESULTADO */
+
+  .srch__head {
+    max-width: 52rem;
+    margin-bottom: var(--space-10);
+  }
+
+  .srch__crumbs {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    max-width: none;
+  }
+
+  .srch__crumbs a {
+    color: inherit;
+  }
+
+  .srch__crumbs a:hover {
+    color: var(--color-accent);
+  }
+
+  .srch__title {
+    font-size: var(--text-4xl);
+    margin-bottom: var(--space-3);
+  }
+
+  .srch__lead {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .srch__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-8);
+    margin-top: var(--space-6);
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-accent-faded);
+    border-radius: var(--radius-lg);
+  }
+
+  .srch__summary div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .srch__summary dt {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .srch__summary dd {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --- Buscador para repetir la consulta --- */
+
+  .srch__form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding: var(--space-4);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+  }
+
+  @media (min-width: 768px) {
+    .srch__form {
+      grid-template-columns: 1fr 1fr 0.7fr auto;
+      align-items: end;
+    }
+  }
+
+  .srch__field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .srch__field label {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .srch__field input {
+    width: 100%;
+    padding: 0.6rem 0.5rem;
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===================================================== APARTAMENTOS */
+
+  .srch__results {
+    margin-bottom: var(--space-12);
+  }
+
+  .srch__note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  .srch__note :global(.icon) {
+    color: var(--color-accent);
+    margin-top: 0.15em;
+    flex-shrink: 0;
+  }
+
+  .srch__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 640px) {
+    .srch__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .srch__list {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .srch__card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+  }
+
+  /*
+   * La tarjeta ocupada no se oculta: se atenúa. Esconderla dejaría al huésped
+   * sin saber qué hay, y en una casa de cuatro unidades iguales la información
+   * útil es precisamente "las cuatro están ocupadas esas fechas".
+   */
+  .srch__card.is-busy {
+    opacity: 0.62;
+  }
+
+  .srch__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--color-bg-muted);
+  }
+
+  .srch__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .srch__badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0.3rem 0.65rem;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(6, 14, 11, 0.78);
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(8px);
+  }
+
+  .srch__badge--free {
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+  }
+
+  .srch__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    flex: 1;
+  }
+
+  .srch__name {
+    font-size: var(--text-lg);
+  }
+
+  .srch__specs {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    max-width: none;
+  }
+
+  .srch__price {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  .srch__price strong {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .srch__cta {
+    margin-top: auto;
+    justify-content: center;
+  }
+
+  .srch__cta--disabled {
+    padding-top: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+
+  /* ================================================ FECHAS ALTERNATIVAS */
+
+  .srch__alt {
+    margin-bottom: var(--space-12);
+  }
+
+  .srch__alt-title {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-5);
+  }
+
+  .srch__alt-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .srch__alt-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .srch__alt-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    transition: border-color var(--transition-base), transform var(--transition-base), box-shadow var(--transition-slow);
+  }
+
+  .srch__alt-card:hover {
+    transform: translateY(-3px);
+    border-color: transparent;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .srch__alt-label {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .srch__alt-range {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-normal);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .srch__alt-nights {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .srch__alt-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  /* ========================================================= CALENDARIO */
+
+  .srch__cal {
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .srch__cal-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+  }
+
+  .srch__cal-source {
+    max-width: none;
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+
+  /*
+   * Tira de 60 días en una sola línea con scroll horizontal: cabe en móvil sin
+   * partirse en varias filas y deja ver la forma de la ocupación de un vistazo.
+   */
+  .srch__cal-strip {
+    display: flex;
+    gap: 3px;
+    overflow-x: auto;
+    padding-bottom: var(--space-3);
+    scrollbar-width: thin;
+  }
+
+  .srch__day {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2.4rem;
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    border-radius: var(--radius-xs);
+  }
+
+  .srch__day.is-free {
+    background: var(--color-accent-faded);
+    color: var(--color-accent);
+  }
+
+  .srch__day.is-busy {
+    background: var(--color-line);
+    color: var(--color-text-subtle);
+  }
+
+  .srch__day.is-first {
+    margin-left: var(--space-3);
+  }
+
+  .srch__day-month {
+    position: absolute;
+    top: -1.1rem;
+    left: 0;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .srch__legend {
+    display: flex;
+    gap: var(--space-5);
+    margin-top: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  .srch__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .srch__legend-item i {
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: var(--radius-xs);
+  }
+
+  .srch__legend-item i.is-free {
+    background: var(--color-accent-faded);
+  }
+
+  .srch__legend-item i.is-busy {
+    background: var(--color-line);
+  }
+
+  .srch__back {
+    margin-top: var(--space-10);
+    max-width: none;
+  }
+</style>
+
+<script>
+  /**
+   * Retira la capa de "buscando" cuando el contenido está listo.
+   *
+   * El CSS ya la desvanece sola a los 1,2 s, así que esto no es imprescindible;
+   * sirve para que la salida coincida con la carga real en lugar de con un
+   * temporizador fijo. Si el script no corre, la página sigue viéndose.
+   */
+  const overlay = document.querySelector("[data-srch-overlay]");
+
+  if (overlay) {
+    const quitar = () => {
+      overlay.setAttribute("hidden", "");
+      overlay.setAttribute("aria-hidden", "true");
+    };
+
+    if (document.readyState === "complete") quitar();
+    else window.addEventListener("load", quitar, { once: true });
+
+    // Red de seguridad: pase lo que pase, nunca deja la capa tapando la página
+    window.setTimeout(quitar, 3000);
+  }
+</script>

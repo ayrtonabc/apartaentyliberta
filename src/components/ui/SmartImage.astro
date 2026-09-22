@@ -1,0 +1,116 @@
+---
+/**
+ * SmartImage — imagen responsiva con srcset, dimensiones intrínsecas y blur-up.
+ *
+ * Resuelve la variante correcta desde src/data/image-manifest.json (generado por
+ * scripts/responsive-images.mjs). Ventajas frente a <img src> plano:
+ *   - srcset + sizes → el navegador descarga el ancho adecuado al viewport
+ *   - width/height reales → cero layout shift
+ *   - placeholder LQIP en base64 → el hueco nunca se ve vacío
+ *   - loading/decoding/fetchpriority controlables
+ *
+ * Uso:
+ *   <SmartImage src="/assets/hero/hero-1.webp" alt="..." sizes="100vw" priority />
+ */
+import manifest from "~/data/image-manifest.json";
+
+interface ManifestEntry {
+  width: number;
+  height: number;
+  lqip: string;
+  widths: number[];
+  fallback: string;
+}
+
+const map = manifest as unknown as Record<string, ManifestEntry>;
+
+interface Props {
+  /** Ruta pública de la imagen original, ej. "/assets/hero/hero-1.webp" */
+  src: string;
+  alt: string;
+  /** Atributo sizes; determina qué ancho descarga el navegador */
+  sizes?: string;
+  /** Carga eager + fetchpriority high (solo para la imagen LCP) */
+  priority?: boolean;
+  /** Clases extra para el elemento <img> */
+  class?: string;
+  /** object-position, ej. "center 60%" */
+  position?: string;
+  /** Sobrescribe el ancho intrínseco (por defecto el del manifiesto) */
+  width?: number;
+  height?: number;
+  /** Desactiva el placeholder blur-up */
+  noPlaceholder?: boolean;
+}
+
+const {
+  src,
+  alt,
+  sizes = "100vw",
+  priority = false,
+  class: className,
+  position,
+  width,
+  height,
+  noPlaceholder = false,
+} = Astro.props;
+
+const key = src.replace(/^\//, "");
+const entry = map[key];
+
+const intrinsicW = width ?? entry?.width;
+const intrinsicH = height ?? entry?.height;
+
+const srcset = entry
+  ? entry.widths
+      .map((w) => {
+        const base = entry.fallback.replace(/-\d+\.webp$/, "");
+        return `${base}-${w}.webp ${w}w`;
+      })
+      .join(", ")
+  : undefined;
+
+const fallbackSrc = entry?.fallback ?? src;
+
+const style = [
+  position ? `object-position:${position};` : "",
+  !noPlaceholder && entry?.lqip ? `--lqip:url("${entry.lqip}");` : "",
+]
+  .filter(Boolean)
+  .join("");
+
+const classes = ["smart-image", !noPlaceholder && entry?.lqip ? "smart-image--lqip" : "", className ?? ""]
+  .filter(Boolean)
+  .join(" ");
+---
+
+<img
+  class={classes}
+  src={fallbackSrc}
+  srcset={srcset}
+  sizes={srcset ? sizes : undefined}
+  alt={alt}
+  width={intrinsicW}
+  height={intrinsicH}
+  loading={priority ? "eager" : "lazy"}
+  decoding={priority ? "sync" : "async"}
+  fetchpriority={priority ? "high" : undefined}
+  style={style || undefined}
+/>
+
+<style>
+  .smart-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: var(--color-bg-muted);
+  }
+
+  /* Blur-up: la LQIP se pinta como fondo hasta que la imagen real decodifica */
+  .smart-image--lqip {
+    background-image: var(--lqip);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+</style>

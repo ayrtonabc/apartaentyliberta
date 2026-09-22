@@ -1,0 +1,305 @@
+---
+/**
+ * BookingPage — página de reserva: formulario, contacto y datos de pago.
+ * Compartido por /rezerwacja/, /en/booking/ y /de/reservierung/.
+ */
+import { type Locale, localeLink, t } from "~/lib/i18n";
+import { site } from "~/data/site";
+
+import PageHero from "~/components/ui/PageHero.astro";
+import BookingForm from "~/components/content/BookingForm.astro";
+import BookingSearch from "~/components/content/BookingSearch.astro";
+import Testimonials from "~/components/content/Testimonials.astro";
+import Icon from "~/components/ui/Icon.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const tr = t(locale);
+
+const copy: Record<
+  Locale,
+  {
+    formTitle: string;
+    directTitle: string;
+    directText: string;
+    paymentTitle: string;
+    account: string;
+    iban: string;
+    reference: string;
+    deposit: string;
+    depositValue: string;
+    checkinTitle: string;
+    checkinText: string;
+    contactTitle: string;
+    replyTime: string;
+  }
+> = {
+  pl: {
+    formTitle: "Formularz zapytania",
+    directTitle: "Rezerwacja bezpośrednia",
+    directText:
+      "Rezerwując u nas bezpośrednio, nie płacisz prowizji portalu i zachowujesz elastyczność przy zmianie terminu. Odpowiadamy zwykle w kilka godzin.",
+    paymentTitle: "Dane do przelewu",
+    account: "Odbiorca",
+    iban: "Numer konta",
+    reference: "Tytuł przelewu",
+    deposit: "Zadatek",
+    depositValue: "30% wartości pobytu",
+    checkinTitle: "Zameldowanie i wymeldowanie",
+    checkinText: "Zameldowanie od 16:00, wymeldowanie do 11:00. Wcześniejsze zameldowanie — na zapytanie.",
+    contactTitle: "Wolisz zadzwonić?",
+    replyTime: "Odpowiadamy zwykle w kilka godzin",
+  },
+  en: {
+    formTitle: "Enquiry form",
+    directTitle: "Book direct",
+    directText:
+      "Booking with us directly means no platform commission and full flexibility if your dates change. We usually reply within a few hours.",
+    paymentTitle: "Bank transfer details",
+    account: "Account holder",
+    iban: "Account number",
+    reference: "Payment reference",
+    deposit: "Deposit",
+    depositValue: "30% of the stay",
+    checkinTitle: "Check-in and check-out",
+    checkinText: "Check-in from 16:00, check-out by 11:00. Earlier check-in on request.",
+    contactTitle: "Prefer to call?",
+    replyTime: "We usually reply within a few hours",
+  },
+  de: {
+    formTitle: "Anfrageformular",
+    directTitle: "Direkt buchen",
+    directText:
+      "Bei einer Direktbuchung zahlen Sie keine Plattformprovision und bleiben bei Terminänderungen flexibel. Wir antworten meist innerhalb weniger Stunden.",
+    paymentTitle: "Bankverbindung",
+    account: "Kontoinhaber",
+    iban: "Kontonummer",
+    reference: "Verwendungszweck",
+    deposit: "Anzahlung",
+    depositValue: "30 % des Aufenthalts",
+    checkinTitle: "Check-in und Check-out",
+    checkinText: "Check-in ab 16:00 Uhr, Check-out bis 11:00 Uhr. Früherer Check-in auf Anfrage.",
+    contactTitle: "Lieber anrufen?",
+    replyTime: "Wir antworten meist innerhalb weniger Stunden",
+  },
+};
+
+const c = copy[locale];
+---
+
+<PageHero
+  eyebrow={tr.booking.eyebrow}
+  title={tr.booking.title}
+  lead={tr.booking.lead}
+  crumbs={[
+    { name: tr.nav.home, href: localeLink(locale, "/") },
+    { name: tr.nav.booking },
+  ]}
+/>
+
+<!--
+  BUSCADOR INTELIGENTE (estilo Booking).
+
+  Arriba del formulario manual. El huésped mete fechas y personas, ve los
+  4 apartamentos disponibles con su precio total, y al pulsar "Reservar
+  este apartamento" se hace scroll al formulario de abajo con los datos
+  ya rellenados. El formulario envía como siempre al endpoint
+  /api/booking.
+-->
+<BookingSearch locale={locale} />
+
+<section class="section">
+  <div class="container">
+    <div class="book split split--text-heavy split--start">
+      <!-- Formulario -->
+      <div class="book__form" data-reveal>
+        <h2 class="book__title">{c.formTitle}</h2>
+        <p class="lead u-mb-8">{tr.form.subtitle}</p>
+        <BookingForm locale={locale} />
+      </div>
+
+      <!-- Panel lateral -->
+      <aside class="book__aside" data-reveal style="--reveal-delay:120ms">
+        <!-- Contacto directo -->
+        <article class="bcard bcard--accent">
+          <h3 class="bcard__title">
+            <Icon name="phone" size={18} />
+            {c.contactTitle}
+          </h3>
+          <a class="bcard__phone" href={`tel:${site.phone.tel}`}>{site.phone.display}</a>
+          <a class="bcard__mail" href={`mailto:${site.email}`}>{site.email}</a>
+          <p class="bcard__note">{c.replyTime}</p>
+        </article>
+
+        <!-- Reserva directa -->
+        <article class="bcard">
+          <h3 class="bcard__title">
+            <Icon name="award" size={18} />
+            {c.directTitle}
+          </h3>
+          <p class="bcard__text">{c.directText}</p>
+        </article>
+
+        <!-- Datos de pago -->
+        <article class="bcard">
+          <h3 class="bcard__title">
+            <Icon name="key" size={18} />
+            {c.paymentTitle}
+          </h3>
+          <dl class="bcard__dl">
+            <div>
+              <dt>{c.account}</dt>
+              <dd>{site.bank.accountHolder}</dd>
+            </div>
+            <div>
+              <dt>{c.iban}</dt>
+              <dd class="tnum">{site.bank.iban}</dd>
+            </div>
+            <div>
+              <dt>{c.reference}</dt>
+              <dd>{site.bank.label}</dd>
+            </div>
+            <div>
+              <dt>{c.deposit}</dt>
+              <dd>{c.depositValue}</dd>
+            </div>
+          </dl>
+        </article>
+
+        <!-- Horarios -->
+        <article class="bcard">
+          <h3 class="bcard__title">
+            <Icon name="clock" size={18} />
+            {c.checkinTitle}
+          </h3>
+          <p class="bcard__text">{c.checkinText}</p>
+          <p class="bcard__addr">
+            <Icon name="pin" size={15} />
+            {site.address.full}
+          </p>
+        </article>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<Testimonials limit={3} />
+
+<style>
+  .book__title {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .book__aside {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+
+  .bcard {
+    padding: var(--space-6);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+  }
+
+  .bcard--accent {
+    background: var(--color-bg-inverse);
+    border-color: transparent;
+    color: var(--color-text-inverse);
+  }
+
+  .bcard__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-4);
+  }
+
+  .bcard--accent .bcard__title {
+    color: var(--color-accent-soft);
+  }
+
+  .bcard__phone {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text-inverse);
+    margin-bottom: var(--space-2);
+  }
+
+  .bcard__phone:hover {
+    color: var(--color-accent-soft);
+  }
+
+  .bcard__mail {
+    display: inline-block;
+    font-size: var(--text-sm);
+    color: var(--on-dark-text-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .bcard__note {
+    margin-top: var(--space-4);
+    font-size: var(--text-xs);
+    color: var(--on-dark-text-muted);
+    max-width: none;
+  }
+
+  .bcard__text {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  .bcard__dl {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .bcard__dl dt {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    margin-bottom: 2px;
+  }
+
+  .bcard__dl dd {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+  }
+
+  .bcard__addr {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-line);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  .bcard__addr :global(.icon) {
+    color: var(--color-accent);
+    margin-top: 0.2em;
+  }
+</style>

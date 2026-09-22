@@ -1,0 +1,398 @@
+---
+/**
+ * Footer — cierre editorial con CTA, columnas útiles y barra legal.
+ * Usa el logotipo claro optimizado para fondo oscuro.
+ */
+import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+import { site } from "~/data/site";
+import LanguageSwitcher from "~/components/layout/LanguageSwitcher.astro";
+import SocialLinks from "~/components/ui/SocialLinks.astro";
+import footerWordmark from "~/assets/footer-wordmark.webp";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+const year = new Date().getFullYear();
+
+const explore = [
+  { href: localeLink(locale, "/apartamenty/"), label: tr.nav.apartments },
+  { href: localeLink(locale, "/cennik/"), label: tr.nav.prices },
+  { href: localeLink(locale, "/lokalizacja/"), label: tr.nav.location },
+  { href: localeLink(locale, "/atrakcje/"), label: tr.nav.attractions },
+  { href: localeLink(locale, "/opinie/"), label: tr.nav.reviews },
+  { href: localeLink(locale, "/faq/"), label: tr.nav.faq },
+];
+
+const apartments = [
+  { href: localeLink(locale, "/apartamenty/liberta-i/"), label: `Liberta I — ${tr.footer.viewSide} ${tr.apartment.ground}` },
+  { href: localeLink(locale, "/apartamenty/liberta-ii/"), label: `Liberta II — ${tr.footer.viewSide} ${tr.apartment.ground}` },
+  { href: localeLink(locale, "/apartamenty/liberta-iii/"), label: `Liberta III — ${tr.footer.viewSide} ${tr.apartment.floor}` },
+  { href: localeLink(locale, "/apartamenty/liberta-iv/"), label: `Liberta IV — ${tr.footer.viewSide} ${tr.apartment.floor}` },
+];
+
+const legal = [
+  { href: localeLink(locale, "/regulamin/"), label: tr.footer.terms },
+  { href: localeLink(locale, "/polityka-prywatnosci/"), label: tr.footer.privacy },
+];
+---
+
+<footer class="ftr">
+  <div class="ftr__glow" aria-hidden="true"></div>
+
+  <div class="container ftr__inner">
+    <!-- Bloque de marca + CTA -->
+    <div class="ftr__brand">
+      <a href={localeLink(locale, "/")} class="ftr__logo">
+        <img
+          src={footerWordmark.src}
+          alt={tr.brand.name}
+          width="399"
+          height="96"
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+      <p class="ftr__about">{tr.footer.about}</p>
+
+      <div class="ftr__cta">
+        <a class="btn btn--light btn--sm" href={localeLink(locale, "/rezerwacja/")}>
+          {tr.cta.checkAvailability}
+        </a>
+        <a class="ftr__phone" href={`tel:${site.phone.tel}`}>
+          {site.phone.display}
+        </a>
+      </div>
+    </div>
+
+    <!-- Columnas de enlaces -->
+    <nav class="ftr__col" aria-label={tr.footer.explore}>
+      <h2 class="ftr__title">{tr.footer.explore}</h2>
+      <ul role="list">
+        {explore.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <nav class="ftr__col" aria-label={tr.nav.apartments}>
+      <h2 class="ftr__title">{tr.nav.apartments}</h2>
+      <ul role="list">
+        {apartments.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="ftr__col">
+      <h2 class="ftr__title">{tr.footer.contact}</h2>
+      <ul class="ftr__contact" role="list">
+        <li>
+          <a href={`tel:${site.phone.tel}`}>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            {site.phone.display}
+          </a>
+        </li>
+        <li>
+          <a href={`mailto:${site.email}`}>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            {site.email}
+          </a>
+        </li>
+        <li class="ftr__addr">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span>
+            {site.address.street}<br />
+            {site.address.postalCode} {site.address.locality}, {tr.footer.country}
+          </span>
+        </li>
+      </ul>
+
+      <SocialLinks variant="boxed" class="ftr__social" />
+    </div>
+  </div>
+
+  <div class="container ftr__bottom">
+    <p class="ftr__copy">
+      © {year} {tr.brand.name} · {tr.footer.copyright}
+    </p>
+
+    <nav class="ftr__legal" aria-label={tr.footer.legal}>
+      {legal.map((item) => (
+        <a href={item.href}>{item.label}</a>
+      ))}
+      <LanguageSwitcher variant="inline" />
+    </nav>
+  </div>
+
+  <!--
+    BARRA DE CRÉDITO DEL ESTUDIO.
+    El cliente pidió un crédito centrado al pie: "Designed by [logo SeoGrow]".
+    El logo es un asset del estudio y debe ir TAL CUAL: sin filtros, sin
+    cambios de color, sin hover que altere el archivo. El enlace abre en
+    pestaña nueva (target="_blank") para no sacar al visitante de la web
+    del apartamento.
+
+    Etiquetas explícitas:
+      - `rel="noopener noreferrer"` con target="_blank" por seguridad
+        (evita que la pestaña abierta manipule window.opener).
+      - `aria-label` con el nombre del estudio para lectores de pantalla.
+      - `loading="lazy"` porque está al final del documento.
+    Quitar el crédito más tarde: basta con borrar este bloque y el CSS
+    asociado en este archivo.
+  -->
+  <div class="container ftr__credit" aria-label="Designed by SeoGrow">
+    <span class="ftr__credit-label">Designed by</span>
+    <a
+      class="ftr__credit-link"
+      href="https://seogrow.pl"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="SeoGrow (opens in new tab)"
+    >
+      <img
+        class="ftr__credit-logo"
+        src="/logoseogrow.webp"
+        alt="SeoGrow"
+        width="80"
+        height="20"
+        loading="lazy"
+        decoding="async"
+      />
+    </a>
+  </div>
+</footer>
+
+<style>
+  .ftr {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+    padding-block: var(--space-20) var(--space-8);
+    /*
+     * Antes el footer tenía `margin-top: var(--space-24)` (8 rem ≈ 128 px) que
+     * dejaba un hueco vacío entre el CtaBand y el inicio del pie. Era
+     * herencia de cuando la home tenía más secciones entre medias; ahora
+     * que la banda CTA es lo último antes del footer, ese margen se nota
+     * como "sección vacía". Lo quitamos: el CtaBand y el footer quedan
+     * pegados, con la transición marcada solo por el cambio de fondo
+     * (oscuro → oscuro ya no se nota; la separación la da el propio padding
+     * interno de cada bloque).
+     */
+  }
+
+  /* Halo de marca muy sutil */
+  .ftr__glow {
+    position: absolute;
+    top: -30%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    max-width: 720px;
+    max-height: 720px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(157, 191, 174, 0.16), transparent 68%);
+    pointer-events: none;
+  }
+
+  .ftr__inner {
+    position: relative;
+    display: grid;
+    gap: var(--space-10);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .ftr__inner {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-12) var(--space-8);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .ftr__inner {
+      grid-template-columns: 1.6fr 1fr 1.2fr 1.2fr;
+      gap: var(--space-12);
+    }
+  }
+
+  /* ---------------------------------------------------------------- Marca */
+
+  .ftr__logo {
+    display: inline-block;
+    margin-bottom: var(--space-6);
+  }
+
+  .ftr__logo img {
+    width: auto;
+    height: 2.75rem;
+    background: none;
+  }
+
+  .ftr__about {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-inverse-muted);
+    max-width: 34ch;
+  }
+
+  .ftr__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+
+  .ftr__phone {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text-inverse);
+  }
+
+  .ftr__phone:hover { color: var(--color-accent-soft); }
+
+  /* ------------------------------------------------------------- Columnas */
+
+  .ftr__title {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-accent-soft);
+    line-height: 1.5;
+    margin-bottom: var(--space-5);
+  }
+
+  .ftr__col ul {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .ftr__col a {
+    font-size: var(--text-sm);
+    color: var(--color-text-inverse-muted);
+    transition: color var(--transition-base);
+  }
+
+  .ftr__col a:hover {
+    color: var(--color-text-inverse);
+  }
+
+  .ftr__contact li a,
+  .ftr__addr {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    line-height: var(--leading-normal);
+  }
+
+  .ftr__contact .icon {
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-top: 0.15em;
+    color: var(--color-accent-soft);
+  }
+
+  .ftr__addr {
+    color: var(--color-text-inverse-muted);
+    font-size: var(--text-sm);
+  }
+
+  /* Los círculos y los iconos los aporta el componente SocialLinks; aquí solo
+     va la separación respecto al bloque de contacto.
+
+     El cliente pidió "un salto de página abajo": los iconos sociales estaban
+     visualmente pegados al teléfono y a la dirección, y se notaban como
+     ruido. Subimos el margin a `--space-20` (5 rem ≈ 80 px) y añadimos un
+     border-top tenue para marcarlos como un grupo distinto. Si después
+     quiere aún más separación, subir a `--space-24` (6 rem) o más. */
+  .ftr__social {
+    margin-top: var(--space-20);
+    padding-top: var(--space-7);
+    border-top: 1px solid var(--color-line-inverse);
+  }
+
+  /* ------------------------------------------------------------ Barra legal */
+
+  .ftr__bottom {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    margin-top: var(--space-16);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-line-inverse);
+  }
+
+  .ftr__copy {
+    font-size: var(--text-xs);
+    color: var(--color-text-inverse-muted);
+    max-width: none;
+  }
+
+  .ftr__legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .ftr__legal a {
+    font-size: var(--text-xs);
+    color: var(--color-text-inverse-muted);
+  }
+
+  .ftr__legal a:hover {
+    color: var(--color-text-inverse);
+  }
+
+  /* -------------------------------------------------------------- Crédito */
+
+  /*
+   * BARRA DE CRÉDITO DEL ESTUDIO.
+
+   * Centrada en su propia fila, separada de la barra legal por un
+   * border-top sutil para que se lea como un bloque independiente al
+   * final del pie, no como un enlace más entre los legales.
+
+   * El logo NO lleva filtro, NO cambia de color en hover, NO escala:
+   * es un archivo del estudio y debe verse exactamente como salió del
+   * export. Si el cliente quiere que el logo reaccione al cursor, se
+   * añade una regla explícita, no se sobreentiende.
+   */
+  .ftr__credit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-line-inverse);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-inverse-muted);
+  }
+
+  .ftr__credit-label {
+    opacity: 0.85;
+  }
+
+  .ftr__credit-link {
+    display: inline-flex;
+    align-items: center;
+    /* Sin filter, sin opacity, sin transition de color: el logo va tal cual */
+  }
+
+  .ftr__credit-logo {
+    display: block;
+    width: auto;
+    height: 1.1rem;
+    background: none;
+  }
+</style>

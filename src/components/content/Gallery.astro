@@ -1,0 +1,465 @@
+---
+/**
+ * Gallery — mosaico de fotos con visor a pantalla completa (lightbox).
+ *
+ * Sin JavaScript el mosaico funciona como galería estática enlazada a las
+ * imágenes a tamaño completo; con JS se abre un visor con navegación por
+ * teclado, contador y cierre con Escape.
+ */
+import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
+import SmartImage from "~/components/ui/SmartImage.astro";
+import Icon from "~/components/ui/Icon.astro";
+
+export type GalleryPhoto = {
+  src: string;
+  alt: string;
+  category?: "interior" | "exterior" | "lake" | "area";
+  /** Tamaño en el mosaico */
+  span?: "wide" | "tall" | "big";
+};
+
+interface Props {
+  photos: GalleryPhoto[];
+  /** Muestra los chips de filtro por categoría */
+  filters?: boolean;
+}
+
+const { photos, filters = false } = Astro.props;
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+
+const categoryLabels: Record<string, string> = {
+  interior: tr.gallery.filterInterior,
+  exterior: tr.gallery.filterExterior,
+  lake: tr.gallery.filterLake,
+  area: tr.gallery.filterArea,
+};
+
+const categories = Array.from(
+  new Set(photos.map((p) => p.category).filter((c): c is NonNullable<typeof c> => Boolean(c))),
+);
+---
+
+<div class="gal" data-gallery>
+  {filters && categories.length > 1 && (
+    <div class="gal__filters" role="group" data-reveal>
+      <button class="chip" type="button" aria-pressed="true" data-gal-filter="all">
+        {tr.gallery.filterAll}
+      </button>
+      {categories.map((category) => (
+        <button class="chip" type="button" aria-pressed="false" data-gal-filter={category}>
+          {categoryLabels[category]}
+        </button>
+      ))}
+    </div>
+  )}
+
+  <ul class="gal__grid" role="list">
+    {photos.map((photo, index) => (
+      <li
+        class:list={["gal__item", photo.span && `gal__item--${photo.span}`]}
+        data-category={photo.category}
+        data-reveal
+        style={`--reveal-delay:${Math.min(index * 40, 240)}ms`}
+      >
+        <button
+          class="gal__button"
+          type="button"
+          data-gal-open={index}
+          aria-label={`${tr.a11y.gallery}: ${photo.alt}`}
+        >
+          <SmartImage
+            src={photo.src}
+            alt={photo.alt}
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          />
+          <span class="gal__zoom" aria-hidden="true">
+            <Icon name="sparkles" size={18} />
+          </span>
+        </button>
+      </li>
+    ))}
+  </ul>
+
+  <!-- Visor -->
+  <div class="gal__viewer" data-gal-viewer hidden>
+    <div class="gal__viewer-backdrop" data-gal-close></div>
+
+    <div class="gal__viewer-bar">
+      <span class="gal__counter" data-gal-counter></span>
+      <button class="gal__viewer-btn" type="button" aria-label={tr.a11y.closeGallery} data-gal-close>
+        <Icon name="close" size={20} />
+      </button>
+    </div>
+
+    <button class="gal__viewer-nav gal__viewer-nav--prev" type="button" aria-label={tr.a11y.prevPhoto} data-gal-prev>
+      <Icon name="arrow-right" size={22} class="gal__flip" />
+    </button>
+
+    <figure class="gal__viewer-figure">
+      <img class="gal__viewer-img" alt="" data-gal-image decoding="async" />
+      <figcaption class="gal__viewer-caption" data-gal-caption></figcaption>
+    </figure>
+
+    <button class="gal__viewer-nav gal__viewer-nav--next" type="button" aria-label={tr.a11y.nextPhoto} data-gal-next>
+      <Icon name="arrow-right" size={22} />
+    </button>
+  </div>
+
+  <!-- Datos para el visor (evita duplicar el marcado) -->
+  <script type="application/json" data-gal-data set:html={JSON.stringify(
+    photos.map((p) => ({ src: p.src, alt: p.alt })),
+  )} />
+</div>
+
+<style>
+  .gal__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: center;
+    margin-bottom: var(--space-8);
+  }
+
+  .gal__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 768px) {
+    .gal__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-auto-rows: 12rem;
+    }
+  }
+
+  .gal__item[hidden] {
+    display: none;
+  }
+
+  .gal__button {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-muted);
+    cursor: zoom-in;
+  }
+
+  @media (min-width: 768px) {
+    .gal__button {
+      aspect-ratio: auto;
+    }
+  }
+
+  .gal__button :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-slower) var(--ease-out), filter var(--transition-slow);
+  }
+
+  .gal__button:hover :global(img) {
+    transform: scale(1.05);
+  }
+
+  .gal__zoom {
+    position: absolute;
+    right: var(--space-3);
+    bottom: var(--space-3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    color: #fff;
+    background: var(--glass-bg-inverse);
+    border: 1px solid var(--on-dark-border);
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity var(--transition-base), transform var(--transition-base);
+  }
+
+  .gal__button:hover .gal__zoom,
+  .gal__button:focus-visible .gal__zoom {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Distribución del mosaico */
+  @media (min-width: 768px) {
+    .gal__item--big {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .gal__item--wide {
+      grid-column: span 2;
+    }
+
+    .gal__item--tall {
+      grid-row: span 2;
+    }
+  }
+
+  /* --------------------------------------------------------------- Visor */
+
+  .gal__viewer {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 4vw, 3rem);
+  }
+
+  .gal__viewer[hidden] {
+    display: none;
+  }
+
+  .gal__viewer-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 14, 11, 0.94);
+    animation: gal-fade var(--duration-normal) var(--ease-out);
+  }
+
+  @keyframes gal-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .gal__viewer-bar {
+    position: absolute;
+    top: clamp(1rem, 3vw, 2rem);
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: clamp(1rem, 4vw, 3rem);
+    z-index: 2;
+  }
+
+  .gal__counter {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    color: var(--on-dark-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .gal__viewer-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: #fff;
+    border: 1px solid var(--on-dark-border);
+    border-radius: var(--radius-full);
+    transition: background-color var(--transition-base);
+  }
+
+  .gal__viewer-btn:hover {
+    background: var(--on-dark-bg-hover);
+  }
+
+  .gal__viewer-figure {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    max-width: min(100%, 78rem);
+    max-height: 100%;
+  }
+
+  .gal__viewer-img {
+    max-width: 100%;
+    max-height: 76svh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.8);
+    animation: gal-in var(--duration-normal) var(--ease-out);
+  }
+
+  @keyframes gal-in {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .gal__viewer-caption {
+    font-size: var(--text-sm);
+    color: var(--on-dark-text-muted);
+    text-align: center;
+    max-width: 70ch;
+  }
+
+  .gal__viewer-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    color: #fff;
+    background: var(--on-dark-bg);
+    border: 1px solid var(--on-dark-border);
+    border-radius: var(--radius-full);
+    transition: background-color var(--transition-base), transform var(--transition-base);
+  }
+
+  .gal__viewer-nav:hover {
+    background: var(--on-dark-border);
+  }
+
+  .gal__viewer-nav--prev {
+    left: clamp(0.5rem, 2vw, 2rem);
+  }
+
+  .gal__viewer-nav--next {
+    right: clamp(0.5rem, 2vw, 2rem);
+  }
+
+  .gal__flip {
+    transform: rotate(180deg);
+  }
+
+  @media (max-width: 640px) {
+    .gal__viewer-nav {
+      top: auto;
+      bottom: 1rem;
+      transform: none;
+    }
+
+    .gal__viewer-nav--prev { left: 25%; }
+    .gal__viewer-nav--next { right: 25%; }
+  }
+</style>
+
+<script>
+  type Photo = { src: string; alt: string };
+
+  document.querySelectorAll<HTMLElement>("[data-gallery]").forEach((root) => {
+    const dataEl = root.querySelector<HTMLScriptElement>("[data-gal-data]");
+    const viewer = root.querySelector<HTMLElement>("[data-gal-viewer]");
+    if (!dataEl || !viewer) return;
+
+    let photos: Photo[] = [];
+    try {
+      photos = JSON.parse(dataEl.textContent ?? "[]") as Photo[];
+    } catch {
+      return;
+    }
+    if (photos.length === 0) return;
+
+    const openers = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-gal-open]"));
+    const img = viewer.querySelector<HTMLImageElement>("[data-gal-image]");
+    const caption = viewer.querySelector<HTMLElement>("[data-gal-caption]");
+    const counter = viewer.querySelector<HTMLElement>("[data-gal-counter]");
+    const closers = viewer.querySelectorAll<HTMLElement>("[data-gal-close]");
+    const prev = viewer.querySelector<HTMLButtonElement>("[data-gal-prev]");
+    const next = viewer.querySelector<HTMLButtonElement>("[data-gal-next]");
+
+    let index = 0;
+    let lastFocused: HTMLElement | null = null;
+
+    /** Mapa índice de apertura → índice real en el array de fotos. */
+    const order = openers.map((opener) => Number(opener.dataset.galOpen ?? 0));
+
+    const render = () => {
+      const photo = photos[index];
+      if (!photo || !img) return;
+      img.src = photo.src;
+      img.alt = photo.alt;
+      if (caption) caption.textContent = photo.alt;
+      if (counter) {
+        counter.textContent = `${index + 1} / ${photos.length}`;
+      }
+    };
+
+    const open = (photoIndex: number) => {
+      lastFocused = document.activeElement as HTMLElement;
+      index = photoIndex;
+      render();
+      viewer.hidden = false;
+      document.documentElement.style.overflow = "hidden";
+      viewer.querySelector<HTMLElement>("[data-gal-close]")?.focus();
+    };
+
+    const close = () => {
+      viewer.hidden = true;
+      document.documentElement.style.overflow = "";
+      lastFocused?.focus();
+    };
+
+    const step = (delta: number) => {
+      index = (index + delta + photos.length) % photos.length;
+      render();
+    };
+
+    openers.forEach((opener, i) => {
+      opener.addEventListener("click", () => open(order[i] ?? i));
+    });
+
+    closers.forEach((el) => el.addEventListener("click", close));
+    prev?.addEventListener("click", () => step(-1));
+    next?.addEventListener("click", () => step(1));
+
+    document.addEventListener("keydown", (event) => {
+      if (viewer.hidden) return;
+      if (event.key === "Escape") close();
+      else if (event.key === "ArrowRight") step(1);
+      else if (event.key === "ArrowLeft") step(-1);
+    });
+
+    // Swipe en móvil
+    let touchStartX = 0;
+    viewer.addEventListener(
+      "touchstart",
+      (event) => {
+        touchStartX = event.changedTouches[0]?.clientX ?? 0;
+      },
+      { passive: true },
+    );
+    viewer.addEventListener(
+      "touchend",
+      (event) => {
+        const endX = event.changedTouches[0]?.clientX ?? 0;
+        const delta = endX - touchStartX;
+        if (Math.abs(delta) > 60) step(delta < 0 ? 1 : -1);
+      },
+      { passive: true },
+    );
+
+    // Filtros por categoría
+    const filterButtons = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-gal-filter]"));
+    const tiles = Array.from(root.querySelectorAll<HTMLElement>("[data-category]"));
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.galFilter ?? "all";
+        filterButtons.forEach((b) =>
+          b.setAttribute("aria-pressed", b.dataset.galFilter === filter ? "true" : "false"),
+        );
+        tiles.forEach((tile) => {
+          tile.hidden = !(filter === "all" || tile.dataset.category === filter);
+        });
+      });
+    });
+  });
+</script>

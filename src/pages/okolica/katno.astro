@@ -1,0 +1,62 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Apartamenty w Kątnie"
+  description="Apartamenty Liberta blisko Kątna na Mazurach. Luksusowe domki nad jeziorem Szeląg, 105m od brzegu, bania góralska, klimatyzacja. Od 700 zł/noc."
+>
+  <section class="section">
+    <div class="container container--narrow" style="padding-top: calc(var(--header-height) + var(--space-12));">
+      <span class="eyebrow">Kątno</span>
+      <h1 style="margin-top: var(--space-3);">Apartamenty w Kątnie na Mazurach</h1>
+      <p class="lead" style="margin: var(--space-6) auto 0;">
+        Kątno to niewielka miejscowość w gminie Kątno, powiat ostródzki, w sercu Mazur — tu, w Starych Jabłonkach, znajdują się nasze Apartamenty Liberta.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--bg">
+    <div class="container">
+      <div class="split">
+        <div>
+          <h2>O Kątnie</h2>
+          <p>
+            Kątno to spokojna wieś położona w otulinie lasów, nad brzegiem Jeziora Szeląg Wielki.
+            Choć w Kątnie i Starych Jabłonkach jest sporo domków letniskowych, takich apartamentów
+            jak nasze nie znajdziesz nigdzie indziej na Mazurach.
+          </p>
+          <p>
+            Nasze apartamenty to coś więcej niż standardowe drewniane chatki. Zbudowaliśmy
+            luksusowe murowane domki o powierzchni 80 m² z klimatyzacją, kominkiem, Netflixem
+            i prywatną balią góralską.
+          </p>
+        </div>
+        <figure>
+          <img src="/assets/apartments/liberta-iv/exterior-dzien.jpg" alt="Kątno nad Jeziorem Szeląg" loading="lazy" decoding="async" width="1400" height="1050" />
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container--narrow">
+      <h2 style="margin-bottom: var(--space-6);">Co oferujemy w Kątnie</h2>
+      <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); font-size: var(--text-lg);">
+        <li>✓ 4 luksusowe apartamenty 80 m²</li>
+        <li>✓ 105 metrów od Jeziora Szeląg Wielki</li>
+        <li>✓ Prywatna bania góralska w każdym apartamencie</li>
+        <li>✓ Sauna w kompleksie (10-22h, na życzenie)</li>
+        <li>✓ Dwa pomosty, plaża, leżaki</li>
+        <li>✓ Bezpłatny parking</li>
+        <li>✓ Rejs motorówką z właścicielem (dodatkowo płatny)</li>
+        <li>✓ Masaże w apartamencie (dodatkowo płatne)</li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

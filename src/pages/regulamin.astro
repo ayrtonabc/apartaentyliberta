@@ -1,0 +1,133 @@
+---
+/**
+ * /regulamin/ — condiciones de la estancia (polaco).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import PageHero from "~/components/ui/PageHero.astro";
+import { type Locale, localeLink, t } from "~/lib/i18n";
+import { site } from "~/data/site";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "pl";
+const tr = t(locale);
+
+export const prerender = true;
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.footer.terms, path: "/regulamin/" },
+  ],
+  locale,
+);
+---
+
+<BaseLayout
+  title={tr.footer.terms}
+  description="Regulamin Apartamentów Liberta: zasady rezerwacji, zadatek, check-in i check-out, depozyt, anulacja, zasady korzystania z balii i sauny oraz cisza nocna."
+  canonicalPath="/regulamin/"
+  schema={schema}
+>
+  <PageHero
+    eyebrow={tr.footer.legal}
+    title="Regulamin Apartamentów Liberta"
+    lead="Zasady rezerwacji, pobytu i rozliczeń obowiązujące wszystkich gości."
+    crumbs={[
+      { name: tr.nav.home, href: localeLink(locale, "/") },
+      { name: tr.footer.terms },
+    ]}
+  />
+
+  <section class="section">
+    <div class="container container--narrow">
+      <div class="prose">
+        <h2>1. Postanowienia ogólne</h2>
+        <p>
+          Niniejszy regulamin określa zasady świadczenia usług krótkotrwałego wynajmu apartamentów
+          przez Apartamenty Liberta, z siedzibą w Starych Jabłonkach, gmina Ostróda, powiat ostródzki,
+          województwo warmińsko-mazurskie.
+        </p>
+
+        <h2>2. Rezerwacja</h2>
+        <p>Rezerwacji można dokonać:</p>
+        <ul>
+          <li>telefonicznie: <a href={`tel:${site.phone.tel}`}>{site.phone.display}</a></li>
+          <li>drogą mailową: <a href={`mailto:${site.email}`}>{site.email}</a></li>
+          <li>przez formularz na stronie: <a href={localeLink(locale, "/rezerwacja/")}>/rezerwacja/</a></li>
+        </ul>
+        <p>
+          Potwierdzeniem rezerwacji jest wpłata zadatku w wysokości 30% wartości pobytu na rachunek:
+        </p>
+        <p class="text-mono">{site.bank.iban}</p>
+
+        <h2>3. Warunki pobytu</h2>
+        <ul>
+          <li>Zameldowanie: od godz. 16:00 do 20:00 w dniu przyjazdu</li>
+          <li>Wymeldowanie: od godz. 8:00 do 11:00 w dniu wyjazdu</li>
+          <li>Minimalny pobyt: 6 nocy w lipcu i sierpniu</li>
+          <li>W pozostałych miesiącach brak minimalnego limitu</li>
+          <li>Zniżki: 5% za pobyt 7+ nocy, 10% za pobyt 13+ nocy</li>
+          <li>Zwierzęta: niedozwolone (z wyjątkiem psów asystujących)</li>
+          <li>Łóżeczka dla dzieci: dostępne w ograniczonej liczbie, konieczne uzgodnienie przy rezerwacji</li>
+          <li>Dostawka: wyłącznie sofa rozkładana w salonie, na 2 osoby, za zgodą właściciela</li>
+        </ul>
+
+        <h2>4. Zadatek, depozyt i płatność</h2>
+        <ul>
+          <li>Zadatek 30%: płatny przelewem bankowym przy rezerwacji</li>
+          <li>Depozyt zwrotny 500 zł: płatny gotówką lub kartą przy przyjeździe, zwracany po inspekcji przy wyjeździe</li>
+          <li>Płatność końcowa: przy przyjeździe lub w trakcie pobytu</li>
+          <li>Wystawiamy fakturę VAT na życzenie — prosimy podać dane firmy przy rezerwacji</li>
+        </ul>
+
+        <h2>5. Anulacja rezerwacji i zmiany terminu</h2>
+        <ul>
+          <li>Powyżej 21 dni przed planowanym przyjazdem — zwrot zadatku po potrąceniu kosztów operacyjnych</li>
+          <li>Poniżej 21 dni przed planowanym przyjazdem — kwota wpłacona na poczet rezerwacji nie podlega zwrotowi</li>
+          <li>Zmiana terminu jest możliwa jednokrotnie, bez dodatkowych opłat, przy zachowaniu tej samej długości pobytu</li>
+        </ul>
+
+        <h2>6. Usługi dodatkowe</h2>
+        <p>Dostępne za dodatkową opłatą, po uzgodnieniu:</p>
+        <ul>
+          <li>Śniadania i obiady (catering Krainy Jezior — 15% rabatu dla naszych gości)</li>
+          <li>Dostawka w salonie: 100 zł za noc</li>
+          <li>Masaże w apartamencie</li>
+          <li>Rejs motorówką po Jeziorze Szeląg</li>
+          <li>Wyjazd na strzelnicę z ogniskiem</li>
+        </ul>
+
+        <h2>7. Zasady korzystania z apartamentu</h2>
+        <ul>
+          <li>Woda w balii góralskiej wypuszczana jest rano w dniu wyjazdu gości</li>
+          <li>Z sauny można korzystać w godzinach 10:00–22:00, po uzgodnieniu z właścicielem</li>
+          <li>Palenie zabronione wewnątrz apartamentu i w całym obiekcie</li>
+          <li>Imprezy, głośne zabawy oraz wieczory kawalerskie i panieńskie są zabronione</li>
+          <li>Wszelkie uroczystości wymagają wcześniejszego uzgodnienia z właścicielem</li>
+          <li><strong>Godziny ciszy: 23:00–7:00</strong> — prosimy o poszanowanie spokoju pozostałych gości i sąsiadów</li>
+        </ul>
+
+        <h2>8. Odpowiedzialność</h2>
+        <p>
+          Właściciel nie ponosi odpowiedzialności za rzeczy pozostawione w apartamencie.
+          Gość ponosi pełną odpowiedzialność materialną za szkody wyrządzone w apartamencie
+          i na terenie posesji.
+        </p>
+
+        <h2>9. Postanowienia końcowe</h2>
+        <p>
+          Dokonanie rezerwacji jest równoznaczne z akceptacją niniejszego regulaminu.
+          W sprawach nieuregulowanych niniejszym regulaminem zastosowanie mają przepisy
+          Kodeksu cywilnego.
+        </p>
+
+        <p class="text-muted text-small u-mt-12">
+          Apartamenty Liberta<br />
+          {site.address.full}<br />
+          Tel. <a href={`tel:${site.phone.tel}`}>{site.phone.display}</a><br />
+          E-mail <a href={`mailto:${site.email}`}>{site.email}</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

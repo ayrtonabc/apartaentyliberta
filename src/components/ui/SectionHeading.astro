@@ -1,0 +1,41 @@
+---
+/**
+ * SectionHeading — cabecera de sección reutilizable.
+ * Mantiene el mismo ritmo tipográfico en todas las páginas.
+ */
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  align?: "center" | "left";
+  /** Escala del titular */
+  size?: "md" | "lg";
+  class?: string;
+}
+
+const { eyebrow, title, lead, align = "center", size = "md", class: className } = Astro.props;
+---
+
+<header
+  class:list={[
+    "section-head",
+    align === "left" && "section-head--left",
+    size === "lg" && "section-head--lg",
+    className,
+  ]}
+  data-reveal
+>
+  {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+  <h2 class="section-head__title">{title}</h2>
+  {lead && <p class="lead">{lead}</p>}
+</header>
+
+<style>
+  .section-head__title {
+    font-size: var(--text-4xl);
+  }
+
+  .section-head--lg .section-head__title {
+    font-size: var(--text-5xl);
+  }
+</style>

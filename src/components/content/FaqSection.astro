@@ -1,0 +1,89 @@
+---
+/**
+ * FaqSection — acordeón de preguntas frecuentes.
+ * Usa <details>/<summary>: funciona sin JavaScript y es accesible de serie.
+ */
+import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+import { getFaq } from "~/data/faq";
+import SectionHeading from "~/components/ui/SectionHeading.astro";
+import { site } from "~/data/site";
+
+interface Props {
+  /** Muestra solo las primeras N preguntas (home) */
+  limit?: number;
+  showHeading?: boolean;
+  showFooterLink?: boolean;
+}
+
+const { limit, showHeading = true, showFooterLink = false } = Astro.props;
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+
+const all = getFaq(locale);
+const items = limit ? all.slice(0, limit) : all;
+---
+
+<section class="faq-s section section--bg" id="faq">
+  <div class="container container--narrow">
+    {showHeading && (
+      <SectionHeading eyebrow={tr.home.faqEyebrow} title={tr.home.faqTitle} lead={tr.home.faqLead} />
+    )}
+
+    <div class="accordion" data-reveal>
+      {items.map((item) => (
+        <details class="accordion__item">
+          <summary class="accordion__q">
+            <span>{item.question}</span>
+            <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="accordion__a">
+            <p>{item.answer}</p>
+          </div>
+        </details>
+      ))}
+    </div>
+
+    <div class="faq-s__foot" data-reveal>
+      {showFooterLink ? (
+        <a class="btn btn--outline" href={localeLink(locale, "/faq/")}>{tr.nav.faq}</a>
+      ) : (
+        <>
+          <p class="faq-s__ask">{tr.form.orCall}</p>
+          <div class="btn-group btn-group--center">
+            <a class="btn btn--primary" href={`tel:${site.phone.tel}`}>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+              {site.phone.display}
+            </a>
+            <a class="btn btn--outline" href={localeLink(locale, "/rezerwacja/")}>
+              {tr.cta.askQuestion}
+            </a>
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-s__foot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-5);
+    margin-top: var(--space-10);
+    text-align: center;
+  }
+
+  .faq-s__ask {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+    max-width: none;
+  }
+</style>

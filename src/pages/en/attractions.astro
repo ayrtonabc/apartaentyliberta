@@ -1,0 +1,32 @@
+---
+/**
+ * /en/attractions/ — atractivos y entorno (inglés).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import AttractionsPage from "~/components/sections/AttractionsPage.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "en";
+const tr = t(locale);
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.nav.attractions, path: "/atrakcje/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Things to do in Masuria near Stare Jabłonki"
+  description="The Ostróda–Elbląg Canal with its inclined planes, wartime bunkers, the Grunwald battlefield, kayaking, a water ski lift, golf courses and horse riding — all within 30 minutes of Apartamenty Liberta."
+  canonicalPath="/atrakcje/"
+  ogImage="/og-attractions.jpg"
+  schema={schema}
+>
+  <AttractionsPage locale={locale} />
+</BaseLayout>

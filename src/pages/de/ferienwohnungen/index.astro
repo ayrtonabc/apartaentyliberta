@@ -1,0 +1,43 @@
+---
+/**
+ * /de/ferienwohnungen/ — listado completo (alemán).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import ApartmentsIndex from "~/components/sections/ApartmentsIndex.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { apartments } from "~/data/apartments";
+import { buildApartmentListSchema, buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "de";
+const tr = t(locale);
+
+const schemas = [
+  buildApartmentListSchema(
+    apartments.map((a) => ({
+      name: a.names.de,
+      canonicalPath: `/apartamenty/${a.slugs.pl}/`,
+    })),
+    locale,
+  ),
+  buildBreadcrumbSchema(
+    [
+      { name: tr.nav.home, path: "/" },
+      { name: tr.nav.apartments, path: "/apartamenty/" },
+    ],
+    locale,
+  ),
+];
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Ferienwohnungen am Szeląg-See"
+  description="Vier Ferienwohnungen mit 80 m² am Szeląg-See in Stare Jabłonki, Masuren: 3 Schlafzimmer, privater Holz-Hot-Tub, überdachte Terrasse mit Grill und Klimaanlage. Ein Standard, verschiedene Aussichten."
+  canonicalPath="/apartamenty/"
+  ogImage="/og-apartments.jpg"
+  preloadImage="/assets/apartments/liberta-ii/exterior-dzien.jpg"
+  schema={schemas}
+>
+  <ApartmentsIndex locale={locale} />
+</BaseLayout>

@@ -1,0 +1,32 @@
+---
+/**
+ * /de/reservierung/ — reserva (alemán).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import BookingPage from "~/components/sections/BookingPage.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "de";
+const tr = t(locale);
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.nav.booking, path: "/rezerwacja/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Ferienwohnung am Szeląg-See buchen"
+  description="Buchen Sie direkt beim Eigentümer — ohne Plattformprovision. Verfügbarkeit prüfen, Termin anfragen und innerhalb von 24 Stunden die Bestätigung erhalten. 30 % Anzahlung."
+  canonicalPath="/rezerwacja/"
+  ogImage="/og-terrace.jpg"
+  schema={schema}
+>
+  <BookingPage locale={locale} />
+</BaseLayout>

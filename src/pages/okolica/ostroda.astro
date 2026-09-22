@@ -1,0 +1,41 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Apartamenty w okolicach Ostródy"
+  description="Apartamenty Liberta — 25 km od Ostródy, nad Jeziorem Szeląg. Wygodna baza wypadowa do kanału Ostróda-Elbląg i okolicznych atrakcji."
+>
+  <section class="section">
+    <div class="container container--narrow" style="padding-top: calc(var(--header-height) + var(--space-12));">
+      <span class="eyebrow">Ostróda</span>
+      <h1 style="margin-top: var(--space-3);">Apartamenty 25 km od Ostródy</h1>
+      <p class="lead" style="margin: var(--space-6) auto 0;">
+        Ostróda to letnia stolica Mazur — w sezonie pełna turystów, festiwali i życia. Nasze apartamenty są spokojną bazą wypadową: 30 minut od zgiełku, w ciszy nad Szelągiem.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--bg">
+    <div class="container">
+      <div class="split">
+        <div>
+          <h2>Co warto zobaczyć w Ostródzie</h2>
+          <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); font-size: var(--text-lg);">
+            <li>✓ Kanał Ostróda-Elbląg — unikalne pochylnie</li>
+            <li>✓ Zamek krzyżacki</li>
+            <li>✓ Wyciąg nart wodnych</li>
+            <li>✓ Festiwal Reggae (lato)</li>
+            <li>✓ Festiwal disco polo (lato)</li>
+            <li>✓ Molo i promenada</li>
+          </ul>
+        </div>
+        <figure>
+          <img src="/assets/apartments/liberta-iv/bania-goralska.jpg" alt="Apartamenty blisko Ostródy" loading="lazy" decoding="async" width="1400" height="933" />
+        </figure>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,39 @@
+# build
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# env
+.env
+.env.local
+.env.production
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/
+*.swp
+
+# misc
+.cache/
+.tmp/
+
+# auditoría de diseño (capturas y perfiles de Chrome)
+.audit/
+.audit-profile*/
+
+# originales de imágenes pesadas, ya importados y sustituidos por
+# las versiones responsive en /assets/responsive/
+public/import-original/

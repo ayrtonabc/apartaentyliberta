@@ -1,0 +1,43 @@
+<!--
+  Marca de Instagram aportada por el propietario (CorelDRAW), version 3.
+
+  Limpieza aplicada: sin declaracion XML, sin DOCTYPE, sin comentarios, sin
+  metadatos y sin width/height fijos para que escale por CSS. El dibujo
+  (trazados, circulo y elipse) es el original, sin tocar.
+
+  viewBox ajustado a CUADRADO (-0.76 -1.08 26.87 26.87, antes 25.35x24.71):
+  los tres iconos del navbar se pintan con un lado cuadrado, asi que un viewBox
+  no cuadrado hacia que este saliera un 2,6% mas ancho que Facebook y Booking.
+  Ademas el trazo (0.82) sobresale 0.41 a cada lado del
+  trazado y su borde caia justo en el limite del viewBox: se ensancho para darle
+  aire y que no se recorte al redondear el navegador.
+
+  El dibujo es blanco (#FEFEFE). Sobre fondos claros se invierte con un filtro
+  CSS desde SocialLinks, asi que no hace falta una segunda version.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="-0.76 -1.08 26.87 26.87">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:#FEFEFE;stroke-width:0.82;stroke-miterlimit:22.9256}
+    .fil1 {fill:none}
+    .fil0 {fill:#FEFEFE}
+   ]]>
+  </style>
+   <clipPath id="id0">
+    <path d="M4.87 0.41l15.61 0c2.45,0 4.46,2.01 4.46,4.46l0 14.96c0,2.45 -2.01,4.46 -4.46,4.46l-15.61 0c-2.45,0 -4.46,-2.01 -4.46,-4.46l0 -14.96c0,-2.45 2.01,-4.46 4.46,-4.46z"/>
+   </clipPath>
+ </defs>
+ <g id="Capa_x0020_1">
+  
+  
+  <g style="clip-path:url(#id0)">
+   <g id="_1554470061552">
+    <circle class="fil0" cx="18.92" cy="6.88" r="1.38"/>
+   </g>
+  </g>
+  <path class="fil1 str0" d="M4.87 0.41l15.61 0c2.45,0 4.46,2.01 4.46,4.46l0 14.96c0,2.45 -2.01,4.46 -4.46,4.46l-15.61 0c-2.45,0 -4.46,-2.01 -4.46,-4.46l0 -14.96c0,-2.45 2.01,-4.46 4.46,-4.46z"/>
+  <ellipse class="fil1 str0" cx="12.68" cy="12.35" rx="4.72" ry="4.86"/>
+ </g>
+</svg>

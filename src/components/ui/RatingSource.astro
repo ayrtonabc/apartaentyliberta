@@ -1,0 +1,160 @@
+---
+/**
+ * RatingSource — acredita una valoración con el logotipo real de la plataforma.
+ *
+ * Se usa en la franja de confianza y en la página de opiniones. Antes eran dos
+ * implementaciones distintas que escribían "Booking.com" y "Google" como texto
+ * plano; ahora ambas comparten el mismo componente y muestran el logotipo.
+ *
+ * Los SVG viven en public/assets/brand/ y se obtienen con
+ * `node scripts/fetch-brand-logos.mjs` (versiones vectoriales oficiales, no
+ * reproducciones). Son marcas registradas de sus titulares; aquí solo
+ * identifican el canal.
+ *
+ * IMPORTANTE sobre el tamaño: los dos logotipos tienen proporciones intrínsecas
+ * muy distintas (el "G" es ~1:1 y el logotipo de Booking.com ~5.9:1), así que
+ * ambos se dimensionan por ALTURA con un valor fijo en píxeles. Dejar la altura
+ * en `auto` con un `max-height` porcentual hacía que Booking se pintara a 12 px
+ * mientras Google ocupaba 47 px.
+ *
+ * Props:
+ *   source  — "booking" | "google"
+ *   score   — nota
+ *   scale   — escala de la nota (10 o 5)
+ *   count   — número de opiniones
+ *   url     — perfil público
+ *   variant — "light" (fondos claros) · "dark" (fondos oscuros)
+ *   size    — altura real del logotipo en px
+ */
+import { site } from "~/data/site";
+
+interface Props {
+  source: "booking" | "google";
+  score: number;
+  scale: 10 | 5;
+  count: number;
+  url?: string;
+  variant?: "light" | "dark";
+  size?: number;
+}
+
+const { source, score, scale, count, url, variant = "light", size } = Astro.props;
+
+/**
+ * El "G" de Google es cuadrado y parece más pequeño que un wordmark a la misma
+ * altura, así que se le da algo más de alto para que ambos pesen igual.
+ */
+const logoHeight = size ?? (source === "google" ? 21 : 16);
+
+const logos = {
+  booking: { src: "/assets/brand/booking.svg", alt: "Booking.com", w: 118.6, h: 20.1 },
+  google: { src: "/assets/brand/google-g.svg", alt: "Google", w: 24, h: 24 },
+} as const;
+
+const logo = logos[source];
+const logoWidth = Math.round((logo.w / logo.h) * logoHeight);
+---
+
+<a
+  class:list={["rsource", `rsource--${variant}`, `rsource--${source}`]}
+  href={url ?? site.url}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={`${logo.alt} — ${score.toString().replace(".", ",")}/${scale} · ${count}`}
+  style={`--rsource-logo-h: ${logoHeight}px`}
+>
+  <img
+    class="rsource__logo"
+    src={logo.src}
+    alt={logo.alt}
+    width={logoWidth}
+    height={logoHeight}
+    loading="lazy"
+    decoding="async"
+  />
+  <span class="rsource__score tnum">
+    {score.toString().replace(".", ",")}<em>/{scale}</em>
+  </span>
+  {count > 0 && <span class="rsource__count">({count})</span>}
+</a>
+
+<style>
+  .rsource {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: opacity var(--transition-base);
+  }
+
+  .rsource:hover {
+    opacity: 0.72;
+  }
+
+  /*
+   * Altura fija (no `auto` + max-height): es la única forma de que los dos
+   * logotipos queden a la altura que se les pide, con proporciones intrínsecas
+   * tan distintas. El ancho acompaña respetando la proporción.
+   */
+  .rsource__logo {
+    display: block;
+    height: var(--rsource-logo-h, 16px);
+    width: auto;
+    max-height: none;
+    background: none;
+  }
+
+  .rsource__score {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    line-height: 1;
+    font-weight: var(--weight-normal);
+  }
+
+  .rsource__score em {
+    font-style: normal;
+    font-size: 0.6em;
+  }
+
+  .rsource__count {
+    font-size: var(--text-2xs);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --- Sobre fondos claros --- */
+  .rsource--light .rsource__score {
+    color: var(--color-text);
+  }
+
+  .rsource--light .rsource__score em,
+  .rsource--light .rsource__count {
+    color: var(--color-text-subtle);
+  }
+
+  /* --- Sobre fondos oscuros --- */
+  .rsource--dark .rsource__score {
+    color: var(--color-text-inverse);
+  }
+
+  .rsource--dark .rsource__score em,
+  .rsource--dark .rsource__count {
+    color: var(--on-dark-text-muted);
+  }
+
+  /*
+   * El logotipo de Booking.com es azul marino: sobre fondo oscuro desaparece.
+   * Se invierte a blanco con un filtro, que respeta el trazado original (no es
+   * una reproducción distinta). El "G" de Google conserva sus colores porque se
+   * lee bien sobre oscuro.
+   */
+  .rsource--dark .rsource__logo {
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+  }
+
+  .rsource--dark.rsource--google .rsource__logo {
+    filter: none;
+    opacity: 1;
+  }
+</style>

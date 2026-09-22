@@ -1,0 +1,396 @@
+---
+/**
+ * FacilitiesGrid — las instalaciones del complejo con fotos de detalle.
+ *
+ * Va en la página de apartamentos, entre el listado y la comparativa.
+ *
+ * POR QUÉ AQUÍ Y NO EN LA HOME
+ *
+ * Los cuatro apartamentos son idénticos: mismo metraje, misma distribución,
+ * mismo equipamiento. Lo único que cambia es la vista. Eso deja la página de
+ * apartamentos sin nada propio que contar si solo se listan cuatro veces las
+ * mismas cifras — y es justo ahí donde el visitante decide. Las instalaciones
+ * compartidas (balia, sauna, taras cubierto, fuego junto al lago) son lo que sí
+ * diferencia la estancia, así que se describen en esta página con las fotos de
+ * detalle.
+ *
+ * RITMO DE LA REJILLA
+ *
+ * Doce tarjetas iguales se leen como una lista plana y el ojo no sabe dónde
+ * parar. Las marcadas como `feature` ocupan el doble de ancho en pantallas
+ * grandes: son las cuatro que de verdad deciden la reserva (el edificio, el
+ * taras, la balia y el salón). El resto van a una columna.
+ */
+import { type Locale, t } from "~/lib/i18n";
+import { facilities } from "~/data/facilities";
+import SmartImage from "~/components/ui/SmartImage.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const tr = t(locale);
+
+const copy: Record<Locale, { eyebrow: string; title: string; lead: string; note: string }> = {
+  pl: {
+    eyebrow: "Wspólne dla wszystkich",
+    title: "Co jeszcze jest na miejscu",
+    lead: "Apartamenty są identyczne — różni je widok z tarasu. Resztę kompleksu macie wspólną i z niej najczęściej korzystają goście: balia opalana drewnem, sauna z widokiem na wodę, taras pod dachem i ognisko kilka kroków od brzegu.",
+  },
+  en: {
+    eyebrow: "Shared by all",
+    title: "What else is on site",
+    lead: "The apartments are identical — the view from the terrace is what differs. Everything else belongs to the whole complex, and it is what guests use most: a wood-fired hot tub, a sauna facing the water, a covered terrace and a fire pit a few steps from the shore.",
+  },
+  de: {
+    eyebrow: "Für alle gemeinsam",
+    title: "Was es sonst noch gibt",
+    lead: "Die Ferienwohnungen sind identisch — unterschiedlich ist der Blick von der Terrasse. Alles andere gehört zur ganzen Anlage und wird von den Gästen am meisten genutzt: holzbefeuerter Hot Tub, Sauna mit Blick aufs Wasser, überdachte Terrasse und eine Feuerstelle wenige Schritte vom Ufer.",
+  },
+};
+
+const c = copy[locale];
+
+/**
+ * Leyenda del plano aéreo.
+ *
+ * La foto lleva los rótulos impresos EN POLACO (Apartamenty, Rekreacja, Plaża,
+ * Marina, ZenziBar, Slip). No se puede traducir la imagen, así que se traduce en
+ * el HTML: el mapa se ve igual en las tres versiones del sitio y la leyenda de
+ * debajo explica cada nombre en el idioma del visitante.
+ *
+ * Los rótulos son los del propietario y coinciden con lo que se ve en la foto,
+ * así que la leyenda es una traducción, no una interpretación.
+ */
+const legendCopy: Record<Locale, { title: string; note: string; items: { name: string; label: string }[] }> = {
+  pl: {
+    title: "Nazwy na planie",
+    note: "Punkty zaznaczone na zdjęciu lotniczym.",
+    items: [
+      { name: "Apartamenty", label: "Cztery apartamenty i tarasy" },
+      { name: "Rekreacja", label: "Plac zabaw, boisko i wypożyczalnia" },
+      { name: "Plaża", label: "Plaża i dwa pomosty" },
+      { name: "Marina", label: "Sprzęt wodny: SUP, kajaki, rowery" },
+      { name: "ZenziBar", label: "Bar i restauracja nad wodą" },
+      { name: "Slip", label: "Wciągarka do łodzi" },
+    ],
+  },
+  en: {
+    title: "Labels on the plan",
+    note: "The points marked on the aerial photo are labelled in Polish.",
+    items: [
+      { name: "Apartamenty", label: "The four apartments and their terraces" },
+      { name: "Rekreacja", label: "Playground, sports pitch and rentals" },
+      { name: "Plaża", label: "The beach and the two piers" },
+      { name: "Marina", label: "Water equipment: SUP, kayaks, bikes" },
+      { name: "ZenziBar", label: "Bar and restaurant by the water" },
+      { name: "Slip", label: "Boat slipway" },
+    ],
+  },
+  de: {
+    title: "Beschriftungen im Plan",
+    note: "Die Markierungen auf dem Luftbild sind polnisch beschriftet.",
+    items: [
+      { name: "Apartamenty", label: "Die vier Ferienwohnungen und ihre Terrassen" },
+      { name: "Rekreacja", label: "Spielplatz, Sportplatz und Verleih" },
+      { name: "Plaża", label: "Strand und die zwei Stege" },
+      { name: "Marina", label: "Wassergeräte: SUP, Kajaks, Fahrräder" },
+      { name: "ZenziBar", label: "Bar und Restaurant am Wasser" },
+      { name: "Slip", label: "Slipanlage für Boote" },
+    ],
+  },
+};
+
+const legend = legendCopy[locale];
+---
+
+<section class="fac section section--tight">
+  <div class="container">
+    <div class="fac__head" data-reveal>
+      <span class="eyebrow">{c.eyebrow}</span>
+      <h2 class="fac__title">{c.title}</h2>
+      <p class="lead">{c.lead}</p>
+    </div>
+
+    <!--
+      Plano aéreo del complejo, el propietario ya lo rotuló con los puntos que
+      importan. Va antes de la rejilla porque sitúa todo lo demás: quien mira
+      esta foto entiende de un golpe dónde está cada cosa.
+    -->
+    <figure class="fac__map" data-reveal>
+      <SmartImage
+        src="/assets/facilities/plan-osrodka.webp"
+        alt={
+          locale === "pl"
+            ? "Zdjęcie lotnicze kompleksu z zaznaczonymi punktami: apartamenty, rekreacja, plaża, marina, bar i slip"
+            : locale === "de"
+              ? "Luftaufnahme der Anlage mit markierten Punkten: Ferienwohnungen, Freizeit, Strand, Marina, Bar und Slipanlage"
+              : "Aerial view of the complex with marked points: apartments, recreation, beach, marina, bar and slipway"
+        }
+        sizes="(min-width: 1024px) 1140px, 100vw"
+      />
+      <figcaption class="fac__legend">
+        <p class="fac__legend-title">{legend.title}</p>
+        <ul class="fac__legend-list" role="list">
+          {legend.items.map((item) => (
+            <li>
+              <strong>{item.name}</strong>
+              <span>{item.label}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="fac__legend-note">{legend.note}</p>
+      </figcaption>
+    </figure>
+
+    <ul class="fac__grid" role="list">
+      {facilities.map((facility, index) => (
+        <li
+          class:list={["fac__card", facility.size === "feature" && "fac__card--wide"]}
+          data-reveal
+          style={`--reveal-delay:${Math.min(index * 45, 260)}ms`}
+        >
+          <figure class="fac__media">
+            <SmartImage
+              src={`/assets/facilities/${facility.slug}.webp`}
+              alt={facility.alt[locale]}
+              sizes={
+                facility.size === "feature"
+                  ? "(min-width: 1024px) 62vw, (min-width: 640px) 100vw, 100vw"
+                  : "(min-width: 1024px) 31vw, (min-width: 640px) 50vw, 100vw"
+              }
+            />
+          </figure>
+
+          <div class="fac__body">
+            <h3 class="fac__name">{facility.name[locale]}</h3>
+            <p class="fac__text">{facility.description[locale]}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .fac__head {
+    max-width: 52rem;
+    margin-bottom: var(--space-8);
+  }
+
+  .fac__title {
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-4xl);
+  }
+
+  /* ------------------------------------------------------------------ Plano */
+
+  .fac__map {
+    margin-bottom: var(--space-10);
+    overflow: hidden;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+  }
+
+  .fac__map :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* Apaisada de origen (1536×1023). Un aspect-ratio fijo recortaría los
+       rótulos de los extremos, que es justo lo que hay que poder leer. */
+  }
+
+  /*
+   * La leyenda va DENTRO de la figura, pegada a la foto, para que se lea como
+   * parte del plano y no como un bloque de texto suelto.
+   */
+  .fac__legend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-6);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .fac__legend-title {
+    max-width: none;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .fac__legend-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2) var(--space-8);
+  }
+
+  @media (min-width: 640px) {
+    .fac__legend-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .fac__legend-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .fac__legend-list li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+  }
+
+  .fac__legend-list strong {
+    /* El nombre polaco que aparece rotulado en la foto */
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  .fac__legend-list span {
+    color: var(--color-text-muted);
+  }
+
+  .fac__legend-note {
+    max-width: none;
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+
+  /* ---------------------------------------------------------------- Rejilla */
+
+  .fac__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 640px) {
+    .fac__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .fac__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /*
+     * Las cuatro piezas que deciden la reserva ocupan dos columnas y una fila
+     * entera. Con `grid-auto-flow: dense` las tarjetas normales rellenan los
+     * huecos que dejan, así que no quedan agujeros en la rejilla.
+     */
+    .fac__card--wide {
+      grid-column: span 2;
+    }
+
+    .fac__grid {
+      grid-auto-flow: dense;
+    }
+  }
+
+  .fac__card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      box-shadow var(--transition-slow),
+      border-color var(--transition-base);
+  }
+
+  .fac__card:hover {
+    transform: translateY(-3px);
+    border-color: transparent;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* ---------------------------------------------------------------- Imagen */
+
+  /*
+   * La foto NO lleva un aspect-ratio fijo.
+   *
+   * Las tarjetas de una misma fila se igualan en alto, y el texto de cada una
+   * ocupa cosas muy distintas. Con una proporción fija, la tarjeta cuyo texto
+   * era corto se quedaba con más de 300 px de blanco debajo: se veía como un
+   * error, no como aire.
+   *
+   * En su lugar, el cuerpo toma la altura de su contenido y la FOTO se queda con
+   * todo el espacio restante. Así la fila sigue cuadrada pero el hueco lo ocupa
+   * imagen, que es lo que el visitante quiere ver.
+   */
+  .fac__media {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-bg-muted);
+    flex: 1 1 auto;
+    /* Suelo para que la foto nunca desaparezca en una tarjeta con mucho texto */
+    min-height: 13rem;
+  }
+
+  .fac__media :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-slower) var(--ease-out);
+  }
+
+  .fac__card:hover .fac__media :global(img) {
+    transform: scale(1.04);
+  }
+
+  /* -------------------------------------------------------------- Contenido */
+
+  .fac__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    /*
+     * `flex: 0 0 auto` es la mitad del arreglo del hueco: el cuerpo ocupa lo que
+     * mide su texto, no se estira, y el espacio libre se lo queda la foto de
+     * arriba (que tiene `flex: 1 1 auto`).
+     */
+    flex: 0 0 auto;
+  }
+
+  .fac__name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+  }
+
+  .fac__card--wide .fac__name {
+    font-size: var(--text-2xl);
+  }
+
+  .fac__text {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+</style>

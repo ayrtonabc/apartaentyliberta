@@ -1,0 +1,265 @@
+---
+/**
+ * Flag — banderas SVG inline para el selector de idioma.
+ *
+ * Se dibujan a mano en vez de usar sprites de terceros ni emoji: los SVG pesan
+ * unos cientos de bytes, escalan sin pixelarse y los emoji de bandera NO se
+ * renderizan en Windows (se ven como "PL" en texto plano), que es justo lo que
+ * hacía ver poco profesional el selector.
+ *
+ * Props:
+ *   code  — código ISO de 2 letras (mayúsculas o minúsculas)
+ *   size  — alto en px del marco (default 16)
+ *   round — si true, aplica radio tipo "pill" (default true)
+ */
+interface Props {
+  code: string;
+  size?: number;
+  round?: boolean;
+  class?: string;
+  title?: string;
+}
+
+const { code, size = 16, round = true, class: className, title } = Astro.props;
+const cc = code.toLowerCase();
+
+const labels: Record<string, string> = {
+  pl: "Polska",
+  en: "United Kingdom",
+  de: "Deutschland",
+  fr: "France",
+  es: "España",
+  it: "Italia",
+  nl: "Nederland",
+  cz: "Česko",
+  sk: "Slovensko",
+  ua: "Ukraina",
+  se: "Sverige",
+  no: "Norge",
+  dk: "Danmark",
+  fi: "Suomi",
+  at: "Österreich",
+  ch: "Schweiz",
+  be: "België",
+  hu: "Magyarország",
+  lt: "Lietuva",
+  lv: "Latvija",
+  ee: "Eesti",
+  ru: "Россия",
+  us: "United States",
+};
+
+const label = title ?? labels[cc] ?? cc.toUpperCase();
+const width = Math.round(size * (4 / 3));
+const radius = round ? Math.round(size * 0.22) : 0;
+const uid = `f-${cc}-${Math.random().toString(36).slice(2, 7)}`;
+---
+
+<svg
+  class={`flag ${className ?? ""}`.trim()}
+  width={width}
+  height={size}
+  viewBox="0 0 60 45"
+  role="img"
+  aria-label={label}
+  style={`border-radius:${radius}px`}
+>
+  {cc === "pl" && (
+    <>
+      <rect width="60" height="22.5" fill="#ffffff" />
+      <rect y="22.5" width="60" height="22.5" fill="#dc143c" />
+    </>
+  )}
+
+  {cc === "de" && (
+    <>
+      <rect width="60" height="15" fill="#000000" />
+      <rect y="15" width="60" height="15" fill="#dd0000" />
+      <rect y="30" width="60" height="15" fill="#ffce00" />
+    </>
+  )}
+
+  {cc === "en" && (
+    <>
+      <defs>
+        <clipPath id={`${uid}-c`}>
+          <rect width="60" height="45" rx="2" />
+        </clipPath>
+      </defs>
+      <g clip-path={`url(#${uid}-c)`}>
+        <rect width="60" height="45" fill="#012169" />
+        <path d="M0 0 L60 45 M60 0 L0 45" stroke="#ffffff" stroke-width="9" />
+        <path d="M0 0 L60 45 M60 0 L0 45" stroke="#c8102e" stroke-width="4" />
+        <path d="M30 0 V45 M0 22.5 H60" stroke="#ffffff" stroke-width="15" />
+        <path d="M30 0 V45 M0 22.5 H60" stroke="#c8102e" stroke-width="9" />
+      </g>
+    </>
+  )}
+
+  {cc === "fr" && (
+    <>
+      <rect width="20" height="45" fill="#0055a4" />
+      <rect x="20" width="20" height="45" fill="#ffffff" />
+      <rect x="40" width="20" height="45" fill="#ef4135" />
+    </>
+  )}
+
+  {cc === "es" && (
+    <>
+      <rect width="60" height="45" fill="#aa151b" />
+      <rect y="11.25" width="60" height="22.5" fill="#f1bf00" />
+    </>
+  )}
+
+  {cc === "it" && (
+    <>
+      <rect width="20" height="45" fill="#008c45" />
+      <rect x="20" width="20" height="45" fill="#f4f5f0" />
+      <rect x="40" width="20" height="45" fill="#cd212a" />
+    </>
+  )}
+
+  {cc === "nl" && (
+    <>
+      <rect width="60" height="15" fill="#ae1c28" />
+      <rect y="15" width="60" height="15" fill="#ffffff" />
+      <rect y="30" width="60" height="15" fill="#21468b" />
+    </>
+  )}
+
+  {cc === "at" && (
+    <>
+      <rect width="60" height="15" fill="#ed2939" />
+      <rect y="15" width="60" height="15" fill="#ffffff" />
+      <rect y="30" width="60" height="15" fill="#ed2939" />
+    </>
+  )}
+
+  {cc === "cz" && (
+    <>
+      <rect width="60" height="22.5" fill="#ffffff" />
+      <rect y="22.5" width="60" height="22.5" fill="#d7141a" />
+      <path d="M0 0 L30 22.5 L0 45 Z" fill="#11457e" />
+    </>
+  )}
+
+  {cc === "sk" && (
+    <>
+      <rect width="60" height="15" fill="#ffffff" />
+      <rect y="15" width="60" height="15" fill="#0b4ea2" />
+      <rect y="30" width="60" height="15" fill="#ee1c25" />
+    </>
+  )}
+
+  {cc === "hu" && (
+    <>
+      <rect width="60" height="15" fill="#ce2939" />
+      <rect y="15" width="60" height="15" fill="#ffffff" />
+      <rect y="30" width="60" height="15" fill="#477050" />
+    </>
+  )}
+
+  {cc === "se" && (
+    <>
+      <rect width="60" height="45" fill="#006aa7" />
+      <rect x="18" width="12" height="45" fill="#fecc00" />
+      <rect y="16.5" width="60" height="12" fill="#fecc00" />
+    </>
+  )}
+
+  {cc === "no" && (
+    <>
+      <rect width="60" height="45" fill="#ba0c2f" />
+      <rect x="16" width="10" height="45" fill="#ffffff" />
+      <rect y="17.5" width="60" height="10" fill="#ffffff" />
+      <rect x="18" width="6" height="45" fill="#00205b" />
+      <rect y="19.5" width="60" height="6" fill="#00205b" />
+    </>
+  )}
+
+  {cc === "dk" && (
+    <>
+      <rect width="60" height="45" fill="#c60c30" />
+      <rect x="17" width="9" height="45" fill="#ffffff" />
+      <rect y="18" width="60" height="9" fill="#ffffff" />
+    </>
+  )}
+
+  {cc === "fi" && (
+    <>
+      <rect width="60" height="45" fill="#ffffff" />
+      <rect x="17" width="11" height="45" fill="#003580" />
+      <rect y="17" width="60" height="11" fill="#003580" />
+    </>
+  )}
+
+  {cc === "ch" && (
+    <>
+      <rect width="60" height="45" fill="#d52b1e" />
+      <rect x="25.5" y="11" width="9" height="23" fill="#ffffff" />
+      <rect x="18.5" y="18" width="23" height="9" fill="#ffffff" />
+    </>
+  )}
+
+  {cc === "be" && (
+    <>
+      <rect width="20" height="45" fill="#000000" />
+      <rect x="20" width="20" height="45" fill="#fdda24" />
+      <rect x="40" width="20" height="45" fill="#ef3340" />
+    </>
+  )}
+
+  {cc === "ua" && (
+    <>
+      <rect width="60" height="22.5" fill="#0057b7" />
+      <rect y="22.5" width="60" height="22.5" fill="#ffd700" />
+    </>
+  )}
+
+  {cc === "lt" && (
+    <>
+      <rect width="60" height="15" fill="#fdb913" />
+      <rect y="15" width="60" height="15" fill="#006a44" />
+      <rect y="30" width="60" height="15" fill="#c1272d" />
+    </>
+  )}
+
+  {cc === "lv" && (
+    <>
+      <rect width="60" height="18" fill="#9e3039" />
+      <rect y="18" width="60" height="9" fill="#ffffff" />
+      <rect y="27" width="60" height="18" fill="#9e3039" />
+    </>
+  )}
+
+  {cc === "ee" && (
+    <>
+      <rect width="60" height="15" fill="#0072ce" />
+      <rect y="15" width="60" height="15" fill="#000000" />
+      <rect y="30" width="60" height="15" fill="#ffffff" />
+    </>
+  )}
+
+  {cc === "us" && (
+    <>
+      <rect width="60" height="45" fill="#ffffff" />
+      {[0, 2, 4, 6, 8, 10, 12].map((i) => (
+        <rect y={(i * 45) / 13} width="60" height={45 / 13} fill="#b22234" />
+      ))}
+      <rect width="26" height={(45 / 13) * 7} fill="#3c3b6e" />
+    </>
+  )}
+
+  {!["pl", "de", "en", "fr", "es", "it", "nl", "at", "cz", "sk", "hu", "se", "no", "dk", "fi", "ch", "be", "ua", "lt", "lv", "ee", "us"].includes(cc) && (
+    <rect width="60" height="45" fill="var(--color-bg-muted)" />
+  )}
+</svg>
+
+<style>
+  .flag {
+    display: block;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+    overflow: hidden;
+  }
+</style>

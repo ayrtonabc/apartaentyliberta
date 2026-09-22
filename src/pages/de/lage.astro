@@ -1,0 +1,32 @@
+---
+/**
+ * /de/lage/ — ubicación y cómo llegar (alemán).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import LocationPage from "~/components/sections/LocationPage.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "de";
+const tr = t(locale);
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.nav.location, path: "/lokalizacja/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Lage und Anreise zu Apartamenty Liberta"
+  description="Stare Jabłonki, Jarzębinowa 16 - 25 km bis Olsztyn, 12 km bis Ostróda und 12 km bis zum Flughafen Mazury. Karte, GPS-Koordinaten und Anreise mit Auto, Flugzeug und Bahn."
+  canonicalPath="/lokalizacja/"
+  ogImage="/og-location.jpg"
+  schema={schema}
+>
+  <LocationPage locale={locale} />
+</BaseLayout>

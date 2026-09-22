@@ -1,0 +1,104 @@
+/* ============================================================================
+   UTILITIES — Ayudas de visibilidad y espaciado
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   VISIBILIDAD RESPONSIVE
+   --------------------------------------------------------------------------- */
+
+.u-hide { display: none !important; }
+
+@media (max-width: 767px) {
+  .u-hide-mobile { display: none !important; }
+}
+
+@media (min-width: 768px) {
+  .u-only-mobile { display: none !important; }
+  .u-hide-desktop { display: none !important; }
+}
+
+@media (max-width: 1023px) {
+  .u-only-lg { display: none !important; }
+}
+
+@media (min-width: 1024px) {
+  .u-hide-lg { display: none !important; }
+}
+
+/* ---------------------------------------------------------------------------
+   ESPACIADO
+   --------------------------------------------------------------------------- */
+
+.u-mt-0 { margin-top: 0 !important; }
+.u-mt-2 { margin-top: var(--space-2) !important; }
+.u-mt-4 { margin-top: var(--space-4) !important; }
+.u-mt-6 { margin-top: var(--space-6) !important; }
+.u-mt-8 { margin-top: var(--space-8) !important; }
+.u-mt-12 { margin-top: var(--space-12) !important; }
+.u-mt-16 { margin-top: var(--space-16) !important; }
+
+.u-mb-0 { margin-bottom: 0 !important; }
+.u-mb-2 { margin-bottom: var(--space-2) !important; }
+.u-mb-4 { margin-bottom: var(--space-4) !important; }
+.u-mb-6 { margin-bottom: var(--space-6) !important; }
+.u-mb-8 { margin-bottom: var(--space-8) !important; }
+
+/* Ritmo vertical automático entre hijos */
+.u-stack > * + * { margin-top: var(--stack-gap, var(--space-6)); }
+.u-stack--sm { --stack-gap: var(--space-3); }
+.u-stack--lg { --stack-gap: var(--space-10); }
+
+/* ---------------------------------------------------------------------------
+   ANCHO DE TEXTO
+   --------------------------------------------------------------------------- */
+
+.u-max-narrow { max-width: 60ch; margin-inline: auto; }
+.u-max-text { max-width: 68ch; }
+.u-mx-auto { margin-inline: auto; }
+
+/* ---------------------------------------------------------------------------
+   OVERFLOW
+   --------------------------------------------------------------------------- */
+
+.u-clip { overflow: hidden; }
+.u-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.u-scroll-x::-webkit-scrollbar { display: none; }
+
+/* ---------------------------------------------------------------------------
+   FONDO
+   --------------------------------------------------------------------------- */
+
+.u-bg-bg { background-color: var(--color-bg); }
+.u-bg-muted { background-color: var(--color-bg-muted); }
+.u-bg-elevated { background-color: var(--color-bg-elevated); }
+.u-bg-accent-faded { background-color: var(--color-accent-faded); }
+
+/* ---------------------------------------------------------------------------
+   BORDES
+   --------------------------------------------------------------------------- */
+
+.u-radius-lg { border-radius: var(--radius-lg); }
+.u-radius-xl { border-radius: var(--radius-xl); }
+.u-border-top { border-top: 1px solid var(--color-line); }
+.u-border-bottom { border-bottom: 1px solid var(--color-line); }
+
+/* ---------------------------------------------------------------------------
+   RATIO
+   --------------------------------------------------------------------------- */
+
+.u-ratio-1 { aspect-ratio: 1 / 1; }
+.u-ratio-4-3 { aspect-ratio: 4 / 3; }
+.u-ratio-3-2 { aspect-ratio: 3 / 2; }
+.u-ratio-16-9 { aspect-ratio: 16 / 9; }
+.u-ratio-3-4 { aspect-ratio: 3 / 4; }
+.u-ratio-2-3 { aspect-ratio: 2 / 3; }
+
+.u-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

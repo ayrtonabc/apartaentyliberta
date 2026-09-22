@@ -1,0 +1,32 @@
+---
+/**
+ * /atrakcje/ — atractivos y entorno (polaco).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import AttractionsPage from "~/components/sections/AttractionsPage.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "pl";
+const tr = t(locale);
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.nav.attractions, path: "/atrakcje/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Atrakcje na Mazurach w okolicy Starych Jabłonek"
+  description="Kanał Ostródzko-Elbląski z pochylniami, bunkry, Pola Grunwaldzkie, spływy kajakowe, wyciąg nart wodnych, pola golfowe, jazda konna. Wszystko w zasięgu 30 minut od Apartamentów Liberta."
+  canonicalPath="/atrakcje/"
+  ogImage="/og-attractions.jpg"
+  schema={schema}
+>
+  <AttractionsPage locale={locale} />
+</BaseLayout>

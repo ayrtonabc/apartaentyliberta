@@ -1,0 +1,58 @@
+---
+/**
+ * MapEmbed — Google Maps iframe (sin API key).
+ * Usa la URL pública de Google Maps en formato /maps?output=embed
+ * con coordenadas GPS. Funciona con la URL pública, no requiere clave.
+ *
+ * Props:
+ *   - lat, lng: coordenadas GPS (default: Apartamenty Liberta)
+ *   - zoom:    nivel de zoom 1-20 (default: 14, suficiente para ver la zona)
+ *   - class:   clase CSS extra para el wrapper
+ */
+import { getLocaleFromUrl } from "~/lib/i18n";
+
+interface Props {
+  lat?: number;
+  lng?: number;
+  zoom?: number;
+  class?: string;
+  title?: string;
+}
+
+const {
+  lat = 53.7034,
+  lng = 20.0778,
+  zoom = 14,
+  class: className,
+  title = "Mapa dojazdu do Apartamentów Liberta",
+} = Astro.props;
+
+// hl (lenguaje del mapa) según el idioma de la página
+const locale = getLocaleFromUrl(Astro.url);
+const hlMap = { pl: "pl", en: "en", de: "de" } as const;
+const hl = hlMap[locale] || "pl";
+
+const src = `https://www.google.com/maps?q=${lat},${lng}&hl=${hl}&z=${zoom}&output=embed`;
+---
+
+<iframe
+  class={`map-embed ${className ?? ""}`.trim()}
+  src={src}
+  width="100%"
+  height="100%"
+  style="border:0;"
+  allowfullscreen
+  loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade"
+  title={title}
+></iframe>
+
+<style>
+  .map-embed {
+    display: block;
+    width: 100%;
+    min-height: 400px;
+    height: 100%;
+    border: 0;
+  }
+</style>

@@ -1,0 +1,346 @@
+---
+/**
+ * AmenitiesShowcase — equipamiento en formato "bento".
+ *
+ * Seis bloques asimétricos: tres con foto (balia, salón, taras) y tres con
+ * listas de equipamiento. Es más interesante que una rejilla plana de iconos y
+ * permite mostrar el producto real junto al inventario de servicios.
+ */
+import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
+import { getAmenities } from "~/data/amenities";
+import Icon from "~/components/ui/Icon.astro";
+import SectionHeading from "~/components/ui/SectionHeading.astro";
+import SmartImage from "~/components/ui/SmartImage.astro";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+
+/**
+ * Fotos del bento.
+ *
+ * `tall` marca la tarjeta que necesita más alto en escritorio. Se declara aquí y
+ * no con `:nth-child` porque ese selector cuenta también el encabezado de la
+ * sección: la foto del taras es la tercera del array pero el segundo hijo de la
+ * rejilla. Con la marca explícita, reordenar el array no cambia cuál es la alta.
+ */
+const photos: Array<{
+  src: string;
+  alt: string;
+  title: string;
+  text: string;
+  tall?: boolean;
+}> = [
+  {
+    src: "/assets/apartments/liberta-i/bania-goralska.jpg",
+    alt:
+      locale === "pl"
+        ? "Balia góralska w ogrodzie Apartamentów Liberta"
+        : locale === "de"
+          ? "Holz-Hot-Tub im Garten von Apartamenty Liberta"
+          : "Wood-fired hot tub in the Liberta garden",
+    title: tr.amenityLabelHotTub,
+    text:
+      locale === "pl"
+        ? "Napalana drewnem, dostępna przez cały rok. Wieczorem przy jeziorze smakuje zupełnie inaczej."
+        : locale === "de"
+          ? "Mit Holz beheizt, ganzjährig nutzbar. Abends am See schmeckt es gleich anders."
+          : "Wood-fired and available all year. By the lake in the evening it tastes entirely different.",
+  },
+  {
+    src: "/assets/apartments/liberta-i/salon-aneks-1.jpg",
+    alt:
+      locale === "pl"
+        ? "Salon z widokiem na jezioro i kominkiem"
+        : locale === "de"
+          ? "Wohnzimmer mit Seeblick und Ofen"
+          : "Living room with lake view and wood stove",
+    title: locale === "pl" ? "Salon z widokiem" : locale === "de" ? "Wohnzimmer mit Aussicht" : "Living room with a view",
+    text:
+      locale === "pl"
+        ? "Kominek na drewno, Smart TV z Netflixem i przeszklenia na całą szerokość domu."
+        : locale === "de"
+          ? "Holzofen, Smart-TV mit Netflix und raumhohe Fenster über die gesamte Hausbreite."
+          : "A wood stove, a Smart TV with Netflix and full-width glazing.",
+  },
+  {
+    src: "/assets/apartments/liberta-i/taras.jpg",
+    tall: true,
+    alt:
+      locale === "pl"
+        ? "Zadaszony taras z meblami i grillem"
+        : locale === "de"
+          ? "Überdachte Terrasse mit Möbeln und Grill"
+          : "Covered terrace with furniture and BBQ",
+    title: locale === "pl" ? "Taras i grill" : locale === "de" ? "Terrasse und Grill" : "Terrace and BBQ",
+    text:
+      locale === "pl"
+        ? "Zadaszony taras z murowanym grillem, meblami ogrodowymi i leżakami. Śniadanie na zewnątrz od maja do października."
+        : locale === "de"
+          ? "Überdachte Terrasse mit gemauertem Grill, Gartenmöbeln und Liegestühlen. Frühstück draußen von Mai bis Oktober."
+          : "A covered terrace with a built-in BBQ, garden furniture and loungers. Breakfast outside from May to October.",
+  },
+];
+
+const kitchen = getAmenities([
+  "kitchen", "oven", "microwave", "stove", "fridge", "kettle", "toaster", "washer",
+]);
+const comfort = getAmenities([
+  "wifi", "ac", "heating", "fireplace", "tv", "netflix", "bed", "towels", "hairdryer", "iron",
+]);
+const outdoor = getAmenities([
+  "terrace", "grill", "sunbeds", "parking", "lakeview", "playground", "bikes", "outdoorfireplace",
+]);
+---
+
+<section class="amen section section--bg" id="wyposazenie">
+  <div class="container">
+    <SectionHeading
+      eyebrow={tr.home.amenitiesEyebrow}
+      title={tr.home.amenitiesTitle}
+      lead={tr.home.amenitiesLead}
+    />
+
+    <div class="amen__bento bento">
+      {photos.map((photo, index) => (
+        <article
+          class:list={["amen__photo", photo.tall && "amen__photo--tall"]}
+          data-reveal
+          style={`--reveal-delay:${index * 70}ms`}
+        >
+          <SmartImage
+            src={photo.src}
+            alt={photo.alt}
+            sizes="(min-width: 768px) 50vw, 100vw"
+          />
+          <div class="amen__photo-body">
+            <h3 class="amen__photo-title">{photo.title}</h3>
+            <p class="amen__photo-text">{photo.text}</p>
+          </div>
+        </article>
+      ))}
+
+      <article class="amen__list" data-reveal>
+        <h3 class="amen__list-title">
+          <Icon name="utensils" size={18} />
+          {locale === "pl" ? "Kuchnia" : locale === "de" ? "Küche" : "Kitchen"}
+        </h3>
+        <ul class="amen__items" role="list">
+          {kitchen.map((item) => (
+            <li><Icon name={item.icon} size={16} />{item.labels[locale]}</li>
+          ))}
+        </ul>
+      </article>
+
+      <article class="amen__list" data-reveal style="--reveal-delay:70ms">
+        <h3 class="amen__list-title">
+          <Icon name="sparkles" size={18} />
+          {locale === "pl" ? "Komfort" : locale === "de" ? "Komfort" : "Comfort"}
+        </h3>
+        <ul class="amen__items" role="list">
+          {comfort.map((item) => (
+            <li><Icon name={item.icon} size={16} />{item.labels[locale]}</li>
+          ))}
+        </ul>
+      </article>
+
+      <article class="amen__list" data-reveal style="--reveal-delay:140ms">
+        <h3 class="amen__list-title">
+          <Icon name="sun" size={18} />
+          {locale === "pl" ? "Ogród i okolica" : locale === "de" ? "Garten und Umgebung" : "Garden and grounds"}
+        </h3>
+        <ul class="amen__items" role="list">
+          {outdoor.map((item) => (
+            <li><Icon name={item.icon} size={16} />{item.labels[locale]}</li>
+          ))}
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .amen__bento {
+    align-items: stretch;
+  }
+
+  /* --------------------------------------------------------------- Fotos */
+
+  .amen__photo {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 17rem;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-inverse);
+    isolation: isolate;
+  }
+
+  .amen__photo :global(img) {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    transition: transform var(--duration-slower) var(--ease-out);
+  }
+
+  /*
+   * Velo reforzado en la franja inferior: tres de estas fotos tienen ventanales
+   * o agua muy luminosos justo donde va el texto y con el degradado anterior
+   * el pie de foto quedaba por debajo de 3:1.
+   */
+  .amen__photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to top,
+      rgba(6, 14, 11, 0.94) 0%,
+      rgba(6, 14, 11, 0.82) 26%,
+      rgba(6, 14, 11, 0.42) 56%,
+      rgba(6, 14, 11, 0.08) 100%
+    );
+  }
+
+  .amen__photo:hover :global(img) {
+    transform: scale(1.04);
+  }
+
+  .amen__photo-body {
+    padding: var(--space-6);
+    color: var(--color-text-inverse);
+  }
+
+  .amen__photo-title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    letter-spacing: var(--tracking-tight);
+    color: #fff;
+    margin-bottom: var(--space-2);
+    text-shadow: 0 1px 2px rgba(6, 14, 11, 0.5);
+  }
+
+  .amen__photo-text {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--on-dark-text);
+    max-width: 40ch;
+    text-shadow: 0 1px 2px rgba(6, 14, 11, 0.5);
+  }
+
+  /*
+   * Tarjeta del taras: más alta en escritorio.
+   *
+   * Con 15rem la caja quedaba en proporción 4,77 y la foto —que es 3:2— perdía
+   * el 69% de su alto: solo se veía una tira del suelo, sin el mobiliario ni la
+   * pérgola. Es la foto que mejor enseña el producto y era la que peor se veía.
+   *
+   * A 30rem la caja queda en 1144×480 (proporción 2,38). Sigue leyéndose como
+   * banda ancha, pero con el taras entero a la vista. No alarga la sección en la
+   * misma proporción porque el pie de foto va superpuesto sobre la imagen.
+   */
+  @media (min-width: 768px) {
+    .amen__photo--tall {
+      min-height: 30rem;
+    }
+
+    .amen__photo--tall .amen__photo-text {
+      max-width: 62ch;
+    }
+  }
+
+  @media (min-width: 768px) {
+    /*
+     * Rejilla explícita: dos fotos grandes a la izquierda y una franja ancha
+     * debajo, con las tres listas de equipamiento en fila al final. Evita la
+     * retícula de 6 columnas con filas implícitas que dejaba huecos raros.
+     */
+    .amen__bento {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-auto-rows: auto;
+    }
+
+    .amen__photo:nth-child(1) {
+      grid-column: span 6;
+      min-height: 22rem;
+    }
+
+    .amen__photo:nth-child(2) {
+      grid-column: span 6;
+      min-height: 22rem;
+    }
+
+    /*
+     * La tarjeta alta: la franja ancha de abajo, con la foto del taras.
+     *
+     * El selector va por clase y no por `:nth-child(3)` para que coincida con la
+     * marca `tall` que lleva el dato. La medida de 30rem está explicada en
+     * `.amen__photo--tall` más abajo.
+     */
+    .amen__photo--tall {
+      grid-column: span 12;
+    }
+
+    .amen__list {
+      grid-column: span 4;
+    }
+  }
+
+  /* --------------------------------------------------------------- Listas */
+
+  .amen__list {
+    padding: var(--space-6);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+  }
+
+  @media (min-width: 768px) {
+    .amen__list {
+      grid-column: span 12;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .amen__list {
+      grid-column: span 4;
+    }
+  }
+
+  .amen__list-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text);
+    margin-bottom: var(--space-5);
+  }
+
+  .amen__list-title :global(.icon) {
+    color: var(--color-accent);
+  }
+
+  .amen__items {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .amen__items li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    line-height: 1.4;
+    color: var(--color-text-muted);
+  }
+
+  .amen__items :global(.icon) {
+    color: var(--color-accent);
+    margin-top: 0.2em;
+  }
+</style>

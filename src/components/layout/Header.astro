@@ -1,0 +1,881 @@
+---
+/**
+ * Header — cabecera fija con transición de cristal al hacer scroll.
+ *
+ * Comportamiento:
+ *   - La marca es SIEMPRE el logotipo completo, en la posición inicial y tras
+ *     hacer scroll. Antes se mostraba el isotipo arriba y el logotipo al bajar:
+ *     el propietario pidió ver el logo entero sin scroll.
+ *   - Los enlaces de navegación van alineados a la derecha, junto a los iconos
+ *     sociales, el teléfono, el idioma y el botón de reserva.
+ *   - El color del texto y el fondo cambian en el MISMO umbral de scroll: en
+ *     cuanto aparece el fondo claro, todo el texto pasa a negro. Antes el fondo
+ *     se activaba a los 24 px y el texto seguía claro hasta salir del hero.
+ */
+import { type Locale, getLocaleFromUrl, localeLink, t, canonicalPath } from "~/lib/i18n";
+import { site } from "~/data/site";
+import LanguageSwitcher from "~/components/layout/LanguageSwitcher.astro";
+import SocialLinks from "~/components/ui/SocialLinks.astro";
+import logoFull from "~/assets/nav-wordmark.webp";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+
+/** Ruta canónica (polaca) de la página actual, para marcar el ítem activo. */
+const here = canonicalPath(Astro.url);
+
+const navItems = [
+  { href: localeLink(locale, "/apartamenty/"), label: tr.nav.apartments, match: "/apartamenty/" },
+  { href: localeLink(locale, "/cennik/"), label: tr.nav.prices, match: "/cennik/" },
+  { href: localeLink(locale, "/lokalizacja/"), label: tr.nav.location, match: "/lokalizacja/" },
+  { href: localeLink(locale, "/atrakcje/"), label: tr.nav.attractions, match: "/atrakcje/" },
+  { href: localeLink(locale, "/opinie/"), label: tr.nav.reviews, match: "/opinie/" },
+];
+
+const bookingHref = localeLink(locale, "/rezerwacja/");
+
+const isActive = (match: string) =>
+  match === "/apartamenty/" ? here.startsWith("/apartamenty/") : here === match;
+---
+
+<header class="hdr" data-header data-state="top">
+  <a class="skip-link" href="#main">{tr.a11y.skipToContent}</a>
+
+  <div class="hdr__bar">
+    <div class="hdr__inner">
+      <a class="hdr__brand" href={localeLink(locale, "/")} aria-label={`${tr.brand.name} — ${tr.nav.home}`}>
+        {/*
+          Dos versiones del mismo logo, superpuestas. El CSS muestra una u otra
+          según el estado de la barra: blanco sobre el vídeo, oscuro al hacer
+          scroll. Las dos miden lo mismo (4,16 de proporción), así que no hay
+          salto al alternar.
+        */}
+        <img
+          class="hdr__wordmark hdr__wordmark--light"
+          src="/logoblanco.webp"
+          alt=""
+          width="194"
+          height="47"
+          aria-hidden="true"
+        />
+        <img
+          class="hdr__wordmark hdr__wordmark--dark"
+          src={logoFull.src}
+          alt={tr.brand.name}
+          width="194"
+          height="47"
+        />
+      </a>
+
+      <nav class="hdr__nav" aria-label={tr.a11y.mainNav}>
+        <ul role="list">
+          {navItems.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={["hdr__link", isActive(item.match) && "is-active"]}
+                aria-current={isActive(item.match) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="hdr__actions">
+        <SocialLinks variant="inline" class="hdr__social" />
+
+        <a class="hdr__phone" href={`tel:${site.phone.tel}`}>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          <span>{site.phone.display}</span>
+        </a>
+
+        <div class="hdr__lang">
+          <LanguageSwitcher variant="pill" />
+        </div>
+
+        <a class="btn btn--primary btn--sm hdr__cta" href={bookingHref}>
+          {tr.cta.bookNow}
+        </a>
+
+        <button
+          class="hdr__burger"
+          type="button"
+          aria-label={tr.a11y.openMenu}
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+          data-menu-toggle
+        >
+          <span class="hdr__burger-box" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="hdr__progress" aria-hidden="true"><span data-scroll-progress></span></div>
+  </div>
+</header>
+
+<!-- ======================= MENÚ MÓVIL ======================= -->
+<div class="mm" id="mobile-menu" data-menu hidden>
+  <div class="mm__panel" role="dialog" aria-modal="true" aria-label={tr.a11y.mainNav}>
+    <div class="mm__top">
+      <span class="mm__brand">{tr.brand.name}</span>
+      <button class="mm__close" type="button" aria-label={tr.a11y.closeMenu} data-menu-close>
+        <svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="mm__nav" aria-label={tr.a11y.mainNav}>
+      <ul role="list">
+        {navItems.map((item, i) => (
+          <li style={`--i:${i}`}>
+            <a href={item.href} data-menu-link>
+              <span class="mm__num">{String(i + 1).padStart(2, "0")}</span>
+              <span>{item.label}</span>
+            </a>
+          </li>
+        ))}
+        <li style={`--i:${navItems.length}`}>
+          <a href={localeLink(locale, "/faq/")} data-menu-link>
+            <span class="mm__num">{String(navItems.length + 1).padStart(2, "0")}</span>
+            <span>{tr.nav.faq}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mm__lang">
+      <LanguageSwitcher variant="block" />
+    </div>
+
+    <div class="mm__foot">
+      <a class="btn btn--primary btn--full btn--lg" href={bookingHref} data-menu-link>
+        {tr.cta.checkAvailability}
+      </a>
+      <div class="mm__contact">
+        <a href={`tel:${site.phone.tel}`}>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          {site.phone.display}
+        </a>
+        <a href={`mailto:${site.email}`}>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          {site.email}
+        </a>
+      </div>
+    </div>
+  </div>
+  <button class="mm__scrim" type="button" tabindex="-1" aria-hidden="true" data-menu-close></button>
+</div>
+
+<style>
+  /* ---------------------------------------------------------------------------
+     BARRA
+     --------------------------------------------------------------------------- */
+
+  .hdr {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: var(--z-header);
+    color: var(--color-text);
+    /*
+     * AQUÍ NO VA `overflow: hidden`.
+     *
+     * El desplegable del selector de idioma es hijo de esta cabecera y tiene que
+     * poder salirse de la barra para verse. Recortar el contenedor lo dejaba
+     * abierto pero invisible, y sin poder hacer clic. El skip-link se oculta
+     * ahora recortándose a sí mismo (ver .skip-link en base.css), que no
+     * afecta a ningún otro elemento.
+     */
+  }
+
+  .hdr__bar {
+    position: relative;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color var(--transition-slow),
+      border-color var(--transition-slow),
+      box-shadow var(--transition-slow),
+      backdrop-filter var(--transition-slow);
+  }
+
+  /* Al hacer scroll: cristal claro + sombra */
+  .hdr[data-state="scrolled"] .hdr__bar {
+    background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-bottom-color: var(--color-line);
+    box-shadow: 0 12px 30px -24px rgba(18, 33, 27, 0.5);
+  }
+
+  /*
+   * Color del texto.
+   *
+   * Por defecto: tinta oscura. Es el caso de las páginas interiores (fondo
+   * claro) y de la cabecera una vez aparece su fondo al hacer scroll.
+   *
+   * `data-theme="on-dark"` solo se aplica mientras la cabecera está sobre el
+   * hero, que es la única situación con fondo oscuro detrás. Se alterna en el
+   * MISMO umbral de scroll que el fondo, de modo que en cuanto la barra coge
+   * color, todo el texto pasa a negro a la vez.
+   */
+  .hdr {
+    color: #000;
+  }
+
+  /*
+   * Sobre el hero: BLANCO PURO, no el crema de la marca.
+   *
+   * `--color-text-inverse` es #f4f1ea, un blanco cálido. Sobre el vídeo oscuro el
+   * propietario lo veía apagado —"ese blanco es muy apagado, pon un blanco más
+   * blanco"— así que aquí se usa #fff directo. La cabecera es el único sitio de la
+   * web donde el texto va sobre imagen en movimiento, así que este blanco no
+   * rompe la paleta: en cuanto hay fondo claro vuelve al crema de siempre.
+   */
+  .hdr[data-theme="on-dark"] {
+    color: #fff;
+  }
+
+  /*
+   * Las marcas del propietario (Facebook y Booking.com) son archivos blancos y
+   * SocialLinks los invierte por defecto para el fondo claro.
+   *
+   * Aquí se anula ese filtro mientras la cabecera está sobre el hero: ahí el
+   * fondo es la foto y las marcas deben imprimirse en blanco, tal como salieron
+   * del archivo. En cuanto aparece el fondo al hacer scroll, el atributo
+   * data-theme desaparece y el filtro vuelve solo.
+   */
+  .hdr[data-theme="on-dark"] :global(.social__img) {
+    filter: none;
+    opacity: 0.78;
+  }
+
+  .hdr[data-theme="on-dark"] :global(.social__link:hover .social__img) {
+    opacity: 1;
+  }
+
+  /*
+   * DISTRIBUCIÓN DE LA BARRA: logo · nav centrado · acciones.
+   *
+   * La barra se compone de tres bloques:
+   *   1. `.hdr__brand`   (logo)        — tamaño natural
+   *   2. `.hdr__nav`     (5 enlaces)   — DEBE ir en el centro EXACTO
+   *   3. `.hdr__actions` (social, tel, lang, CTA, burger)
+   *
+   * Antes era flex con `margin-inline: auto` en nav y acciones: el navegador
+   * repartía el espacio sobrante a partes iguales, que es el centro del
+   * FLEXBOX pero NO el centro del viewport si logo y acciones tienen anchos
+   * distintos. El nav quedaba desplazado hacia donde había más hueco.
+   *
+   * Ahora la barra es grid `1fr auto 1fr`:
+   *   · la columna del medio (`auto`) la ocupa el nav con su ancho natural
+   *   · las columnas de los extremos (`1fr`) miden LO MISMO, así el nav
+   *     queda en el centro simétrico del ancho disponible
+   *   · logo y acciones se alinean al borde exterior de su celda (logo a
+   *     la izquierda, acciones a la derecha) con `justify-self`
+   *
+   * El resultado: el bloque "Apartamenty · Cennik · Lokalizacja · Atrakcje
+   * · Opinie" cae en el centro del viewport, no en el centro de la zona
+   * sobrante. Es la técnica estándar de barra de tres bloques con el medio
+   * centrado.
+   *
+   * En móvil (< 1024 px) se vuelve a flex normal: el nav está oculto y
+   * solo necesitamos logo a la izquierda + burger a la derecha.
+   */
+  .hdr__inner {
+    max-width: var(--container-wide-max);
+    margin-inline: auto;
+    padding: var(--space-4) var(--gutter);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--header-height);
+  }
+
+  @media (min-width: 1024px) {
+    .hdr__inner {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      column-gap: var(--space-5);
+      min-height: var(--header-height-lg);
+    }
+  }
+
+  /* ---------------------------------------------------------------------------
+     MARCA — isotipo arriba, logotipo al hacer scroll
+     --------------------------------------------------------------------------- */
+
+  /*
+   * MARCA — siempre el logotipo completo, en la posición inicial y con scroll.
+   *
+   * El logotipo es un PNG con transparencia y texto oscuro (#141414) más el
+   * isotipo en color. Sobre el hero oscuro necesita un fondo claro para leerse,
+   * así que lleva un plato blanco translúcido con desenfoque: es lo que permite
+   * que el logo se vea entero Y legible sobre la foto, sin cambiarlo por el
+   * isotipo suelto como se hacía antes.
+   */
+
+  .hdr__brand {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 0;
+    border-radius: var(--radius-full);
+    background: none;
+    box-shadow: none;
+    transition: opacity var(--duration-normal) var(--ease-out);
+    /*
+     * La marca vive en la columna izquierda (`1fr`) del grid. Con
+     * `justify-self: start` se pega al borde izquierdo de su celda, que
+     * coincide con el borde izquierdo del viewport (descontando padding).
+     * Sin esto, el logo se quedaría flotando en mitad de su columna,
+     * dejando un hueco vacío entre el logo y el nav.
+     */
+    justify-self: start;
+  }
+
+  /*
+   * DOS VERSIONES DEL LOGO, LA MISMA CAJA.
+   *
+   * Las dos imágenes van superpuestas en el mismo contenedor y se alternan por
+   * opacidad según el estado de la barra:
+   *
+   *   posición inicial (sobre el vídeo) → logo BLANCO, sin plato detrás
+   *   al hacer scroll (barra clara)     → logo oscuro
+   *
+   * Antes había un solo logo (oscuro) con un plato blanco translúcido detrás para
+   * que se leyera sobre el vídeo. El propietario pidió quitarlo: "sácale el
+   * recuadro claro que tiene el logo, déjalo solo flotando".
+   *
+   * Y eligió el logo blanco para la posición inicial en lugar de invertir el
+   * oscuro con un filtro, que sobre un fondo con textura deja el isotipo sucio.
+   */
+  .hdr__wordmark {
+    display: block;
+    height: 2.4rem;
+    width: auto;
+    background: none;
+    transition: opacity var(--duration-normal) var(--ease-out);
+  }
+
+  /* El logo blanco solo se ve en la posición inicial */
+  .hdr__wordmark--light {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    height: 2.4rem;
+    width: auto;
+    opacity: 0;
+  }
+
+  .hdr[data-theme="on-dark"] .hdr__wordmark--light {
+    opacity: 1;
+  }
+
+  .hdr[data-theme="on-dark"] .hdr__wordmark--dark {
+    opacity: 0;
+  }
+
+  /* Al hacer scroll no cambia nada de la marca: ya no tiene plato que quitar */
+
+  /* ---------------------------------------------------------------------------
+     NAVEGACIÓN
+     ---------------------------------------------------------------------------
+     Los enlaces van pegados al bloque de acciones (a la derecha), no centrados:
+     `margin-left: auto` empuja el conjunto nav + acciones hacia la derecha.
+     --------------------------------------------------------------------------- */
+
+  .hdr__nav {
+    display: none;
+    /*
+     * El nav vive en la columna central (`auto`) del grid `1fr auto 1fr`.
+     * `justify-self: center` lo centra DENTRO de su columna, que a su vez
+     * está en el centro del ancho disponible por el grid. Sin esto, el
+     * nav se pegaría al inicio de su columna (al logo) en lugar de al
+     * centro de la página.
+     *
+     * Antes este `margin-inline: auto` se usaba con flexbox: repartía
+     * el espacio sobrante, pero no era el centro del viewport si logo y
+     * acciones tenían anchos distintos. Con grid de tres columnas
+     * simétricas el centrado es matemático.
+     */
+    justify-self: center;
+  }
+
+  @media (min-width: 1024px) {
+    .hdr__nav {
+      display: block;
+    }
+  }
+
+  .hdr__nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .hdr__link {
+    position: relative;
+    display: inline-block;
+    padding-block: var(--space-2);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    color: inherit;
+    /*
+     * Antes la opacity base era 0.82: la dejábamos apagada para que el link
+     * activo (con `is-active`) o en hover destacara por contraste. Sobre el
+     * hero (color de texto #fff puro), esa opacity baja se notaba como
+     * blanco sucio / gris claro — no como "menos importante". El cliente
+     * pidió el blanco más blanco disponible.
+     *
+     * Ahora los enlaces arrancan en opacity 1 (blanco puro cuando el tema
+     * es on-dark). El link activo se sigue diferenciando con
+     * `font-weight: semibold` y el subrayado, y el hover mantiene la
+     * underline que sube desde scaleX(0) → scaleX(1). El cambio es
+     * pequeño pero visible: el menú ya no se ve "apagado".
+     */
+    opacity: 1;
+    transition: opacity var(--transition-base);
+  }
+
+  .hdr__link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1.5px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-normal) var(--ease-out);
+  }
+
+  .hdr__link:hover {
+    opacity: 1;
+  }
+
+  .hdr__link:hover::after,
+  .hdr__link.is-active::after {
+    transform: scaleX(1);
+  }
+
+  .hdr__link.is-active {
+    opacity: 1;
+    font-weight: var(--weight-semibold);
+  }
+
+  /* ---------------------------------------------------------------------------
+     ACCIONES
+     --------------------------------------------------------------------------- */
+
+  .hdr__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-shrink: 0;
+    /*
+     * Las acciones viven en la columna derecha (`1fr`) del grid. Con
+     * `justify-self: end` se pegan al borde derecho de su celda (y por
+     * tanto al borde derecho del viewport, descontando el padding).
+     *
+     * Móvil (< 1024 px) el contenedor vuelve a flex con
+     * `justify-content: space-between`, así que las acciones se quedan
+     * igual en el extremo derecho.
+     */
+    justify-self: end;
+  }
+
+  .hdr__phone {
+    display: none;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: inherit;
+    /*
+     * Antes el teléfono iba a opacity 0.85 sobre el hero — un blanco
+     * ligeramente apagado. Con el menú ya en blanco puro, mantener este
+     * tono grisáceo rompía la coherencia visual de la barra. Ahora va
+     * en blanco puro y el hover ya no necesita subir la opacity: usa el
+     * cambio de color (a acento) como señal.
+     */
+    opacity: 1;
+    white-space: nowrap;
+    transition: color var(--transition-base);
+  }
+
+  .hdr__phone:hover {
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 1400px) {
+    .hdr__phone { display: inline-flex; }
+  }
+
+  /* Iconos sociales: solo en escritorio ancho, donde caben sin apretar el nav */
+  .hdr__social { display: none; }
+
+  @media (min-width: 1200px) {
+    .hdr__social { display: flex; }
+  }
+
+  .hdr__lang { display: none; }
+
+  @media (min-width: 768px) {
+    .hdr__lang { display: block; }
+  }
+
+  .hdr__cta { display: none; }
+
+  @media (min-width: 1024px) {
+    .hdr__cta { display: inline-flex; }
+  }
+
+  /* ---------------------------------------------------------------------------
+     BOTÓN HAMBURGUESA
+     --------------------------------------------------------------------------- */
+
+  .hdr__burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-full);
+    color: inherit;
+    transition: border-color var(--transition-base), background-color var(--transition-base);
+  }
+
+  .hdr[data-theme="on-dark"] .hdr__burger,
+  .hdr[data-theme="on-dark"] .hdr__lang :global(.lang__toggle) {
+    border-color: var(--on-dark-border);
+  }
+
+  .hdr__burger:hover {
+    border-color: var(--color-accent);
+  }
+
+  @media (min-width: 1024px) {
+    .hdr__burger { display: none; }
+  }
+
+  .hdr__burger-box {
+    display: grid;
+    gap: 5px;
+    width: 20px;
+  }
+
+  .hdr__burger-box span {
+    display: block;
+    height: 1.8px;
+    width: 100%;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform var(--duration-normal) var(--ease-out), opacity var(--transition-base);
+  }
+
+  .hdr__burger[aria-expanded="true"] .hdr__burger-box span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .hdr__burger[aria-expanded="true"] .hdr__burger-box span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hdr__burger[aria-expanded="true"] .hdr__burger-box span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* ---------------------------------------------------------------------------
+     PROGRESO DE LECTURA
+     --------------------------------------------------------------------------- */
+
+  .hdr__progress {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 2px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .hdr__progress span {
+    display: block;
+    height: 100%;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left;
+    background: linear-gradient(to right, var(--color-accent), var(--color-brass));
+  }
+
+  /* ---------------------------------------------------------------------------
+     MENÚ MÓVIL
+     --------------------------------------------------------------------------- */
+
+  .mm {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-drawer);
+  }
+
+  .mm[hidden] { display: none; }
+
+  .mm__scrim {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    background: var(--color-overlay);
+    opacity: 0;
+    transition: opacity var(--duration-normal) var(--ease-out);
+    cursor: default;
+  }
+
+  .mm__panel {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding: var(--space-5) var(--gutter) var(--space-8);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--color-bg);
+    color: var(--color-text);
+    transform: translateY(-2%);
+    opacity: 0;
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      opacity var(--duration-normal) var(--ease-out);
+  }
+
+  .mm[data-open="true"] .mm__scrim { opacity: 1; }
+
+  .mm[data-open="true"] .mm__panel {
+    transform: none;
+    opacity: 1;
+  }
+
+  .mm__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 2.75rem;
+  }
+
+  .mm__brand {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .mm__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-full);
+    color: var(--color-text);
+  }
+
+  .mm__nav { flex: 1; }
+
+  .mm__nav ul {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .mm__nav li {
+    border-bottom: 1px solid var(--color-line);
+    animation: mm-item var(--duration-slow) var(--ease-out) backwards;
+    animation-delay: calc(60ms * var(--i) + 80ms);
+  }
+
+  @keyframes mm-item {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .mm__nav a {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    padding: var(--space-4) 0;
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+    transition: color var(--transition-base), padding-left var(--transition-base);
+  }
+
+  .mm__nav a:hover {
+    color: var(--color-accent);
+    padding-left: var(--space-2);
+  }
+
+  .mm__num {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-accent);
+  }
+
+  .mm__lang,
+  .mm__foot {
+    flex-shrink: 0;
+  }
+
+  .mm__contact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+  }
+
+  .mm__contact a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .mm__contact a:hover { color: var(--color-accent); }
+
+  @media (min-width: 1024px) {
+    .mm { display: none !important; }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>("[data-header]");
+  const progress = document.querySelector<HTMLElement>("[data-scroll-progress]");
+
+  if (header) {
+    /**
+     * Umbral único para el cambio de fondo y de color del texto.
+     *
+     * Antes eran dos condiciones distintas: el fondo aparecía a los 24 px de
+     * scroll, pero el texto seguía claro hasta que el hero salía de pantalla
+     * (hasta 800 px más abajo). En ese tramo la barra tenía fondo claro y los
+     * enlaces en blanco: casi invisibles. Ahora ambos cambian al mismo tiempo.
+     */
+    const THRESHOLD = 24;
+
+    // Solo hay fondo oscuro detrás mientras la cabecera está sobre el hero
+    const hasHero = Boolean(document.querySelector("[data-hero]"));
+
+    let ticking = false;
+
+    const update = () => {
+      const y = window.scrollY;
+      const scrolled = y > THRESHOLD;
+
+      header.setAttribute("data-state", scrolled ? "scrolled" : "top");
+
+      if (hasHero && !scrolled) {
+        header.setAttribute("data-theme", "on-dark");
+      } else {
+        header.removeAttribute("data-theme");
+      }
+
+      if (progress) {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const ratio = max > 0 ? Math.min(y / max, 1) : 0;
+        progress.style.transform = `scaleX(${ratio})`;
+      }
+
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+  }
+
+  // ---------------------------------------------------------------- Menú móvil
+  const menuToggle = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+  const menu = document.querySelector<HTMLElement>("[data-menu]");
+  const closers = document.querySelectorAll<HTMLElement>("[data-menu-close]");
+
+  if (menuToggle && menu) {
+    let lastFocused: HTMLElement | null = null;
+
+    const openMenu = () => {
+      lastFocused = document.activeElement as HTMLElement;
+      menu.hidden = false;
+      requestAnimationFrame(() => menu.setAttribute("data-open", "true"));
+      menuToggle.setAttribute("aria-expanded", "true");
+      document.documentElement.style.overflow = "hidden";
+      menu.querySelector<HTMLElement>("[data-menu-close]")?.focus();
+    };
+
+    const closeMenu = () => {
+      menu.setAttribute("data-open", "false");
+      menuToggle.setAttribute("aria-expanded", "false");
+      document.documentElement.style.overflow = "";
+      window.setTimeout(() => {
+        menu.hidden = true;
+      }, 320);
+      (lastFocused ?? menuToggle).focus();
+    };
+
+    menuToggle.addEventListener("click", () => {
+      if (menu.hidden) openMenu();
+      else closeMenu();
+    });
+
+    closers.forEach((el) => el.addEventListener("click", closeMenu));
+
+    menu.querySelectorAll("[data-menu-link]").forEach((link) => {
+      link.addEventListener("click", () => {
+        menu.setAttribute("data-open", "false");
+        menuToggle.setAttribute("aria-expanded", "false");
+        document.documentElement.style.overflow = "";
+        window.setTimeout(() => {
+          menu.hidden = true;
+        }, 200);
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !menu.hidden) closeMenu();
+    });
+  }
+</script>

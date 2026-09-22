@@ -1,0 +1,92 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Apartamenty blisko Olsztyna"
+  description="Apartamenty Liberta — 25 km od Olsztyna, nad Jeziorem Szeląg. Luksusowe domki z balią, klimatyzacją, widokiem na jezioro. Od 700 zł/noc."
+>
+  <section class="section">
+    <div class="container container--narrow" style="padding-top: calc(var(--header-height) + var(--space-12));">
+      <span class="eyebrow">Olsztyn</span>
+      <h1 style="margin-top: var(--space-3);">Apartamenty 25 km od Olsztyna</h1>
+      <p class="lead" style="margin: var(--space-6) auto 0;">
+        Szukasz spokojnego miejsca z dala od zgiełku Olsztyna? Nasze apartamenty są dokładnie 25 km od centrum — wystarczająco blisko, by wygodnie dojechać, wystarczająco daleko, by naprawdę odpocząć.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--bg">
+    <div class="container">
+      <div class="split">
+        <div>
+          <h2>Dlaczego Liberta zamiast hotelu w Olsztynie?</h2>
+          <p>
+            W hotelu w mieście masz łóżko i prysznic. U nas masz 80 m² apartament z kuchnią,
+            tarasem z widokiem na jezioro, balią góralską w ogrodzie i ciszę, której w mieście
+            nigdy nie znajdziesz.
+          </p>
+          <p>
+            Jednocześnie jesteś wystarczająco blisko Olsztyna, by wpaść na obiad, na zakupy
+            lub zwiedzić zamek Kapituły Warmińskiej — 30 minut samochodem.
+          </p>
+        </div>
+        <figure>
+          <img src="/assets/apartments/liberta-iv/salon-aneks-1.jpg" alt="Apartamenty 25 km od Olsztyna" loading="lazy" decoding="async" width="1400" height="933" />
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 style="text-align: center; margin-bottom: var(--space-8);">Co robić w okolicy</h2>
+      <div style="display: grid; grid-template-columns: 1fr; gap: var(--space-4);" class="extras-grid">
+        <article class="extra-item">
+          <h3>Zamek w Olsztynie</h3>
+          <p>Zamek Kapituły Warmińskiej, muzeum, klimatyzowane kawiarnie.</p>
+        </article>
+        <article class="extra-item">
+          <h3>Stare Miasto</h3>
+          <p>Spacer po rynku, katedra, planetarium.</p>
+        </article>
+        <article class="extra-item">
+          <h3>Jezioro Ukiel</h3>
+          <p>Miejskie kąpielisko, wypożyczalnie rowerów wodnych.</p>
+        </article>
+        <article class="extra-item">
+          <h3>Lasy miejskie</h3>
+          <p>Setki kilometrów szlaków rowerowych i pieszych.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .extras-grid {
+    /* applied inline */
+  }
+  @media (min-width: 768px) {
+    :global(.extras-grid) {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+  }
+  .extra-item {
+    padding: var(--space-5);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+  }
+  .extra-item h3 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-2);
+  }
+  .extra-item p {
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+    margin: 0;
+  }
+</style>

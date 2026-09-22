@@ -1,0 +1,257 @@
+/* ============================================================================
+   DESIGN TOKENS — Apartamenty Liberta
+   ----------------------------------------------------------------------------
+   Fundamentos del sistema visual: color, tipografía, espaciado, radios,
+   elevación, movimiento y layout.
+
+   Dirección de arte: lujo natural mazuriano. Verde bosque profundo (tomado
+   del isotipo de la marca), papel cálido, latón y agua. Estética editorial
+   contemporánea: tipografía display serif de alto contraste + sans de
+   sistema para interfaz. Sin webfonts: cero requests externos, cero FOIT.
+   ============================================================================ */
+
+:root {
+  /* --------------------------------------------------------------------------
+     1. COLOR — Base
+     -------------------------------------------------------------------------- */
+
+  /* Superficies */
+  --color-bg: #f8f5ef;
+  --color-bg-elevated: #ffffff;
+  --color-bg-muted: #efe9df;
+  --color-bg-sunken: #e7dfd2;
+  --color-bg-inverse: #0e1a15;
+  --color-bg-inverse-soft: #16261f;
+  --color-overlay: rgba(14, 26, 21, 0.55);
+
+  /* Tinta */
+  --color-text: #12211b;
+  --color-text-muted: #5c6b62;
+  --color-text-subtle: #8b9790;
+  --color-text-inverse: #f4f1ea;
+  --color-text-inverse-muted: rgba(244, 241, 234, 0.72);
+  --color-text-on-accent: #ffffff;
+
+  /* Marca — verde bosque profundo */
+  --color-accent: #1e4d3a;
+  --color-accent-hover: #14372a;
+  --color-accent-active: #0e2a1f;
+  --color-accent-soft: #9dbfae;
+  --color-accent-faded: #e3ede7;
+  --color-accent-ring: rgba(30, 77, 58, 0.16);
+
+  /* Secundarios */
+  --color-water: #1b3a57;
+  --color-water-light: #5b9dc4;
+  --color-brass: #b08d4a;
+  --color-brass-light: #d8bd85;
+  --color-brass-faded: #f6efdf;
+
+  /* Semánticos */
+  --color-success: #2f7d55;
+  --color-success-faded: #e4f2ea;
+  --color-warning: #a9761f;
+  --color-warning-faded: #fbf1dc;
+  --color-error: #a33636;
+  --color-error-faded: #fbeaea;
+  --color-info: #2c6289;
+
+  /* Líneas */
+  --color-line: #e2dbcd;
+  --color-line-strong: #cbc1ad;
+  --color-line-inverse: rgba(244, 241, 234, 0.16);
+
+  /* --------------------------------------------------------------------------
+     1b. SOBRE IMAGEN Y SOBRE OSCURO
+     --------------------------------------------------------------------------
+     Antes cada componente inventaba su propio blanco translúcido (hasta 15
+     alfas distintas del mismo blanco). Estos cuatro pasos cubren todos los
+     usos: fondo sutil, borde, texto secundario y texto principal.
+     -------------------------------------------------------------------------- */
+
+  --on-dark-bg: rgba(255, 255, 255, 0.08);
+  --on-dark-bg-hover: rgba(255, 255, 255, 0.14);
+  --on-dark-border: rgba(255, 255, 255, 0.22);
+  --on-dark-border-strong: rgba(255, 255, 255, 0.45);
+  --on-dark-text: rgba(255, 255, 255, 0.94);
+  --on-dark-text-muted: rgba(255, 255, 255, 0.74);
+
+  /* Velo para texto sobre foto: único degradado reutilizado en todo el sitio */
+  --scrim-photo: linear-gradient(
+    to top,
+    rgba(6, 14, 11, 0.92) 0%,
+    rgba(6, 14, 11, 0.72) 32%,
+    rgba(6, 14, 11, 0.34) 62%,
+    rgba(6, 14, 11, 0.12) 100%
+  );
+
+  /* --------------------------------------------------------------------------
+     2. TIPOGRAFÍA
+     -------------------------------------------------------------------------- */
+
+  /* Display: serif editorial (cargada por el sistema, cero latencia) */
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino,
+    "Georgia", "Times New Roman", serif;
+  /* Interfaz: sans de sistema */
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI Variable Text",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Titulares de interfaz (eyebrows, botones, nav) */
+  --font-grotesk: "Segoe UI Variable Display", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* Escala fluida */
+  --text-2xs: clamp(0.625rem, 0.61rem + 0.08vw, 0.6875rem);
+  --text-xs: clamp(0.75rem, 0.73rem + 0.1vw, 0.8125rem);
+  --text-sm: clamp(0.875rem, 0.85rem + 0.12vw, 0.9375rem);
+  --text-base: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --text-lg: clamp(1.0625rem, 1.02rem + 0.22vw, 1.1875rem);
+  --text-xl: clamp(1.1875rem, 1.13rem + 0.3vw, 1.375rem);
+  --text-2xl: clamp(1.375rem, 1.28rem + 0.5vw, 1.75rem);
+  --text-3xl: clamp(1.625rem, 1.45rem + 0.9vw, 2.25rem);
+  --text-4xl: clamp(2rem, 1.7rem + 1.5vw, 3rem);
+  --text-5xl: clamp(2.5rem, 2rem + 2.5vw, 4rem);
+  --text-6xl: clamp(3rem, 2.2rem + 4vw, 5.5rem);
+  --text-7xl: clamp(3.5rem, 2.4rem + 5.5vw, 7rem);
+
+  /* Interlineado */
+  --leading-none: 1;
+  --leading-tight: 1.04;
+  --leading-snug: 1.16;
+  --leading-normal: 1.35;
+  --leading-relaxed: 1.62;
+  --leading-loose: 1.8;
+
+  /* Tracking */
+  --tracking-tighter: -0.035em;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.12em;
+  --tracking-widest: 0.24em;
+
+  /* Pesos */
+  --weight-light: 300;
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* --------------------------------------------------------------------------
+     3. ESPACIADO (base 4px)
+     -------------------------------------------------------------------------- */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 1.75rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-14: 3.5rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-28: 7rem;
+  --space-32: 8rem;
+  --space-40: 10rem;
+
+  /* Ritmo vertical de secciones */
+  --section-y: clamp(3.5rem, 7vw, 7rem);
+  --section-y-tight: clamp(2.5rem, 4.5vw, 4.5rem);
+  --section-y-airy: clamp(4.5rem, 9vw, 9.5rem);
+
+  /* --------------------------------------------------------------------------
+     4. RADIOS
+     -------------------------------------------------------------------------- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 26px;
+  --radius-2xl: 36px;
+  --radius-full: 999px;
+
+  /* --------------------------------------------------------------------------
+     5. ELEVACIÓN
+     -------------------------------------------------------------------------- */
+  --shadow-xs: 0 1px 2px rgba(18, 33, 27, 0.05);
+  --shadow-sm: 0 2px 8px -2px rgba(18, 33, 27, 0.09);
+  --shadow-md: 0 10px 24px -12px rgba(18, 33, 27, 0.18);
+  --shadow-lg: 0 24px 48px -22px rgba(18, 33, 27, 0.26);
+  --shadow-xl: 0 40px 80px -32px rgba(18, 33, 27, 0.34);
+  --shadow-glow: 0 18px 40px -18px rgba(30, 77, 58, 0.45);
+
+  /* --------------------------------------------------------------------------
+     6. MOVIMIENTO
+     -------------------------------------------------------------------------- */
+  --duration-instant: 90ms;
+  --duration-fast: 180ms;
+  --duration-normal: 320ms;
+  --duration-slow: 620ms;
+  --duration-slower: 900ms;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+
+  --transition-base: var(--duration-fast) var(--ease-out);
+  --transition-slow: var(--duration-normal) var(--ease-out);
+
+  /* --------------------------------------------------------------------------
+     7. LAYOUT
+     -------------------------------------------------------------------------- */
+  --container-max: 1240px;
+  --container-wide-max: 1480px;
+  --container-narrow-max: 720px;
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --header-height: 76px;
+  --header-height-lg: 96px;
+
+  /* --------------------------------------------------------------------------
+     8. Z-INDEX
+     -------------------------------------------------------------------------- */
+  --z-base: 0;
+  --z-elevated: 10;
+  --z-sticky: 20;
+  --z-header: 40;
+  --z-drawer: 50;
+  --z-modal: 60;
+  --z-popover: 70;
+  --z-tooltip: 80;
+  --z-toast: 90;
+
+  /* --------------------------------------------------------------------------
+     9. COMPONENTES (valores compartidos)
+     -------------------------------------------------------------------------- */
+  --btn-radius: var(--radius-full);
+  --btn-padding-x: 1.5rem;
+  --btn-padding-y: 0.85rem;
+  --card-radius: var(--radius-lg);
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-inverse: rgba(10, 20, 16, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-blur: saturate(160%) blur(18px);
+}
+
+/* ----------------------------------------------------------------------------
+   Nota: el sitio se sirve en un único tema claro de marca. Se evita el
+   "auto dark mode" para no romper la dirección de arte ni la legibilidad de
+   las páginas legales en navegadores con preferencia oscura.
+   ---------------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------------
+   Movimiento reducido
+   ---------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

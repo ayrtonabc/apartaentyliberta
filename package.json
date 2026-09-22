@@ -1,0 +1,48 @@
+{
+  "name": "apartamenty-liberta-new",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Nueva experiencia digital para Apartamenty Liberta. Astro + i18n + SEO optimizado.",
+  "scripts": {
+    "predev": "node scripts/prepare-assets.mjs",
+    "dev": "astro dev",
+    "prebuild": "node scripts/prepare-assets.mjs",
+    "build": "astro build",
+    "postbuild": "node scripts/compress-dist.mjs",
+    "start": "node ./server.mjs",
+    "preview": "node ./server.mjs",
+    "astro": "astro",
+    "check": "astro check",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "format": "prettier --write .",
+    "images:download": "node scripts/download-images.mjs",
+    "images:download:ps": "powershell -ExecutionPolicy Bypass -File scripts/download-images.ps1",
+    "images:responsive": "node scripts/responsive-images.mjs",
+    "availability:update": "node scripts/update-availability.mjs",
+    "rename:hero": "node scripts/rename-hero-images.mjs",
+    "compress": "node scripts/compress-dist.mjs",
+    "audit:shots": "node scripts/audit-shots.mjs",
+    "audit:styles": "node scripts/audit-computed.mjs",
+    "audit:hero": "node scripts/measure-hero.mjs",
+    "audit:hero:sweep": "node scripts/measure-hero-sweep.mjs",
+    "audit:header": "node scripts/verify-header.mjs",
+    "audit:lang": "node scripts/verify-lang-switcher.mjs",
+    "test:structure": "node tests/validate-structure.mjs",
+    "test:syntax": "node tests/validate-syntax.mjs",
+    "clean": "node scripts/clean-caches.mjs",
+    "fresh": "node scripts/clean-caches.mjs && astro dev"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.0.0",
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.0.0",
+    "astro-compress": "^2.2.1",
+    "resend": "^4.0.0",
+    "sharp": "^0.33.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3"
+  }
+}

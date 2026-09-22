@@ -1,0 +1,202 @@
+---
+/**
+ * AttractionRow — fila alternada: imagen a un lado, texto al otro.
+ *
+ * Se usa en /atrakcje/ para las dos listas de la página (lo que hay en el
+ * complejo y lo que hay en la zona). Sustituye a las rejillas de tarjetas de
+ * icono: con foto, la tarjeta pequeña se queda en nada y el icono sobra.
+ *
+ * ALTERNANCIA
+ *
+ * El lado de la imagen sale del índice: par a la izquierda, impar a la derecha.
+ * Se calcula aquí y no en quien lo usa para que las dos secciones mantengan el
+ * mismo ritmo aunque una tenga seis elementos y la otra catorce. El zigzag solo
+ * funciona si es continuo: si cada lista reiniciara en "izquierda", se verían
+ * dos imágenes seguidas del mismo lado en la costura entre secciones.
+ *
+ * POR QUÉ NO HAY TARJETA
+ *
+ * Otras secciones del sitio usan tarjeta con borde y sombra. Aquí no: una foto
+ * grande con su texto al lado ya tiene la jerarquía, y meterla en una caja le
+ * añade un marco que no aporta nada. La foto va con las esquinas redondeadas del
+ * sistema y el texto suelto sobre el fondo de la página.
+ *
+ * Props:
+ *   image     — ruta pública; si falta, la fila sale solo con texto
+ *   alt       — texto alternativo
+ *   eyebrow   — etiqueta pequeña encima del título (categoría, distancia…)
+ *   title     — titular de la fila
+ *   text      — descripción
+ *   index     — posición, decide el lado de la imagen
+ *   locale    — idioma, para las etiquetas internas
+ */
+import type { Locale } from "~/lib/i18n";
+import SmartImage from "~/components/ui/SmartImage.astro";
+
+interface Props {
+  image?: string;
+  alt?: string;
+  eyebrow?: string;
+  title: string;
+  text: string;
+  index: number;
+  locale: Locale;
+  priority?: boolean;
+  /** Sello sobre la foto, para distinguir lo que está en el complejo */
+  badge?: string;
+}
+
+const { image, alt, eyebrow, title, text, index, priority = false, badge } = Astro.props;
+
+/** Par → imagen a la izquierda. */
+const flip = index % 2 === 1;
+---
+
+<article class:list={["arow", flip && "arow--flip"]} data-reveal>
+  {image && (
+    <figure class="arow__media">
+      <SmartImage
+        src={image}
+        alt={alt ?? title}
+        sizes="(min-width: 1024px) 46vw, 100vw"
+        priority={priority}
+      />
+      {badge && <figcaption class="arow__badge">{badge}</figcaption>}
+    </figure>
+  )}
+
+  <div class="arow__body">
+    {eyebrow && <p class="arow__eyebrow">{eyebrow}</p>}
+    <h3 class="arow__title">{title}</h3>
+    <p class="arow__text">{text}</p>
+  </div>
+</article>
+
+<style>
+  .arow {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .arow {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-10);
+    }
+
+    /*
+     * El orden se cambia con `order`, no con `direction` ni con posiciones
+     * absolutas: así el orden del DOM sigue siendo imagen → texto, que es el
+     * que leen los lectores de pantalla, y solo cambia lo que se ve.
+     */
+    .arow--flip .arow__media {
+      order: 2;
+    }
+  }
+
+  /* ------------------------------------------------------------------ Imagen */
+
+  .arow__media {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-muted);
+    /*
+     * Proporción fija: las fotos del propietario vienen apaisadas, verticales y
+     * de formatos raros (una es 960×400). Sin una proporción común, las filas
+     * tendrían alturas muy distintas y el zigzag se rompería.
+     */
+    aspect-ratio: 4 / 3;
+    margin: 0;
+  }
+
+  @media (min-width: 900px) {
+    .arow__media {
+      aspect-ratio: 3 / 2;
+    }
+  }
+
+  .arow__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-slower) var(--ease-out);
+  }
+
+  .arow:hover .arow__media :global(img) {
+    transform: scale(1.03);
+  }
+
+  /*
+   * Sello "U nas". Va sobre la foto, arriba a la izquierda, con el mismo
+   * tratamiento de cristal que la insignia de las tarjetas de apartamento para
+   * que se lea como parte del mismo sistema.
+   */
+  .arow__badge {
+    position: absolute;
+    top: var(--space-4);
+    left: var(--space-4);
+    padding: 0.3rem 0.7rem;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--glass-bg-inverse);
+    border: 1px solid var(--on-dark-border);
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* -------------------------------------------------------------------- Texto */
+
+  .arow__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: 34rem;
+  }
+
+  /* En las filas invertidas el texto se alinea al borde exterior */
+  @media (min-width: 900px) {
+    .arow--flip .arow__body {
+      justify-self: end;
+    }
+  }
+
+  .arow__eyebrow {
+    max-width: none;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .arow__title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+  }
+
+  @media (min-width: 1024px) {
+    .arow__title {
+      font-size: var(--text-4xl);
+    }
+  }
+
+  .arow__text {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+</style>

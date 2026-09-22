@@ -1,0 +1,444 @@
+---
+/**
+ * AttractionsPage — página completa de atractivos y servicios de la zona.
+ * Compartido por /atrakcje/, /en/attractions/ y /de/attraktionen/.
+ */
+import { type Locale, localeLink, t } from "~/lib/i18n";
+import { attractions } from "~/data/attractions";
+
+import PageHero from "~/components/ui/PageHero.astro";
+import AttractionRow from "~/components/content/AttractionRow.astro";
+import CtaBand from "~/components/sections/CtaBand.astro";
+import SectionHeading from "~/components/ui/SectionHeading.astro";
+import Icon from "~/components/ui/Icon.astro";
+import SmartImage from "~/components/ui/SmartImage.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const tr = t(locale);
+
+/**
+ * Servicios del propio complejo.
+ *
+ * Cada uno con su foto en public/assets/attractions/. Antes eran tarjetas con
+ * icono: con foto disponible, el icono sobra y la tarjeta pequeña se queda
+ * corta. Ahora es una fila alternada como las de la zona.
+ */
+const onSite: Array<{
+  slug: string;
+  eyebrow: Record<Locale, string>;
+  title: Record<Locale, string>;
+  text: Record<Locale, string>;
+  alt: Record<Locale, string>;
+}> = [
+  {
+    slug: "rejs-motorowka",
+    eyebrow: { pl: "Na wodzie", en: "On the water", de: "Auf dem Wasser" },
+    title: {
+      pl: "Rejs motorówką z właścicielem",
+      en: "Motorboat trip with the owner",
+      de: "Motorbootausflug mit dem Eigentümer",
+    },
+    text: {
+      pl: "Najlepsze widoki na kompleks są od strony wody. Rejs po Jeziorze Szeląg organizujemy na życzenie.",
+      en: "The best views of the estate are from the water. We arrange the trip on Lake Szeląg on request.",
+      de: "Die beste Sicht auf die Anlage haben Sie vom Wasser aus. Die Fahrt über den Szeląg-See organisieren wir auf Wunsch.",
+    },
+    alt: {
+      pl: "Łódź motorowa przy pomoście, gotowa do rejsu po Jeziorze Szeląg",
+      en: "Motorboat at the pier, ready for a trip on Lake Szeląg",
+      de: "Motorboot am Steg, bereit für eine Fahrt auf dem Szeląg-See",
+    },
+  },
+  {
+    slug: "sup-kajaki",
+    eyebrow: { pl: "Na wodzie", en: "On the water", de: "Auf dem Wasser" },
+    title: {
+      pl: "SUP, kajaki i rowery wodne",
+      en: "SUP, kayaks and pedal boats",
+      de: "SUP, Kajaks und Tretboote",
+    },
+    text: {
+      pl: "Sprzęt wodny dostępny na miejscu w Marina Liberta: deski SUP, kajaki, rowery wodne. 15 zł/h dla gości.",
+      en: "Water equipment on site at Marina Liberta: SUP boards, kayaks, pedal boats. 15 PLN/h for guests.",
+      de: "Wassersportgerät direkt vor Ort in der Marina Liberta: SUP-Boards, Kajaks, Tretboote. 15 PLN/h für Gäste.",
+    },
+    alt: {
+      pl: "Deski SUP i kajaki w Marina Liberta nad Jeziorem Szeląg",
+      en: "SUP boards and kayaks at Marina Liberta on Lake Szeląg",
+      de: "SUP-Boards und Kajaks in der Marina Liberta am Szeląg-See",
+    },
+  },
+  {
+    slug: "szlaki-rowerowe",
+    eyebrow: { pl: "Na lądzie", en: "On land", de: "An Land" },
+    title: {
+      pl: "Rowery dla gości",
+      en: "Bikes for guests",
+      de: "Fahrräder für Gäste",
+    },
+    text: {
+      pl: "Kilka rowerów do dyspozycji gości — najlepszy sposób, żeby zwiedzić okoliczne wsie i lasy.",
+      en: "Several bikes for our guests — the best way to explore the nearby villages and forests.",
+      de: "Mehrere Fahrräder für unsere Gäste — die beste Art, die umliegenden Dörfer und Wälder zu erkunden.",
+    },
+    alt: {
+      pl: "Goście na rowerach na leśnej drodze wokół Starych Jabłonek",
+      en: "Guests cycling on a forest track around Stare Jabłonki",
+      de: "Gäste mit Fahrrädern auf einem Waldweg um Stare Jabłonki",
+    },
+  },
+  {
+    slug: "strzelnica",
+    eyebrow: { pl: "Na lądzie", en: "On land", de: "An Land" },
+    title: {
+      pl: "Wyjazd na strzelnicę",
+      en: "Shooting range trip",
+      de: "Ausflug zum Schießstand",
+    },
+    text: {
+      pl: "Strzelanie sportowe pod okiem instruktora, z ogniskiem na zakończenie. Organizuje właściciel.",
+      en: "Sport shooting with an instructor, rounded off with a bonfire. Arranged by the owner.",
+      de: "Sportschießen mit Anleitung, zum Abschluss ein Lagerfeuer. Wird vom Eigentümer organisiert.",
+    },
+    alt: {
+      pl: "Strzelnica sportowa w okolicy Starych Jabłonek",
+      en: "Sports shooting range near Stare Jabłonki",
+      de: "Sportschießstand bei Stare Jabłonki",
+    },
+  },
+  {
+    slug: "ognisko-i-grill",
+    eyebrow: { pl: "W ogrodzie", en: "In the garden", de: "Im Garten" },
+    title: { pl: "Ognisko i grill", en: "Fire pit and BBQ", de: "Lagerfeuer und Grill" },
+    text: {
+      pl: "Murowany grill przy każdym tarasie i wspólne miejsce na ognisko z widokiem na jezioro.",
+      en: "A built-in BBQ on every terrace and a shared fire pit with lake views.",
+      de: "Gemauerter Grill an jeder Terrasse und eine gemeinsame Feuerstelle mit Seeblick.",
+    },
+    alt: {
+      pl: "Ognisko rozpalone nad jeziorem, z widokiem na wodę",
+      en: "A fire burning by the lake, with a view over the water",
+      de: "Ein Feuer am See, mit Blick über das Wasser",
+    },
+  },
+];
+
+/**
+ * Atracciones de la zona, con foto y sin ella.
+ *
+ * De las 16 solo hay imagen de 14. Las que no la tienen no se pueden meter en
+ * una fila alternada —quedaría un hueco—, así que van en una lista compacta
+ * debajo. Es preferible eso a inventar una imagen o a esconder el dato.
+ */
+const withImage = attractions.filter((a) => a.image);
+
+/** Etiqueta de categoría, para el rótulo pequeño de cada fila. */
+const categoryLabel: Record<(typeof attractions)[number]["category"], string> = {
+  water: tr.attractions.filterWater,
+  land: tr.attractions.filterLand,
+  sport: tr.attractions.filterLand,
+  food: tr.attractions.filterGastro,
+  event: tr.attractions.filterFamily,
+};
+
+/** Metros si es menos de 1 km, kilómetros si no. */
+const fmtDistance = (km?: number) => {
+  if (km === undefined) return null;
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  return `${km} km`;
+};
+
+/** Sello que distingue lo que está en el complejo de lo que está en la zona. */
+const onsiteLabel: Record<Locale, string> = {
+  pl: "U nas",
+  en: "On site",
+  de: "Bei uns",
+};
+
+/**
+ * UNA sola lista con todo, en orden.
+ *
+ * Los servicios del complejo van primero y sin su entrada duplicada en la zona:
+ * el rejs, el SUP y las bicis estaban en las dos listas —como servicio de casa y
+ * como atracción del entorno—, así que salían dos veces con la misma foto. Aquí
+ * se descartan de la segunda por slug.
+ *
+ * Las atracciones sin foto no entran: son cinco y dejarían cinco filas con un
+ * hueco vacío donde iría la imagen. Van en la lista compacta de abajo.
+ */
+const onsiteSlugs = new Set(onSite.map((s) => s.slug));
+
+const rows: Array<{
+  image?: string;
+  alt: string;
+  eyebrow: string;
+  title: string;
+  text: string;
+  onSite: boolean;
+}> = [
+  ...onSite.map((item) => {
+    const attraction = attractions.find((a) => a.slug === item.slug);
+    return {
+      image: `/assets/attractions/${item.slug}.webp`,
+      alt: item.alt[locale],
+      eyebrow: attraction
+        ? [fmtDistance(attraction.distanceKm), categoryLabel[attraction.category]].filter(Boolean).join(" · ")
+        : item.eyebrow[locale],
+      title: item.title[locale],
+      text: item.text[locale],
+      onSite: true,
+    };
+  }),
+  ...withImage
+
+    .filter((a) => !onsiteSlugs.has(a.slug))
+    .map((a) => ({
+      image: a.image,
+      alt: a.imageAlt?.[locale] ?? a.name[locale],
+      eyebrow: [fmtDistance(a.distanceKm), categoryLabel[a.category]].filter(Boolean).join(" · "),
+      title: a.name[locale],
+      text: a.description[locale],
+      onSite: false,
+    })),
+];
+
+const headline: Record<Locale, { title: string; lead: string; localTitle: string }> = {
+  pl: {
+    title: "Co robić na Mazurach",
+    lead: "Największą atrakcją są nasze apartamenty i jezioro 105 metrów od nich. Ale gdy najdzie ochota na coś więcej — mamy dla Was własną listę sprawdzonych miejsc.",
+    localTitle: "W Apartamentach Liberta",
+  },
+  en: {
+    title: "What to do in Masuria",
+    lead: "Our greatest attraction is the apartment itself and the lake 105 metres away. But when you fancy something more, we have our own list of tried-and-tested places.",
+    localTitle: "At Apartamenty Liberta",
+  },
+  de: {
+    title: "Was man in Masuren unternehmen kann",
+    lead: "Die größte Attraktion sind unsere Ferienwohnungen und der See 105 Meter entfernt. Wenn Sie aber mehr möchten, haben wir unsere eigene Liste erprobter Orte.",
+    localTitle: "Bei Apartamenty Liberta",
+  },
+};
+const h = headline[locale];
+
+const catering = [
+  {
+    name: "Krainy Jezior",
+    desc:
+      locale === "pl"
+        ? "Catering, menu świąteczne i obsługa imprez"
+        : locale === "de"
+          ? "Catering, Festtagsmenüs und Eventbetreuung"
+          : "Catering, festive menus and event service",
+    discount: "15%",
+  },
+  {
+    name: "Restauracja Sielanka",
+    desc:
+      locale === "pl"
+        ? "Kuchnia mazurska à la carte nad jeziorem"
+        : locale === "de"
+          ? "Masurische Küche à la carte am See"
+          : "Masurian à la carte dining by the lake",
+    discount: "10%",
+  },
+];
+---
+
+<PageHero
+  eyebrow={tr.attractions.eyebrow}
+  title={h.title}
+  lead={h.lead}
+  crumbs={[
+    { name: tr.nav.home, href: localeLink(locale, "/") },
+    { name: tr.nav.attractions },
+  ]}
+/>
+
+<!-- ======================================== LO QUE HAY, EN UNA SOLA SECUENCIA -->
+<section class="section">
+  <div class="container">
+    <SectionHeading
+      eyebrow={tr.attractions.eyebrow}
+      title={locale === "pl" ? "W okolicy Liberta" : locale === "de" ? "In der Umgebung von Liberta" : "Around Liberta"}
+      lead={
+        locale === "pl"
+          ? `${attractions.length} miejsc, które warto zobaczyć — od kanału z pochylniami po pola Grunwaldzkie. Zaczynamy od tego, co macie na miejscu.`
+          : locale === "de"
+            ? `${attractions.length} sehenswerte Orte — vom Kanal mit den Schiefen Ebenen bis zum Schlachtfeld bei Grunwald. Wir beginnen mit dem, was direkt vor Ort ist.`
+            : `${attractions.length} places worth seeing — from the canal with its inclined planes to the Grunwald battlefield. We start with what is right here.`
+      }
+    />
+
+    <!--
+      UNA SOLA SECUENCIA, NO DOS.
+
+      Antes había dos bloques de filas alternadas: los servicios del complejo y
+      los sitios de la zona. Al cortarse en dos, el zigzag se rompía en la
+      costura y se veían dos imágenes seguidas del mismo lado. Con una única
+      lista el ritmo es continuo, y el orden cuenta la historia correcta:
+      primero lo que hay en casa, después lo que hay alrededor.
+
+      Los servicios del complejo llevan el sello "U nas" para que se distingan
+      sin necesidad de repetir un titular de sección.
+    -->
+    <div class="arows">
+      {rows.map((row, index) => (
+        <AttractionRow
+          image={row.image}
+          alt={row.alt}
+          eyebrow={row.eyebrow}
+          title={row.title}
+          text={row.text}
+          index={index}
+          locale={locale}
+          badge={row.onSite ? onsiteLabel[locale] : undefined}
+        />
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ GASTRONOMÍA -->
+<section class="section">
+  <div class="container">
+    <div class="gastro split split--balanced split--start">
+      <div data-reveal>
+        <span class="eyebrow">{tr.attractions.filterGastro}</span>
+        <h2 class="gastro__title">{tr.attractions.cateringTitle}</h2>
+        <p class="lead">{tr.attractions.cateringLead}</p>
+
+        <ul class="gastro__list" role="list">
+          {catering.map((item) => (
+            <li>
+              <div class="gastro__info">
+                <strong>{item.name}</strong>
+                <span>{item.desc}</span>
+              </div>
+              <span class="gastro__discount">
+                {item.discount} {tr.attractions.cateringDiscount}
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <a class="btn btn--outline" href={localeLink(locale, "/rezerwacja/")}>
+          {tr.cta.askQuestion}
+        </a>
+      </div>
+
+      <figure class="gastro__figure" data-reveal style="--reveal-delay:120ms">
+        <SmartImage
+          src="/assets/editorial/gastronomia.webp"
+          alt={
+            locale === "pl"
+              ? "Danie podane w restauracji — sałatka z dressingiem"
+              : locale === "de"
+                ? "Ein im Restaurant angerichtetes Gericht — Salat mit Dressing"
+                : "A dish plated in a restaurant — salad with a dressing"
+          }
+          sizes="(min-width: 1024px) 36vw, 100vw"
+        />
+      </figure>
+    </div>
+  </div>
+</section>
+
+<CtaBand title={tr.home.ctaBandTitle} text={tr.home.ctaBandText} note={tr.home.ctaBandNote} />
+
+<style>
+  /* --------------------------------------------------------- Filas alternadas */
+
+  /*
+   * Separación generosa entre filas: cada una es una foto grande y sin aire
+   * entre ellas el zigzag se lee como una sola masa.
+   */
+  .arows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  @media (min-width: 900px) {
+    .arows {
+      gap: var(--space-16);
+    }
+  }
+
+  /* Gastronomía */
+  .gastro__title {
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-5);
+    font-size: var(--text-4xl);
+  }
+
+  .gastro__list {
+    display: grid;
+    gap: var(--space-4);
+    margin-block: var(--space-8);
+  }
+
+  .gastro__list li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--color-bg-muted);
+    border-radius: var(--radius-lg);
+  }
+
+  .gastro__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .gastro__info strong {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-normal);
+  }
+
+  .gastro__info span {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .gastro__discount {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+  }
+
+  /*
+   * Proporción 2:3, la nativa de la foto (400×600). Encaja sin recorte.
+   *
+   * Antes era 4:3 en móvil y 3:4 en escritorio, pensado para la imagen
+   * apaisada que había. Con la foto de gastronomía, 3:4 recortaba los lados.
+   *
+   * Además, la figura se limita a 26rem de ancho: la foto mide 400 px y en una
+   * columna de 515 px se vería blanda en pantallas de alta densidad. A 416 px
+   * el navegador la sirve casi a su tamaño nativo.
+   */
+  .gastro__figure {
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    aspect-ratio: 2 / 3;
+    max-width: 26rem;
+    box-shadow: var(--shadow-lg);
+  }
+
+
+</style>

@@ -1,0 +1,319 @@
+/* ============================================================================
+   TYPOGRAPHY — Escala editorial, titulares y utilidades de texto
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   BASE DE TITULARES
+   --------------------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-normal);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+  text-wrap: balance;
+}
+
+h1, .h1 {
+  font-size: var(--text-5xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tighter);
+}
+
+h2, .h2 {
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tighter);
+}
+
+h3, .h3 {
+  font-size: var(--text-2xl);
+}
+
+h4, .h4 {
+  font-size: var(--text-xl);
+  line-height: var(--leading-normal);
+}
+
+/* Etiquetas de sección en mayúsculas */
+h5, .h5,
+h6, .h6 {
+  font-family: var(--font-grotesk);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   DISPLAY
+   --------------------------------------------------------------------------- */
+
+.display-1 {
+  font-family: var(--font-display);
+  font-size: var(--text-7xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-normal);
+  text-wrap: balance;
+}
+
+.display-2 {
+  font-family: var(--font-display);
+  font-size: var(--text-6xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tighter);
+  font-weight: var(--weight-normal);
+  text-wrap: balance;
+}
+
+/* Titular con acento en itálica (recurso editorial de marca) */
+.title-accent {
+  font-style: italic;
+  color: var(--color-accent);
+}
+
+/* Titular sobre imagen: sombra suave para garantizar contraste */
+.title-on-media {
+  color: var(--color-text-inverse);
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------------------------------------------------------------------------
+   EYEBROW — etiqueta superior de sección
+   --------------------------------------------------------------------------- */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-grotesk);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 1.75rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.eyebrow--plain::before {
+  display: none;
+}
+
+.eyebrow--inverse {
+  color: var(--color-accent-soft);
+}
+
+/* ---------------------------------------------------------------------------
+   TEXTO CORRIENTE
+   --------------------------------------------------------------------------- */
+
+.lead {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-muted);
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+
+.lead--tight {
+  font-size: var(--text-base);
+}
+
+p {
+  max-width: 68ch;
+  text-wrap: pretty;
+}
+
+.prose > * + * {
+  margin-top: var(--space-5);
+}
+
+.prose h2 {
+  margin-top: var(--space-12);
+  font-size: var(--text-3xl);
+}
+
+.prose h3 {
+  margin-top: var(--space-10);
+  font-size: var(--text-2xl);
+}
+
+.prose p {
+  font-size: var(--text-lg);
+  line-height: var(--leading-loose);
+  color: var(--color-text);
+}
+
+.prose strong {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+/* Listas dentro de bloques de texto largo (legales, editoriales) */
+.prose ul,
+.prose ol {
+  display: grid;
+  gap: var(--space-3);
+  padding-left: var(--space-6);
+  list-style: disc;
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose ul li::marker,
+.prose ol li::marker {
+  color: var(--color-accent);
+}
+
+.prose ul ul,
+.prose ol ol,
+.prose ul ol,
+.prose ol ul {
+  margin-top: var(--space-3);
+}
+
+.prose a:not(.btn) {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+/* Texto pequeño y metadatos */
+.text-muted { color: var(--color-text-muted); }
+.text-subtle { color: var(--color-text-subtle); }
+.text-inverse { color: var(--color-text-inverse); }
+.text-small { font-size: var(--text-sm); }
+.text-xs-size { font-size: var(--text-xs); }
+.text-mono { font-family: var(--font-mono); }
+
+/* Cifras tabulares para precios y tablas */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Precio destacado */
+.price-tag {
+  font-family: var(--font-display);
+  font-feature-settings: "tnum" 1;
+  font-size: var(--text-2xl);
+  line-height: 1;
+  color: var(--color-text);
+  letter-spacing: var(--tracking-tight);
+}
+
+.price-tag--accent { color: var(--color-accent); }
+.price-tag--inverse { color: var(--color-text-inverse); }
+
+/* ---------------------------------------------------------------------------
+   ENLACES
+   --------------------------------------------------------------------------- */
+
+.link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color var(--transition-base);
+}
+
+.link:hover {
+  color: var(--color-accent-hover);
+  text-decoration-thickness: 2px;
+}
+
+/* Enlace con flecha animada */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-grotesk);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-accent);
+  transition: gap var(--transition-base), color var(--transition-base);
+}
+
+.link-arrow::after {
+  content: "→";
+  transition: transform var(--transition-base);
+}
+
+.link-arrow:hover {
+  gap: var(--space-3);
+}
+
+.link-arrow:hover::after {
+  transform: translateX(3px);
+}
+
+/* ---------------------------------------------------------------------------
+   CITAS / RESEÑAS
+   --------------------------------------------------------------------------- */
+
+.quote {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------------------------
+   LISTAS
+   --------------------------------------------------------------------------- */
+
+.list-clean {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list-check {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list-check li {
+  position: relative;
+  padding-left: var(--space-7);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}
+
+.list-check li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 1rem;
+  height: 0.5rem;
+  border-left: 2px solid var(--color-accent);
+  border-bottom: 2px solid var(--color-accent);
+  transform: rotate(-45deg);
+  transform-origin: left center;
+}

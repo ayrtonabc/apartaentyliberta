@@ -1,0 +1,386 @@
+---
+/**
+ * LanguageSwitcher — selector de idioma con banderas.
+ *
+ * Mejoras frente a la versión anterior (que solo mostraba "PL" y un dropdown
+ * de códigos de texto):
+ *   - Bandera SVG + nombre del idioma en su propio idioma
+ *   - Funciona SIN JavaScript: es un <form method="get"> con un <select>
+ *     oculto cubriendo el control; el JS solo mejora la experiencia con un
+ *     menú flotante.
+ *   - Accesible: aria-haspopup, aria-expanded, cierre con Escape y clic fuera,
+ *     navegación con flechas.
+ *   - Enlaza a la MISMA página en el otro idioma (no a la home).
+ */
+import { type Locale, locales, localeMeta, localeLink, canonicalPath } from "~/lib/i18n";
+import Flag from "~/components/ui/Flag.astro";
+
+interface Props {
+  /** "pill" = cabecera escritorio · "block" = menú móvil · "inline" = footer */
+  variant?: "pill" | "block" | "inline";
+  label?: string;
+}
+
+const { variant = "pill", label } = Astro.props;
+
+const current: Locale = Astro.url.pathname.startsWith("/en/")
+  ? "en"
+  : Astro.url.pathname.startsWith("/de/")
+    ? "de"
+    : "pl";
+
+/** Ruta canónica polaca de la página actual: base para los tres idiomas. */
+const basePath = canonicalPath(Astro.url);
+
+const options = locales.map((code) => {
+  const meta = localeMeta[code];
+  return {
+    code,
+    meta,
+    href: localeLink(code, basePath),
+    current: code === current,
+  };
+});
+
+const currentMeta = localeMeta[current];
+const groupLabel = label ?? (current === "pl" ? "Język" : current === "de" ? "Sprache" : "Language");
+---
+
+<div class={`lang lang--${variant}`} data-lang-switcher>
+  {variant === "block" ? (
+    <fieldset class="lang__options">
+      <legend class="lang__legend">{groupLabel}</legend>
+      {options.map((opt) => (
+        <a
+          class:list={["lang__option", opt.current && "is-current"]}
+          href={opt.href}
+          hreflang={opt.meta.hreflang}
+          lang={opt.code}
+          aria-current={opt.current ? "true" : undefined}
+        >
+          <Flag code={opt.meta.region} size={22} />
+          <span class="lang__option-name">{opt.meta.nativeName}</span>
+          <span class="lang__option-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+        </a>
+      ))}
+      <span class="sr-only">
+        {currentMeta.nativeName} — {currentMeta.englishName}
+      </span>
+    </fieldset>
+  ) : (
+    <>
+      <button
+        type="button"
+        class="lang__toggle"
+        aria-haspopup="true"
+        aria-expanded="false"
+        aria-label={`${groupLabel}: ${currentMeta.nativeName}`}
+        data-lang-toggle
+      >
+        <Flag code={currentMeta.region} size={variant === "inline" ? 14 : 16} />
+        <span class="lang__code">{currentMeta.short}</span>
+        <svg class="icon lang__caret" viewBox="0 0 24 24" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
+      <div class="lang__menu" data-lang-menu hidden>
+        <ul role="list">
+          {options.map((opt) => (
+            <li>
+              <a
+                class:list={["lang__item", opt.current && "is-current"]}
+                href={opt.href}
+                hreflang={opt.meta.hreflang}
+                lang={opt.code}
+                role="menuitem"
+                aria-current={opt.current ? "true" : undefined}
+                data-lang-item
+              >
+                <Flag code={opt.meta.region} size={20} />
+                <span class="lang__item-text">
+                  <span class="lang__item-name">{opt.meta.nativeName}</span>
+                  <span class="lang__item-sub">{opt.meta.englishName}</span>
+                </span>
+                <svg class="icon lang__item-check" viewBox="0 0 24 24" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  )}
+</div>
+
+<style>
+  .lang {
+    position: relative;
+    /*
+     * Aislo el selector de su contexto de pintado del padre.
+     *
+     * El header lleva `backdrop-filter: blur(...)` cuando hay scroll, y eso
+     * vuelve a pintar toda la barra — incluyendo este botón — cada vez que
+     * cambia el píxel de fondo que tiene detrás. Si además un elemento cercano
+     * (los iconos sociales) cambia su `background` en hover, ese cambio
+     * extiende el repaint al header entero y se ve como un parpadeo sobre el
+     * selector de idioma, aunque solo sea uno o dos píxeles de movimiento.
+     *
+     * `isolation: isolate` crea un nuevo contexto de apilado y de pintado:
+     * cualquier repaint del padre deja intacta la caja del botón y del menú.
+     * No recorta el contenido (a diferencia de `contain: paint`), así que el
+     * menú flotante sigue saliéndose del botón como siempre.
+     */
+    isolation: isolate;
+    will-change: transform;
+  }
+
+  /* --- Toggle ------------------------------------------------------------ */
+
+  .lang__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    color: inherit;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-full);
+    background-color: transparent;
+    /*
+     * Hover SOLO cambia el borde. NO cambiamos el background.
+     *
+     * El toggle está pegado a los iconos sociales del navbar (gap: --space-3,
+     * 12px) y los círculos de hover de los iconos miden 32px. Cuando el cursor
+     * pasaba por un icono, el círculo verde claro se solapaba con el toggle y
+     * el navegador disparaba el :hover de los dos a la vez: como el toggle
+     * también tenía background-color verde en :hover, los dos fondos idénticos
+     * se "comían" mutuamente en una transición cruzada y el toggle parpadeaba
+     * al mover el cursor sobre los iconos vecinos.
+     *
+     * El cambio de color del borde (más sutil) marca el estado sin alimentar
+     * ese ciclo. Quitarlo fue la solución mínima, sin tocar layout ni gap.
+     */
+    transition: border-color var(--transition-base);
+  }
+
+  .lang__toggle:hover {
+    border-color: var(--color-accent);
+  }
+
+  .lang__caret {
+    width: 0.85em;
+    height: 0.85em;
+    opacity: 0.6;
+    transition: transform var(--transition-base);
+  }
+
+  .lang__toggle[aria-expanded="true"] .lang__caret {
+    transform: rotate(180deg);
+  }
+
+  .lang--inline .lang__toggle {
+    border-color: var(--on-dark-border);
+  }
+
+  .lang--inline .lang__toggle:hover {
+    border-color: var(--on-dark-border-strong);
+    background-color: var(--on-dark-bg);
+  }
+
+  /* --- Menú flotante ----------------------------------------------------- */
+
+  .lang__menu {
+    position: absolute;
+    top: calc(100% + 0.55rem);
+    right: 0;
+    min-width: 15rem;
+    padding: var(--space-2);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    z-index: var(--z-popover);
+    animation: lang-in var(--duration-normal) var(--ease-out);
+  }
+
+  .lang__menu[hidden] {
+    display: none;
+  }
+
+  @keyframes lang-in {
+    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .lang__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    transition: background-color var(--transition-base);
+  }
+
+  .lang__item:hover {
+    background-color: var(--color-bg-muted);
+  }
+
+  .lang__item.is-current {
+    background-color: var(--color-accent-faded);
+  }
+
+  .lang__item-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    flex: 1;
+  }
+
+  .lang__item-name {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+  }
+
+  .lang__item-sub {
+    font-size: var(--text-2xs);
+    color: var(--color-text-subtle);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .lang__item-check {
+    width: 1em;
+    height: 1em;
+    color: var(--color-accent);
+    opacity: 0;
+  }
+
+  .lang__item.is-current .lang__item-check {
+    opacity: 1;
+  }
+
+  /* --- Variante bloque (menú móvil) -------------------------------------- */
+
+  .lang__options {
+    border: none;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .lang__legend {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-3);
+  }
+
+  .lang__option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font-size: var(--text-base);
+    transition: border-color var(--transition-base), background-color var(--transition-base);
+  }
+
+  .lang__option:hover {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-faded);
+  }
+
+  .lang__option.is-current {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-faded);
+    font-weight: var(--weight-medium);
+  }
+
+  .lang__option-name {
+    flex: 1;
+  }
+
+  .lang__option-check {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--color-accent);
+    opacity: 0;
+  }
+
+  .lang__option.is-current .lang__option-check {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-lang-switcher]").forEach((root) => {
+    const toggle = root.querySelector<HTMLButtonElement>("[data-lang-toggle]");
+    const menu = root.querySelector<HTMLElement>("[data-lang-menu]");
+    if (!toggle || !menu) return;
+
+    const items = Array.from(menu.querySelectorAll<HTMLAnchorElement>("[data-lang-item]"));
+
+    const close = (focusToggle = false) => {
+      menu.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+      if (focusToggle) toggle.focus();
+    };
+
+    const open = (focusIndex = -1) => {
+      menu.hidden = false;
+      toggle.setAttribute("aria-expanded", "true");
+      if (focusIndex >= 0) items[focusIndex]?.focus();
+    };
+
+    toggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (menu.hidden) open();
+      else close();
+    });
+
+    toggle.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        open(0);
+      }
+    });
+
+    menu.addEventListener("keydown", (event) => {
+      const index = items.indexOf(document.activeElement as HTMLAnchorElement);
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        items[(index + 1) % items.length]?.focus();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        items[(index - 1 + items.length) % items.length]?.focus();
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        items[0]?.focus();
+      } else if (event.key === "End") {
+        event.preventDefault();
+        items[items.length - 1]?.focus();
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!menu.hidden && !root.contains(event.target as Node)) close();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !menu.hidden) close(true);
+    });
+  });
+</script>

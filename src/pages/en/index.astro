@@ -1,0 +1,27 @@
+---
+/**
+ * English homepage.
+ * El cuerpo es el mismo componente que la home polaca; solo cambia el idioma.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import HomeContent from "~/components/sections/HomeContent.astro";
+import { type Locale } from "~/lib/i18n";
+import { buildFaqSchema } from "~/lib/seo";
+import { getFaq } from "~/data/faq";
+
+const locale: Locale = "en";
+const faqSchema = buildFaqSchema(getFaq(locale));
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Apartments with a private hot tub on Lake Szeląg"
+  description="Four luxury 80 m² apartments with a private wood-fired hot tub, 105 m from Lake Szeląg Wielki in Stare Jabłonki, Masuria. Air conditioning, terrace, Netflix. From 700 PLN per night."
+  canonicalPath="/"
+  ogImage="/og-default.jpg"
+  preloadImage="/assets/hero/hero-1.webp"
+  schema={faqSchema}
+>
+  <HomeContent locale={locale} />
+</BaseLayout>

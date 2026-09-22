@@ -1,0 +1,200 @@
+---
+/**
+ * TrustStrip — franja de confianza bajo el hero.
+ *
+ * Muestra los cuatro diferenciadores duros y las valoraciones por plataforma.
+ * Las valoraciones salen de RatingSummary, el mismo componente que usan la
+ * portada, la sección de opiniones y la página de opiniones: así las tres
+ * muestran exactamente los mismos números y no se pueden desincronizar.
+ */
+import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
+import Icon from "~/components/ui/Icon.astro";
+import RatingSummary from "~/components/ui/RatingSummary.astro";
+import type { IconName } from "~/data/icons";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+
+const pillars: Array<{ icon: IconName; title: string; sub: string }> = [
+  { icon: "shield", title: tr.trust.natura, sub: tr.trust.naturaSub },
+  { icon: "hottub", title: tr.trust.hottub, sub: tr.trust.hottubSub },
+  { icon: "wind", title: tr.trust.climatized, sub: tr.trust.climatizedSub },
+  { icon: "lake", title: tr.trust.lake, sub: tr.trust.lakeSub },
+];
+---
+
+<section class="trust" aria-label={tr.trust.verified}>
+  <div class="container trust__inner">
+    <ul class="trust__pillars" role="list">
+      {pillars.map((pillar) => (
+        <li>
+          <span class="trust__icon"><Icon name={pillar.icon} size={20} /></span>
+          <span class="trust__text">
+            <strong>{pillar.title}</strong>
+            <span>{pillar.sub}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
+
+    <div class="trust__rating">
+      <p class="trust__rating-title">{tr.trust.ratingLabel}</p>
+
+      <RatingSummary size={20} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .trust {
+    background: var(--color-bg-elevated);
+    border-bottom: 1px solid var(--color-line);
+    padding-block: var(--space-7);
+  }
+
+  .trust__inner {
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+  }
+
+  /*
+   * A partir de 1100 px las valoraciones pasan a la derecha de los pilares.
+   *
+   * Antes la grid solo se partía en 2 columnas a 1440 px: en el tramo 1100–1440
+   * el bloque de valoraciones ya tenía border-left (parecía "a la derecha")
+   * pero la grid seguía siendo de 1 columna y el bloque caía DEBAJO de los
+   * pilares. Ahora el cambio de columnas se hace en el mismo breakpoint que el
+   * border-left, de modo que la línea vertical y la posición de la derecha
+   * coinciden. En < 1100 px todo apilado y sin línea (legible en móvil).
+   */
+  @media (min-width: 1100px) {
+    .trust__inner {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-8);
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .trust__inner {
+      gap: var(--space-10);
+    }
+  }
+
+  /* -------------------------------------------------------------- Pilares */
+
+  .trust__pillars {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4) var(--space-6);
+  }
+
+  /*
+   * En móvil se muestran solo los dos primeros diferenciadores. Los cuatro
+   * alargaban esta franja tanto como el hero y empujaban los apartamentos
+   * demasiado abajo; los dos restantes vuelven a aparecer en la sección de
+   * equipamiento y en la comparativa.
+   */
+  .trust__pillars li:nth-child(n + 3) {
+    display: none;
+  }
+
+  @media (min-width: 560px) {
+    .trust__pillars {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .trust__pillars li:nth-child(n + 3) {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    /* 2×2 y no 4 columnas: con cuatro, textos como "Obszar Natura 2000"
+       se cortaban con puntos suspensivos. Un dato truncado no comunica. */
+    .trust__pillars {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .trust__pillars li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .trust__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    background: var(--color-accent-faded);
+    color: var(--color-accent);
+  }
+
+  .trust__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .trust__text strong {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    line-height: 1.3;
+  }
+
+  .trust__text span {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    line-height: 1.4;
+  }
+
+  /* ------------------------------------------------------------ Valoración */
+
+  .trust__rating {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    /*
+     * En móvil (< 1100 px) la grid es de 1 columna y el bloque va debajo de
+     * los pilares; una línea arriba lo separa. A partir de 1100 px la grid ya
+     * lo pone a la derecha, así que esa línea se cambia por una vertical.
+     */
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-line);
+  }
+
+  @media (min-width: 1100px) {
+    .trust__rating {
+      padding-top: 0;
+      padding-left: var(--space-10);
+      border-top: 0;
+      border-left: 1px solid var(--color-line);
+    }
+  }
+
+  .trust__rating-title {
+    max-width: none;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  /*
+   * Las estrellas, la nota y los logotipos los aporta RatingSummary. Aquí solo
+   * queda el contenedor y su título: antes esta franja tenía su propia copia de
+   * todo el bloque (trust__overall, trust__score, trust__sources), que había
+   * que mantener en paralelo a las otras tres.
+   */
+</style>

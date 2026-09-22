@@ -1,0 +1,1243 @@
+---
+/**
+ * HomeContent — cuerpo completo de la portada, parametrizado por idioma.
+ *
+ * Se usa desde /, /en/ y /de/ pasando la ruta canónica. Así una sola fuente
+ * mantiene las tres versiones idénticas en estructura y contenido traducido,
+ * en lugar de tres copias divergentes.
+ */
+import {
+  type Locale,
+  localeLink,
+  t,
+  localeMeta,
+} from "~/lib/i18n";
+import { site } from "~/data/site";
+import { apartments } from "~/data/apartments";
+import { formatPLN } from "~/lib/format";
+
+import Hero from "~/components/sections/Hero.astro";
+import TrustStrip from "~/components/sections/TrustStrip.astro";
+import AttractionCardHome from "~/components/content/AttractionCardHome.astro";
+import { attractions } from "~/data/attractions";
+import AmenitiesShowcase from "~/components/sections/AmenitiesShowcase.astro";
+import CtaBand from "~/components/sections/CtaBand.astro";
+import Testimonials from "~/components/content/Testimonials.astro";
+import FaqSection from "~/components/content/FaqSection.astro";
+import MapEmbed from "~/components/content/MapEmbed.astro";
+import Icon from "~/components/ui/Icon.astro";
+import SectionHeading from "~/components/ui/SectionHeading.astro";
+import SmartImage from "~/components/ui/SmartImage.astro";
+import PhotoGallery from "~/components/ui/PhotoGallery.astro";
+import ApartmentCard from "~/components/content/ApartmentCard.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const tr = t(locale);
+
+const lowestPrice = Math.min(...apartments.map((a) => a.pricing.lowSeasonPLN));
+const highestPrice = Math.max(...apartments.map((a) => a.pricing.highSeasonPLN));
+
+/**
+ * Fotos del mosaico del complejo, tomadas de public/assets/facilities.
+ *
+ * Antes eran fotos de apartamentos concretos. Se cambiaron por las de
+ * instalaciones porque esta sección habla del COMPLEJO ("idéntico standard,
+ * lo único que cambia es la vista"), no de una unidad concreta.
+ *
+ * Solo la primera lleva `span: "big"`: es la foto destacada y ocupa 2×2. Las
+ * demás son celdas iguales, colocadas por posición desde el CSS de PhotoGallery.
+ * Se probó a dar huecos altos a las fotos verticales y anchos a las apaisadas
+ * para recortar menos, pero el resultado era irregular y las verticales en celda
+ * baja se veían como tiras. Todas las celdas comparten proporción (1,40) y el
+ * conjunto se lee regular. Las proporciones de los archivos están en
+ * scripts/ratio-facilities.mjs.
+ */
+const facilities = "/assets/facilities";
+
+const complexPhotos = [
+  /*
+   * LAS 15 FOTOS DEL MOSAICO, EN EL ORDEN DE LA RETÍCULA.
+   *
+   * El ORDEN MANDA: PhotoGallery le asigna a cada hueco un grid-area por POSICIÓN,
+   * así que mover una foto de sitio cambia su tamaño. Las posiciones 2, 3 y 6 son
+   * los huecos verticales; la 4, la 8 y la 13 son las bandas apaisadas.
+   *
+   * Ese reparto NO es estético: depende de la proporción de cada archivo, medida en
+   * scripts/ratio-facilities.mjs. Las tres verticales del set (0,75) van a los
+   * huecos de 0,65; en una celda base (1,33) perderían la mitad de la imagen por
+   * los lados. Las apaisadas van a las bandas de 2,72.
+   *
+   * Y la composición tampoco se eligió a ojo: se buscó con
+   * scripts/solve-mosaic.mjs, que prueba por backtracking qué combinaciones de
+   * piezas (big 6x2, tall 3x2, wide 6x1, base 3x1) caben en una retícula de 12x6
+   * sin dejar huecos. Con 14 fotos ninguna combinación con tres verticales se puede
+   * colocar; con 15 sí, y esa es la que está.
+   *
+   * Los cuatro intentos anteriores, hechos a ojo, dejaron huecos. El mapa de
+   * ocupación se comprueba con scripts/verify-mosaic-grid.mjs.
+   */
+  // 1. big 6x2
+  {
+    src: `${facilities}/apartament-z-zewnatrz.webp`,
+    full: "/assets/responsive/assets/facilities/apartament-z-zewnatrz-1100.webp",
+    alt:
+      locale === "pl"
+        ? "Kompleks Apartamentów Liberta z zewnątrz, oświetlone tarasy wieczorem"
+        : locale === "de"
+          ? "Die Anlage Apartamenty Liberta von außen, beleuchtete Terrassen am Abend"
+          : "The Apartamenty Liberta complex from outside, terraces lit in the evening",
+  },
+  // 2. tall 3x2 - vertical 0,75
+  {
+    src: `${facilities}/sauna.webp`,
+    full: "/assets/responsive/assets/facilities/sauna-1086.webp",
+    alt:
+      locale === "pl"
+        ? "Sauna w formie beczki z widokiem na jezioro"
+        : locale === "de"
+          ? "Fasssauna mit Blick auf den See"
+          : "Barrel sauna with a view of the lake",
+  },
+  // 3. tall 3x2 - vertical 0,75
+  {
+    src: `${facilities}/kuchnia.webp`,
+    full: "/assets/responsive/assets/facilities/kuchnia-1086.webp",
+    alt:
+      locale === "pl"
+        ? "Kuchnia z wyspą, drewnianym blatem i stołem"
+        : locale === "de"
+          ? "Küche mit Kochinsel, Holzplatte und Tisch"
+          : "Kitchen with an island, wooden worktop and table",
+  },
+  // 4. wide 6x1 - la más apaisada (1,80)
+  {
+    src: `${facilities}/lake.webp`,
+    full: "/assets/responsive/assets/facilities/lake-1400.webp",
+    alt:
+      locale === "pl"
+        ? "Paddleboardy na Jeziorze Szeląg Wielki o zachodzie słońca"
+        : locale === "de"
+          ? "Stand-Up-Paddler auf dem Szeląg-See bei Sonnenuntergang"
+          : "Paddleboarders on Lake Szeląg Wielki at sunset",
+  },
+  // 5. base 3x1
+  {
+    src: `${facilities}/salon-z-kominkiem.webp`,
+    full: "/assets/responsive/assets/facilities/salon-z-kominkiem-1100.webp",
+    alt:
+      locale === "pl"
+        ? "Salon z kominkiem na drewno i kanapą"
+        : locale === "de"
+          ? "Wohnzimmer mit Holzofen und Sofa"
+          : "Living room with a wood-burning fireplace and sofa",
+  },
+  // 6. tall 3x2 - vertical 0,75
+  {
+    src: `${facilities}/play.webp`,
+    full: "/assets/responsive/assets/facilities/play-1400.webp",
+    alt:
+      locale === "pl"
+        ? "Siatkówka plażowa na piasku o zachodzie słońca"
+        : locale === "de"
+          ? "Beachvolleyball im Sand bei Sonnenuntergang"
+          : "Beach volleyball on the sand at sunset",
+  },
+  // 7. base 3x1
+  {
+    src: `${facilities}/balia.webp`,
+    full: "/assets/responsive/assets/facilities/balia-1080.webp",
+    alt:
+      locale === "pl"
+        ? "Balia góralska z hydromasażem o zachodzie słońca"
+        : locale === "de"
+          ? "Holz-Hot-Tub mit Hydromassage bei Sonnenuntergang"
+          : "Wooden hot tub with hydromassage at sunset",
+  },
+  // 8. wide 6x1
+  {
+    src: `${facilities}/miejsce-na-ognisko.webp`,
+    full: "/assets/responsive/assets/facilities/miejsce-na-ognisko-1100.webp",
+    alt:
+      locale === "pl"
+        ? "Zadaszony taras z meblami i widokiem na jezioro"
+        : locale === "de"
+          ? "Überdachte Terrasse mit Möbeln und Seeblick"
+          : "Covered terrace with furniture and a lake view",
+  },
+  // 9. base 3x1
+  {
+    src: `${facilities}/lazienka.webp`,
+    full: "/assets/responsive/assets/facilities/lazienka-1100.webp",
+    alt:
+      locale === "pl"
+        ? "Łazienka z prysznicem walk-in i podwieszanym sedesem"
+        : locale === "de"
+          ? "Badezimmer mit Walk-in-Dusche und wandhängendem WC"
+          : "Bathroom with a walk-in shower and a wall-hung toilet",
+  },
+  // 10. base 3x1
+  {
+    src: `${facilities}/sypialnia.webp`,
+    full: "/assets/responsive/assets/facilities/sypialnia-1086.webp",
+    alt:
+      locale === "pl"
+        ? "Sypialnia z łóżkiem małżeńskim i drewnianym sufitem"
+        : locale === "de"
+          ? "Schlafzimmer mit Doppelbett und Holzdecke"
+          : "Bedroom with a double bed and wooden ceiling",
+  },
+  // 11. base 3x1
+  {
+    src: `${facilities}/jadalnia.webp`,
+    full: "/assets/responsive/assets/facilities/jadalnia-1100.webp",
+    alt:
+      locale === "pl"
+        ? "Jadalnia otwarta na salon, z dużym stołem"
+        : locale === "de"
+          ? "Essbereich, offen zum Wohnzimmer, mit großem Tisch"
+          : "Dining area open to the living room, with a large table",
+  },
+  // 12. base 3x1
+  {
+    src: `${facilities}/plac-zabaw.webp`,
+    full: "/assets/responsive/assets/facilities/plac-zabaw-1080.webp",
+    alt:
+      locale === "pl"
+        ? "Drewniany plac zabaw na trawie przy jeziorze"
+        : locale === "de"
+          ? "Holzspielplatz auf der Wiese am See"
+          : "Wooden playground on the grass by the lake",
+  },
+  // 13. base 3x1
+  {
+    src: `${facilities}/taras.webp`,
+    full: "/assets/responsive/assets/facilities/taras-1100.webp",
+    alt:
+      locale === "pl"
+        ? "Ognisko nad brzegiem jeziora o zachodzie słońca"
+        : locale === "de"
+          ? "Feuerstelle am Seeufer bei Sonnenuntergang"
+          : "Fire pit on the lake shore at sunset",
+  },
+  // 14. base 3x1
+  {
+    src: `${facilities}/sypialnia-dwuosobowa.webp`,
+    full: "/assets/responsive/assets/facilities/sypialnia-dwuosobowa-1100.webp",
+    alt:
+      locale === "pl"
+        ? "Druga sypialnia z dwoma osobnymi łóżkami"
+        : locale === "de"
+          ? "Zweites Schlafzimmer mit zwei Einzelbetten"
+          : "Second bedroom with two single beds",
+  },
+  // 15. base 3x1
+  /*
+   * EL PLANO AÉREO NO VA EN EL MOSAICO.
+   *
+   * El propietario pidió quitar esta imagen del grid visual porque ya aparece
+   * como foto principal de la sección "Sobre nosotros" justo encima, y repetir
+   * el mismo plano técnico en la galería de decoración del complejo ensucia el
+   * mosaico. Pero sigue siendo una foto útil para un huésped curioso, así que
+   * se mantiene en el lightbox: al abrir cualquier foto y navegar con las
+   * flechas, el plano aparece como una más del recorrido.
+   *
+   * Se implementa como `hiddenFromGrid` en <PhotoGallery>: la foto existe en
+   * el array, pero el componente no la pinta en el mosaico, solo inyecta un
+   * botón "fantasma" para que el lightbox y las flechas la alcancen.
+   */
+];
+
+/**
+ * Fotos que SÍ se ven en el mosaico (visiblePhotos) + las que solo viven en el
+ * lightbox (`hiddenFromGrid`). Aquí ya se devuelve el array completo de fotos
+ * con el plano incluido, y se le pasa al componente la lista de las que debe
+ * ocultar del grid.
+ */
+const complexPhotosWithPlan = [
+  ...complexPhotos,
+  {
+    src: `${facilities}/plan-osrodka.webp`,
+    full: "/assets/responsive/assets/facilities/plan-osrodka-1400.webp",
+    alt:
+      locale === "pl"
+        ? "Plan kompleksu z lotu ptaka z oznaczonymi strefami"
+        : locale === "de"
+          ? "Lageplan der Anlage aus der Luft mit markierten Bereichen"
+          : "Aerial site plan of the complex with marked areas",
+  },
+];
+
+const planSrc = `${facilities}/plan-osrodka.webp`;
+
+/*
+ * FOTOS QUE NO VAN EN EL MOSAICO, SOLO EN EL LIGHTBOX.
+ *
+ * El cliente pidió que el grid de la galería no muestre las tres últimas
+ * fotos del set (plac-zabaw, taras, sypialnia-dwuosobowa). Las fotos
+ * merecen estar (son del complejo, no sobran), pero al final del mosaico
+ * alargaban la rejilla una fila más sin aportar jerarquía: la fila 6 ya
+ * cerraba visualmente con la 11-15.
+ *
+ * Mantenerlas dentro del array con el flag `hiddenFromGrid` hace que
+ * sigan siendo accesibles: al abrir cualquier foto del grid y navegar
+ * con flechas, aparecen en el recorrido del lightbox (el contador
+ * refleja el total real, p.ej. "5 / 17"). Si el cliente decide después
+ * mostrarlas, basta con quitar el src de esta lista.
+ */
+/*
+ * FOTOS QUE NO VAN EN EL MOSAICO, SOLO EN EL LIGHTBOX.
+ *
+ * El cliente pidió que SOLO las 6 primeras fotos del set sean visibles
+ * en el grid de la home. El resto (más el plano aéreo, que ya estaba
+ * oculto) viven en el array pero no se renderizan en el mosaico: el
+ * usuario las descubre al abrir cualquier foto y navegar con flechas.
+ *
+ * Las 6 que SÍ se ven son:
+ *   1. apartament-z-zewnatrz    (la destacada, big 6×2)
+ *   2. sauna                     (vertical, base)
+ *   3. kuchnia                   (vertical, base)
+ *   4. lake                      (wide 6×1)
+ *   5. salon-z-kominkiem         (wide 6×1)
+ *   6. play                      (vertical, wide)
+ *
+ * Total ocultas = 8 (5 nuevas + 3 anteriores) + 1 plano = 9 inaccesibles
+ * desde el grid; el lightbox sigue contando las 14 + plano = 15 reales.
+ *
+ * Mantenerlas dentro del array con el flag `hiddenFromGrid` hace que
+ * sigan siendo accesibles: al abrir cualquier foto del grid y navegar
+ * con flechas, aparecen en el recorrido del lightbox (el contador
+ * refleja el total real, p.ej. "5 / 15"). Si el cliente decide después
+ * mostrarlas, basta con quitar el src de esta lista.
+ */
+const hiddenInGrid = [
+  `${facilities}/balia.webp`,
+  `${facilities}/miejsce-na-ognisko.webp`,
+  `${facilities}/lazienka.webp`,
+  `${facilities}/sypialnia.webp`,
+  `${facilities}/jadalnia.webp`,
+  `${facilities}/plac-zabaw.webp`,
+  `${facilities}/taras.webp`,
+  `${facilities}/sypialnia-dwuosobowa.webp`,
+];
+
+const distances = [
+  { icon: "waves" as const, label: tr.home.locationDistanceLake, value: tr.home.locationDistanceLakeValue },
+  { icon: "utensils" as const, label: tr.home.locationDistanceShop, value: tr.home.locationDistanceShopValue },
+  { icon: "pin" as const, label: tr.home.locationDistanceOlsztyn, value: tr.home.locationDistanceOlsztynValue },
+  { icon: "pin" as const, label: tr.home.locationDistanceOstroda, value: tr.home.locationDistanceOstrodaValue },
+  { icon: "plane" as const, label: tr.home.locationDistanceAirport, value: tr.home.locationDistanceAirportValue },
+  { icon: "car" as const, label: tr.home.locationDistanceGdansk, value: tr.home.locationDistanceGdanskValue },
+];
+
+const includes = [
+  tr.home.pricingInclude1,
+  tr.home.pricingInclude2,
+  tr.home.pricingInclude3,
+  tr.home.pricingInclude4,
+];
+
+const aboutTitle =
+  locale === "pl"
+    ? "Domki letniskowe na Mazurach — i coś znacznie więcej"
+    : locale === "de"
+      ? "Ferienhäuser in Masuren — und noch viel mehr"
+      : "Holiday homes in Masuria — and a great deal more";
+---
+
+<Hero />
+
+<TrustStrip />
+
+<!-- ===================================================== SOBRE NOSOTROS -->
+<section class="about section">
+  <div class="container">
+    <div class="about__stack">
+      <div class="about__col" data-reveal>
+        <span class="eyebrow">{tr.home.aboutEyebrow}</span>
+        <h2 class="about__title">{aboutTitle}</h2>
+
+        <div class="prose">
+          <p>{tr.home.aboutLead}</p>
+          <p>{tr.home.aboutLeadMore}</p>
+        </div>
+
+        <div class="btn-group">
+          <a class="btn btn--outline" href={localeLink(locale, "/lokalizacja/")}>
+            {tr.home.locationMore}
+          </a>
+          <a class="btn btn--ghost btn--link" href={localeLink(locale, "/atrakcje/")}>
+            {tr.home.experiencesAll}
+          </a>
+        </div>
+      </div>
+
+      <figure class="about__figure" data-reveal>
+        <SmartImage
+          src="/assets/facilities/plan-osrodka.webp"
+          alt={
+            locale === "pl"
+              ? "Zdjęcie lotnicze kompleksu z zaznaczonymi punktami: apartamenty, rekreacja, plaża, marina, bar i slip"
+              : locale === "de"
+                ? "Luftaufnahme der Anlage mit markierten Punkten: Ferienwohnungen, Freizeit, Strand, Marina, Bar und Slipanlage"
+                : "Aerial view of the complex with marked points: apartments, recreation, beach, marina, bar and slipway"
+          }
+          sizes="(min-width: 1024px) 34vw, 100vw"
+        />
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== LOS APARTAMENTOS -->
+<section class="section section--bg" id="apartamenty">
+  <div class="container">
+    <div class="section-head-split">
+      <div class="section-head-split__text" data-reveal>
+        <span class="eyebrow">Liberta I–IV</span>
+        <h2>{tr.home.apartmentsTitle}</h2>
+        <p class="lead">{tr.home.apartmentsLead}</p>
+      </div>
+      <a class="btn btn--outline" href={localeLink(locale, "/apartamenty/")} data-reveal>
+        {tr.cta.seeAllApartments}
+      </a>
+    </div>
+
+    <div class="apt-grid">
+      {apartments.map((apartment, index) => (
+        <ApartmentCard apartment={apartment} layout="vertical" index={index} />
+      ))}
+    </div>
+
+    <!-- Mosaico del complejo, con galería -->
+    <div class="complex">
+      <div class="complex__gallery">
+        <PhotoGallery
+          photos={complexPhotosWithPlan}
+          hiddenFromGrid={[planSrc, ...hiddenInGrid]}
+          label={
+            locale === "pl"
+              ? "Galeria zdjęć kompleksu"
+              : locale === "de"
+                ? "Fotogalerie der Anlage"
+                : "Photo gallery of the complex"
+          }
+          closeLabel={locale === "pl" ? "Zamknij" : locale === "de" ? "Schließen" : "Close"}
+          prevLabel={locale === "pl" ? "Poprzednie zdjęcie" : locale === "de" ? "Vorheriges Bild" : "Previous photo"}
+          nextLabel={locale === "pl" ? "Następne zdjęcie" : locale === "de" ? "Nächstes Bild" : "Next photo"}
+          counterLabel="x"
+        />
+      </div>
+
+      <div class="complex__aside" data-reveal>
+        <h3 class="complex__aside-title">{tr.apartment.compareTitle}</h3>
+        <p class="complex__aside-text">{tr.apartment.compareLead}</p>
+        <a class="btn btn--primary" href={localeLink(locale, "/apartamenty/")}>
+          {tr.cta.compare}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= POR QUÉ LIBERTA -->
+<section class="reasons section">
+  <div class="container">
+    <SectionHeading eyebrow={tr.home.whyEyebrow} title={tr.home.whyTitle} lead={tr.home.whyLead} />
+
+    <ol class="reasons__list" role="list">
+      {[1, 2, 3, 4].map((n) => (
+        <li class="reasons__item" data-reveal style={`--reveal-delay:${(n - 1) * 60}ms`}>
+          <span class="reasons__num">{String(n).padStart(2, "0")}</span>
+          <div>
+            <h3 class="reasons__name">
+              {n === 1 && tr.home.reason1Title}
+              {n === 2 && tr.home.reason2Title}
+              {n === 3 && tr.home.reason3Title}
+              {n === 4 && tr.home.reason4Title}
+            </h3>
+            <p class="reasons__text">
+              {n === 1 && tr.home.reason1Text}
+              {n === 2 && tr.home.reason2Text}
+              {n === 3 && tr.home.reason3Text}
+              {n === 4 && tr.home.reason4Text}
+            </p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<!-- =========================================================== EQUIPAMIENTO -->
+<AmenitiesShowcase />
+
+<!-- ============================================================ EXPERIENCIAS -->
+<section class="section">
+  <div class="container">
+    <SectionHeading
+      eyebrow={tr.home.experiencesEyebrow}
+      title={tr.home.experiencesTitle}
+      lead={tr.home.experiencesLead}
+    />
+
+    <!--
+      Mismas filas alternadas que en /atrakcje/, con los seis primeros sitios.
+      Antes era una rejilla de tarjetas con icono; ahora que hay foto propia de
+      cada sitio, el icono sobra y la tarjeta pequeña se queda corta.
+
+      EN LA HOME SE USA UNA VARIANTE DISTINTA, NO AttractionRow.
+
+      /atrakcje/ muestra filas alternadas (imagen a un lado, texto al otro)
+      porque ahí la foto grande ayuda a vender el sitio. En la portada, en
+      cambio, queremos una rejilla 3×2 más densa y "preview": las seis
+      atracciones entran en una sola pantalla sinスクロール largo, y la foto
+      aparece al hover para no robar protagonismo al bloque "O nas" que está
+      justo encima con su imagen grande. El componente AttractionCardHome es
+      una pieza específica para este uso, no una variante de AttractionRow.
+    -->
+    <div class="ahgrid">
+      {attractions
+        .filter((a) => a.image)
+        .slice(0, 6)
+        .map((attraction) => (
+          <AttractionCardHome
+            image={attraction.image}
+            alt={attraction.imageAlt?.[locale] ?? attraction.name[locale]}
+            eyebrow={
+              attraction.distanceKm === undefined
+                ? undefined
+                : attraction.distanceKm < 1
+                  ? `${Math.round(attraction.distanceKm * 1000)} m`
+                  : `${attraction.distanceKm} km`
+            }
+            title={attraction.name[locale]}
+            text={attraction.description[locale]}
+          />
+        ))}
+    </div>
+
+    <div class="text-center u-mt-12">
+      <a class="btn btn--outline btn--lg" href={localeLink(locale, "/atrakcje/")}>
+        {tr.home.experiencesAll}
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= UBICACIÓN -->
+<section class="section section--bg">
+  <div class="container">
+    <div class="loc__grid split split--reversed">
+      <div class="loc__text" data-reveal>
+        <span class="eyebrow">{tr.home.locationEyebrow}</span>
+        <h2 class="loc__title">{tr.home.locationTitle}</h2>
+        <p class="lead">{tr.home.locationLead}</p>
+
+        <ul class="loc__distances" role="list">
+          {distances.map((item) => (
+            <li>
+              <span class="loc__distance-icon"><Icon name={item.icon} size={18} /></span>
+              <span class="loc__distance-label">{item.label}</span>
+              <span class="loc__distance-value">{item.value}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div class="loc__contact">
+          <p class="loc__contact-line">
+            <Icon name="pin" size={16} />
+            <span>{site.address.full}</span>
+          </p>
+          <p class="loc__contact-line">
+            <Icon name="info" size={16} />
+            <span>{tr.home.locationGps}: {site.geo.latDMS}, {site.geo.lngDMS}</span>
+          </p>
+        </div>
+
+        <a class="btn btn--primary" href={localeLink(locale, "/lokalizacja/")}>
+          {tr.home.locationDirections}
+        </a>
+      </div>
+
+      <figure class="loc__map" data-reveal style="--reveal-delay:120ms">
+        <MapEmbed zoom={13} />
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ PRECIOS -->
+<section class="section" id="cennik">
+  <div class="container">
+    <SectionHeading
+      eyebrow={tr.home.pricingEyebrow}
+      title={tr.home.pricingTitle}
+      lead={tr.home.pricingLead}
+    />
+
+    <div class="price-preview">
+      <div class="price-preview__cards" data-reveal>
+        <article class="price-preview__card">
+          <span class="price-preview__season">{tr.home.pricingSeasonLow}</span>
+          <span class="price-preview__amount">
+            {formatPLN(lowestPrice)}
+            <em>{tr.home.pricingPerNight}</em>
+          </span>
+          <span class="price-preview__note">{tr.home.pricingSeasonLowMonths}</span>
+        </article>
+
+        <article class="price-preview__card price-preview__card--accent">
+          <span class="price-preview__season">{tr.home.pricingSeasonHigh}</span>
+          <span class="price-preview__amount">
+            {formatPLN(highestPrice)}
+            <em>{tr.home.pricingPerNight}</em>
+          </span>
+          <span class="price-preview__note">{tr.home.pricingSeasonHighMonths}</span>
+        </article>
+      </div>
+
+      <aside class="price-preview__aside" data-reveal style="--reveal-delay:100ms">
+        <h3 class="price-preview__aside-title">{tr.home.pricingIncludes}</h3>
+        <ul class="list-check" role="list">
+          {includes.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+        <p class="price-preview__aside-note">{tr.home.pricingIncludesNote}</p>
+        <p class="price-preview__discount">
+          <strong>{tr.pricing.discounts}:</strong> {tr.pricing.discount7} · {tr.pricing.discount13}
+        </p>
+        <a class="btn btn--outline btn--full" href={localeLink(locale, "/cennik/")}>
+          {tr.home.pricingFull}
+        </a>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================= OPINIONES -->
+<Testimonials limit={6} />
+
+<!-- ======================================================================= FAQ -->
+<FaqSection limit={6} showFooterLink />
+
+<!-- ================================================================== CONTACTO -->
+<!-- ================================================================== CONTACTO -->
+<!--
+  Un único cierre de conversión.
+  Antes había una sección de contacto con titular y CTA seguida de una banda CTA
+  con el MISMO titular y los MISMOS botones, pegadas una detrás de otra. Aquí se
+  queda solo la banda (más contundente); el bloque de canales (teléfono, email,
+  dirección) y los dos botones finales también se eliminaron porque ya estaban
+  dentro de la propia banda o se repiten en el pie de página. Pegar CtaBand al
+  footer sin un bloque intermedio era justo lo que pasaba antes de este cambio
+  y era lo que el cliente señaló.
+-->
+<CtaBand title={tr.home.ctaBandTitle} text={tr.home.ctaBandText} note={tr.home.ctaBandNote} />
+
+<style>
+  /*
+   * REJILLA 3×2 DE EXPERIENCIAS (SOLO EN LA HOME).
+   *
+   *   móvil   (< 640 px)  →  1 columna × 6 filas
+   *   tablet  (>= 640)    →  2 columnas × 3 filas
+   *   desktop (>= 1024)   →  3 columnas × 2 filas
+   *
+   * El `min-height` mínimo evita que una card con poco texto se vea más baja
+   * que las demás y rompa la rejilla. La altura real la dicta el contenido,
+   * pero el mínimo la iguala al estado de hover (foto + veil) que es el más
+   * exigente, así que la rejilla nunca "salta" al pasar el cursor de una
+   * card a otra.
+   *
+   * NO se reutiliza la rejilla de `/atrakcje/` (AttractionRow): la home
+   * necesita preview densa, no filas alternadas con foto grande. Mezclar las
+   * dos con clases condicionales o variantes terminó antes en CSS que rompía
+   * al cambiar de breakpoint, por eso es un componente aparte.
+   */
+  .ahgrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .ahgrid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-5);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .ahgrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-6);
+    }
+  }
+  /* --------------------------------------------------------- Sobre nosotros */
+
+  /*
+   * TÍTULO "O nas" — LEGIBLE DE UN VISTAZO, SIN SALTOS INNECESARIOS.
+   *
+   * El texto completo mide ~50 caracteres. Con `text-5xl` y `max-width:
+   * 28rem` (~448 px) el navegador lo partía en 4–5 líneas: el guion largo
+   * se quedaba huérfano en su propia línea y las palabras como
+   * "letniskowe" o "znacznie" no cabían enteras. Demasiado denso y
+   * fatigante de leer.
+   *
+   * Tres ajustes lo arreglan:
+   *
+   *   1. font-size: `text-3xl` en móvil, `text-4xl` en escritorio.
+   *      Suficiente para tener jerarquía de titular sin ser un grito.
+   *
+   *   2. max-width: 38rem en escritorio. Algo más ancho que antes, lo
+   *      justo para que la línea más larga lleve 8–10 palabras y se
+   *      pueda leer de corrido sin saltar de renglón a cada tres
+   *      palabras.
+   *
+   *   3. line-height generoso (1.35) y tracking ligero negativo. Las
+   *      líneas no se pegan entre sí y el bloque respira.
+   *
+   * `text-wrap: balance` se mantiene pero solo donde aporta (escritorio).
+   * En móvil se desactiva y se permite `hyphens: auto` para que palabras
+   * largas se corten si hace falta, sin desbordes.
+   */
+  .about__title {
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-5);
+    font-size: var(--text-3xl);
+    line-height: 1.35;
+    letter-spacing: var(--tracking-tight);
+    max-width: none;
+    text-wrap: pretty;
+  }
+
+  @media (min-width: 1024px) {
+    .about__title {
+      font-size: var(--text-4xl);
+      line-height: 1.3;
+      max-width: 38rem;
+      text-wrap: balance;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .about__title {
+      hyphens: auto;
+    }
+  }
+
+
+
+
+
+
+  /*
+   * LA SECCIÓN ES DE DOS COLUMNAS A PARTIR DE ESCRITORIO.
+   *
+   *   izquierda  →  texto (eyebrow, h2, dos párrafos, botones)
+   *   derecha    →  figura (plano aéreo)
+   *
+   * Reglas del grid:
+   *   - La altura la define el texto (align-items: stretch por defecto en grid).
+   *     El contenedor de la imagen mide EXACTAMENTE lo que mide el texto, así
+   *     ambas columnas terminan alineadas arriba y abajo sin que la imagen
+   *     "flote" más alta que el bloque de texto.
+   *   - El plano es 1.50 (apaisado, casi 3:2). Si le fijamos aspect-ratio, se
+   *     recorta; si dejamos que crezca con la altura del texto y mantenga su
+   *     proporción natural, ocupa menos ancho del disponible en su columna
+   *     pero NO pierde ni un píxel vertical. La decisión fue esa: que la
+   *     imagen sea proporcional al texto en altura, no que ocupe todo el
+   *     ancho. Los rótulos Marina y Slip de los extremos siguen viéndose.
+   *
+   * En móvil (< 900 px) se apila: texto arriba, plano debajo a ancho
+   * completo. Sin truncamientos, sin scroll horizontal.
+   */
+  .about__stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  @media (min-width: 900px) {
+    .about__stack {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      align-items: stretch;
+      gap: var(--space-10);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .about__stack {
+      gap: var(--space-12);
+    }
+  }
+
+  /*
+   * Columna de texto: a la izquierda, alineada al inicio, sin truncar.
+   * Antes iba centrada y con max-width fijo; en la rejilla de 2 columnas eso
+   * centraba el texto dentro de su propia columna (raro). Ahora se alinea
+   * al inicio para que el bloque se lea como un párrafo al lado de la imagen.
+   *
+   * `justify-content: center` centra verticalmente el bloque respecto a la
+   * altura de la fila. La fila toma la altura del elemento más alto, y como
+   * las dos columnas son del mismo alto, el texto queda ópticamente alineado
+   * con la imagen sin forzar un centrado raro del texto en sí.
+   */
+  .about__col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: none;
+    text-align: left;
+  }
+
+  /*
+   * LA FIGURA AHORA ES UN RECUADRO LLENO DE IMAGEN, SIN BANDAS.
+   *
+   * Cambio de contain → cover a petición del cliente: la imagen debe
+   * rellenar al completo el contenedor aunque se recorten los bordes
+   * laterales (el plano es 1.50 y la columna es ~1.0, así que el recorte
+   * es horizontal y fino). Las dos consecuencias que importan:
+   *
+   *   1. No debe verse NADA detrás de la imagen: el figure pierde el
+   *      `background: color-bg-muted` que actuaba como marco cuando
+   *      sobraba hueco. Ahora, si la imagen no cubre un píxel, queda
+   *      transparente, no gris.
+   *
+   *   2. La imagen ya no se centra con flex: pasa a llenar el figure con
+   *      `width: 100%; height: 100%`, igual que un background. Eso permite
+   *      que `object-fit: cover` recorte los lados simétricamente desde
+   *      el centro.
+   *
+   * El figure sigue con `border-radius` y `overflow: hidden`, así las
+   * esquinas del recorte siguen siendo las del contenedor, no esquinas
+   * cuadradas de la imagen.
+   *
+   * El recorte lateral puede afectar a rótulos como "Marina" y "Slip" en
+   * los extremos del plano: es la decisión explícita del cliente. Si
+   * después prefiere recuperarlos, basta con volver a `contain` aquí.
+   */
+  .about__figure {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    height: 100%;
+  }
+
+  /*
+   * La imagen ocupa el 100 % del figure y recorta lo que sobre por el
+   * lado más largo. `object-position: center` mantiene el centro del plano
+   * (la zona con más información) en el centro del figure; los rótulos de
+   * los extremos pueden quedar parcialmente fuera.
+   *
+   * `:global` porque la imagen llega envuelta por SmartImage (un <img>
+   * con su propio scoped style) y el CSS scoped de este componente no la
+   * alcanzaría por defecto.
+   */
+  .about__figure :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /*
+   * NO hay `position: sticky` en la figura.
+   *
+   * Lo tenía cuando iba en una columna al lado de un texto largo: acompañaba al
+   * lector mientras bajaba. Ahora ocupa el ancho completo debajo del texto, así
+   * que no hay nada que acompañar y el sticky solo daría un salto al llegar al
+   * final de la sección.
+   */
+
+  /* ------------------------------------------------------------ Apartamentos */
+
+  .apt-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 640px) {
+    .apt-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .apt-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* ------------------------------------------------------------ Mosaico complejo */
+
+  /*
+   * UNA COLUMNA, NO MOSAICO + COLUMNA LATERAL.
+   *
+   * Antes era `1fr 20rem`: el mosaico se quedaba en 776 px para doce fotos, es
+   * decir 268 px por celda, y a ese tamaño las fotos verticales se veían como
+   * tiras y las apaisadas perdían más de la mitad. Doce fotos necesitan ancho.
+   *
+   * Ahora el mosaico ocupa los 1144 px y el texto va debajo, centrado. Las
+   * celdas pasan a 361 px.
+   */
+  /*
+   * LAYOUT DEL MOSAICO + ASIDE.
+   *
+   * Móvil (< 1024 px): el mosaico va arriba y el aside debajo, centrados
+   * (justify-content: center en el flex). Así el texto corto ("Wszystkie
+   * apartamenty w jednym miejscu…") se lee como cierre de la sección.
+   *
+   * Escritorio (>= 1024 px): rejilla de dos columnas.
+   *
+   *     ┌──────────────────────────┬──────────────────────────┐
+   *     │  mosaico (izquierda)     │  texto + botón (derecha) │
+   *     │  ocupa 2/3 del ancho     │  ocupa 1/3, alineado a   │
+   *     │                          │  la derecha, centrado    │
+   *     │                          │  vertical respecto al    │
+   *     │                          │  mosaico                 │
+   *     └──────────────────────────┴──────────────────────────┘
+   *
+   * Antes el `.complex` era `flex` con `flex-direction: column` siempre, así
+   * que el aside iba debajo del mosaico incluso en escritorio, y su texto
+   * estaba `margin-inline: auto` + `text-align: center` — visualmente flotaba
+   * sin columna. Ahora el aside vive en una columna real y el texto se pega
+   * al borde derecho.
+   *
+   * El `align-items: center` (no `end` como antes) centra verticalmente el
+   * bloque del texto con la rejilla de fotos completa, no con su base. La
+   * intención es que el título "Wszystkie apartamenty…" se lea a la altura
+   * del primer tercio del mosaico, donde la vista va naturalmente al pasar
+   * del bloque anterior.
+   */
+  .complex {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    margin-top: var(--space-16);
+    padding-top: var(--space-12);
+    border-top: 1px solid var(--color-line);
+    align-items: center;
+  }
+
+  @media (min-width: 1024px) {
+    .complex {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      align-items: center;
+      gap: var(--space-10);
+    }
+  }
+
+  /*
+   * Aside a la derecha.
+   *
+   *   - Texto alineado a la derecha (no centrado, como estaba antes).
+   *   - Botón alineado a la derecha también, para mantener el borde derecho
+   *     como "línea de lectura".
+   *   - max-width limitado para que el texto no se estire demasiado en
+   *     pantallas muy anchas y se vea como un bloque apretado al lado del
+   *     mosaico, no como un bloque pegado a toda la columna.
+   *   - El contenedor es flex column para que `align-self: flex-end` en el
+   *     botón funcione (sin flex el botón se estira a todo el ancho).
+   */
+  .complex__aside {
+    display: flex;
+    flex-direction: column;
+    max-width: 32rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .complex__aside .btn {
+    align-self: center;
+    margin-top: var(--space-2);
+  }
+
+  @media (min-width: 1024px) {
+    .complex__aside {
+      max-width: none;
+      margin-inline: 0;
+      text-align: right;
+    }
+
+    .complex__aside .btn {
+      align-self: flex-end;
+    }
+  }
+
+  /*
+   * El mosaico lo aporta ahora PhotoGallery, que además abre cada foto en una
+   * galería. Aquí solo queda el contenedor y su sitio en la rejilla.
+   */
+  .complex__gallery {
+    min-width: 0;
+  }
+
+  .complex__aside-title {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .complex__aside-text {
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-6);
+  }
+
+  /* ----------------------------------------------------------------- Razones */
+
+  .reasons__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .reasons__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-10) var(--space-12);
+    }
+  }
+
+  .reasons__item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-5);
+    align-items: start;
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .reasons__num {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: 1;
+    color: var(--color-accent-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .reasons__name {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .reasons__text {
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+    max-width: 42ch;
+  }
+
+  /* -------------------------------------------------------------- Ubicación */
+
+  .loc__title {
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-5);
+    font-size: var(--text-4xl);
+  }
+
+  .loc__distances {
+    display: grid;
+    gap: 0;
+    margin-block: var(--space-7);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .loc__distances li {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--color-line);
+    font-size: var(--text-sm);
+  }
+
+  .loc__distance-icon {
+    color: var(--color-accent);
+    display: inline-flex;
+  }
+
+  .loc__distance-label {
+    color: var(--color-text-muted);
+  }
+
+  .loc__distance-value {
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .loc__contact {
+    display: grid;
+    gap: var(--space-2);
+    margin-bottom: var(--space-7);
+  }
+
+  .loc__contact-line {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  .loc__contact-line :global(.icon) {
+    color: var(--color-accent);
+    margin-top: 0.2em;
+  }
+
+  .loc__map {
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    min-height: 22rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-bg-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .loc__map {
+      min-height: 30rem;
+      height: 100%;
+    }
+  }
+
+  /* ---------------------------------------------------------------- Precios */
+
+  .price-preview {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 1024px) {
+    .price-preview {
+      grid-template-columns: 1.2fr 1fr;
+      gap: var(--space-8);
+      align-items: start;
+    }
+  }
+
+  .price-preview__cards {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .price-preview__cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .price-preview__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-7);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+  }
+
+  /* La nota de temporada se ancla abajo: así las dos tarjetas cuadran aunque
+     uno de los textos de fechas ocupe dos líneas y el otro una. */
+  .price-preview__note {
+    margin-top: auto;
+    padding-top: var(--space-4);
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  .price-preview__card--accent {
+    background: var(--color-bg-inverse);
+    border-color: transparent;
+    color: var(--color-text-inverse);
+  }
+
+  .price-preview__card--accent .price-preview__season,
+  .price-preview__card--accent .price-preview__note {
+    color: var(--on-dark-text-muted);
+  }
+
+  .price-preview__card--accent .price-preview__amount {
+    color: #fff;
+  }
+
+  .price-preview__season {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .price-preview__amount {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    line-height: 1;
+    letter-spacing: var(--tracking-tighter);
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .price-preview__amount em {
+    display: block;
+    margin-top: var(--space-2);
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: var(--text-sm);
+    letter-spacing: 0;
+    color: var(--color-text-muted);
+  }
+
+  .price-preview__note {
+    margin-top: auto;
+    padding-top: var(--space-4);
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  .price-preview__aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding: var(--space-8);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+  }
+
+  .price-preview__aside-title {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .price-preview__aside-note,
+  .price-preview__discount {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  .price-preview__discount strong {
+    color: var(--color-text);
+  }
+
+</style>

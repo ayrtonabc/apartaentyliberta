@@ -1,0 +1,481 @@
+---
+/**
+ * BookingForm — formulario de solicitud de reserva.
+ *
+ * Funciona sin JavaScript (POST clásico a /api/booking) y se mejora con:
+ *   - comprobación de disponibilidad en vivo contra /api/availability
+ *   - envío por fetch con estados de carga y mensajes traducidos
+ *
+ * Cada instancia es independiente: el script opera sobre el propio formulario,
+ * no sobre el documento, así que se pueden poner dos formularios en una página.
+ */
+import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
+import { apartments } from "~/data/apartments";
+import { site } from "~/data/site";
+
+interface Props {
+  /** Idioma explícito (cuando el componente se renderiza desde otro idioma) */
+  locale?: Locale;
+  /** Preselecciona un apartamento (ficha de apartamento) */
+  apartmentId?: string;
+  /** Modo compacto para el panel lateral de la ficha */
+  compact?: boolean;
+}
+
+const { locale: localeProp, apartmentId, compact = false } = Astro.props;
+const locale: Locale = localeProp ?? getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+
+const apartmentOptions = [
+  { value: "any", label: tr.form.apartmentAny },
+  ...apartments.map((a) => ({
+    value: a.id.replace("liberta-", ""),
+    label: `${tr.apartment.apartmentAria} ${a.number}`,
+  })),
+];
+
+const selected = apartmentId ? apartmentId.replace("liberta-", "") : "any";
+
+/** Sufijo único para los ids: permite varios formularios en la misma página. */
+const uid = apartmentId ? apartmentId.replace("liberta-", "") : "main";
+const id = (suffix: string) => `bf-${uid}-${suffix}`;
+
+/** Parámetros de URL para preseleccionar fechas (vienen del hero). */
+const messages = {
+  checking: tr.form.availabilityChecking,
+  free: tr.form.availabilityFree,
+  busy: tr.form.availabilityBusy,
+  error: tr.form.availabilityError,
+  dateOrder: locale === "pl"
+    ? "Data wyjazdu musi być później niż data przyjazdu."
+    : locale === "de"
+      ? "Das Abreisedatum muss nach dem Anreisedatum liegen."
+      : "The departure date must be after the arrival date.",
+  successTitle: tr.form.successTitle,
+  successMessage: tr.form.successMessage,
+  errorMessage: tr.form.errorMessage,
+  busyLong: locale === "pl"
+    ? `Wybrane daty nie są dostępne. Wybierz inne daty lub zadzwoń: ${site.phone.display}`
+    : locale === "de"
+      ? `Dieser Termin ist nicht verfügbar. Bitte wählen Sie andere Daten oder rufen Sie an: ${site.phone.display}`
+      : `Those dates are not available. Please choose other dates or call us: ${site.phone.display}`,
+};
+---
+
+<form
+  class:list={["bookform", compact && "bookform--compact"]}
+  method="POST"
+  action="/api/booking"
+  data-booking-form
+  data-bf-form
+  data-messages={JSON.stringify(messages)}
+>
+  <input type="hidden" name="locale" value={locale} />
+
+  <div class="bookform__row">
+    <div class="form-field">
+      <label class="form-field__label form-field__label--required" for={id("name")}>{tr.form.name}</label>
+      <div class="form-field__control">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle>
+        </svg>
+        <input class="form-field__input" type="text" id={id("name")} name="name" required minlength="2" maxlength="100" autocomplete="name" placeholder="Anna Kowalska" />
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-field__label form-field__label--required" for={id("email")}>{tr.form.email}</label>
+      <div class="form-field__control">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+        <input class="form-field__input" type="email" id={id("email")} name="email" required autocomplete="email" placeholder="anna@example.com" />
+      </div>
+    </div>
+  </div>
+
+  <div class="bookform__row">
+    <div class="form-field">
+      <label class="form-field__label form-field__label--required" for={id("phone")}>{tr.form.phone}</label>
+      <div class="form-field__control">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+        </svg>
+        <input class="form-field__input" type="tel" id={id("phone")} name="phone" required autocomplete="tel" placeholder="+48 600 000 000" />
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-field__label form-field__label--required" for={id("apartment")}>{tr.form.apartment}</label>
+      <select class="form-field__select" id={id("apartment")} name="apartment" required>
+        {apartmentOptions.map((opt) => (
+          <option value={opt.value} selected={opt.value === selected}>{opt.label}</option>
+        ))}
+      </select>
+    </div>
+  </div>
+
+  <div class="bookform__row">
+    <div class="form-field">
+      <label class="form-field__label form-field__label--required" for={id("checkin")}>{tr.form.checkIn}</label>
+      <input class="form-field__input" type="date" id={id("checkin")} name="checkIn" required data-availability-trigger />
+    </div>
+
+    <div class="form-field">
+      <label class="form-field__label form-field__label--required" for={id("checkout")}>{tr.form.checkOut}</label>
+      <input class="form-field__input" type="date" id={id("checkout")} name="checkOut" required data-availability-trigger />
+    </div>
+  </div>
+
+  <div class="availability-check" data-availability-check hidden>
+    <span class="availability-check__icon" data-availability-icon aria-hidden="true"></span>
+    <span class="availability-check__text" data-availability-text></span>
+  </div>
+
+  <div class="bookform__row">
+    <div class="form-field">
+      <label class="form-field__label form-field__label--required" for={id("guests")}>{tr.form.guests}</label>
+      <input class="form-field__input" type="number" id={id("guests")} name="guests" required min="1" max="8" value="6" />
+    </div>
+
+    <div class="form-field">
+      <label class="form-field__label" for={id("children")}>{tr.form.children}</label>
+      <input class="form-field__input" type="number" id={id("children")} name="children" min="0" max="8" value="0" />
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label class="form-field__label" for={id("notes")}>{tr.form.notes}</label>
+    <textarea class="form-field__textarea" id={id("notes")} name="notes" maxlength="500" rows={compact ? 3 : 4} placeholder={tr.form.notesPlaceholder}></textarea>
+  </div>
+
+  <div class="form-field form-field--checkbox">
+    <input type="checkbox" id={id("consent")} name="consent" required />
+    <label for={id("consent")}>{tr.form.consent}</label>
+  </div>
+
+  <!-- Honeypot anti-spam -->
+  <div class="visually-hidden-field" aria-hidden="true">
+    <input type="text" name="honeypot" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <button type="submit" class="btn btn--primary btn--lg btn--full bookform__submit">
+    {tr.form.submit}
+  </button>
+
+  <p class="bookform__note">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+    </svg>
+    {tr.form.fastReply}
+  </p>
+
+  <div class="bookform__message" data-booking-message hidden role="status" aria-live="polite"></div>
+</form>
+
+<style>
+  .bookform {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .bookform__row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .bookform__row {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    .bookform--compact .bookform__row {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+
+  .bookform--compact .form-field {
+    margin-bottom: var(--space-4);
+  }
+
+  .bookform__submit {
+    margin-top: var(--space-4);
+  }
+
+  .bookform__note {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+    max-width: none;
+  }
+
+  .bookform__note :global(.icon) {
+    width: 0.9rem;
+    height: 0.9rem;
+    color: var(--color-accent);
+  }
+
+  .bookform__message {
+    margin-top: var(--space-4);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    border: 1px solid transparent;
+  }
+
+  .bookform__message[hidden] {
+    display: none;
+  }
+
+  .bookform__message--success {
+    background: var(--color-success-faded);
+    color: #1f5a3c;
+    border-color: rgba(47, 125, 85, 0.3);
+  }
+
+  .bookform__message--error {
+    background: var(--color-error-faded);
+    color: #7d2828;
+    border-color: rgba(163, 54, 54, 0.3);
+  }
+
+  .visually-hidden-field {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* Comprobación de disponibilidad */
+  .availability-check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    margin-bottom: var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-line);
+    background: var(--color-bg-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+  }
+
+  .availability-check[hidden] {
+    display: none;
+  }
+
+  .availability-check--available {
+    background: var(--color-success-faded);
+    border-color: rgba(47, 125, 85, 0.3);
+    color: #1f5a3c;
+  }
+
+  .availability-check--unavailable {
+    background: var(--color-error-faded);
+    border-color: rgba(163, 54, 54, 0.3);
+    color: #7d2828;
+  }
+
+  .availability-check--warning {
+    background: var(--color-warning-faded);
+    border-color: rgba(169, 118, 31, 0.35);
+    color: #7a5412;
+  }
+
+  .availability-check__icon {
+    display: inline-flex;
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--weight-bold);
+  }
+</style>
+
+<script>
+  interface FormMessages {
+    checking: string;
+    free: string;
+    busy: string;
+    error: string;
+    dateOrder: string;
+    successTitle: string;
+    successMessage: string;
+    errorMessage: string;
+    busyLong: string;
+  }
+
+  const ICONS: Record<string, string> = {
+    loading: "…",
+    available: "✓",
+    unavailable: "✕",
+    warning: "!",
+  };
+
+  document.querySelectorAll<HTMLFormElement>("[data-booking-form]").forEach((form) => {
+    const messages = JSON.parse(form.dataset.messages ?? "{}") as FormMessages;
+
+    const checkIn = form.querySelector<HTMLInputElement>('input[name="checkIn"]');
+    const checkOut = form.querySelector<HTMLInputElement>('input[name="checkOut"]');
+    const availability = form.querySelector<HTMLElement>("[data-availability-check]");
+    const availabilityText = form.querySelector<HTMLElement>("[data-availability-text]");
+    const availabilityIcon = form.querySelector<HTMLElement>("[data-availability-icon]");
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const messageBox = form.querySelector<HTMLElement>("[data-booking-message]");
+
+    let state: "unknown" | "available" | "unavailable" | "warning" = "unknown";
+    let debounce: number | undefined;
+
+    const setState = (next: typeof state, text: string) => {
+      state = next;
+      if (availability && availabilityText && availabilityIcon) {
+        availability.className = `availability-check availability-check--${next === "unknown" ? "loading" : next}`;
+        availability.removeAttribute("hidden");
+        availabilityIcon.textContent =
+          next === "available" ? ICONS.available
+          : next === "unavailable" ? ICONS.unavailable
+          : next === "warning" ? ICONS.warning
+          : ICONS.loading;
+        availabilityText.textContent = text;
+      }
+      if (submitBtn) submitBtn.disabled = next === "unavailable";
+    };
+
+    const hideAvailability = () => {
+      availability?.setAttribute("hidden", "");
+      if (submitBtn) submitBtn.disabled = false;
+    };
+
+    const checkAvailability = async (from: string, to: string) => {
+      setState("unknown", messages.checking);
+      try {
+        const res = await fetch(
+          `/api/availability?checkIn=${encodeURIComponent(from)}&checkOut=${encodeURIComponent(to)}`,
+        );
+        const data = await res.json();
+        if (!data.ok) {
+          setState("warning", messages.error);
+          return;
+        }
+        if (data.available) {
+          setState("available", messages.free);
+        } else {
+          setState("unavailable", messages.busy);
+        }
+      } catch {
+        setState("warning", messages.error);
+      }
+    };
+
+    const maybeCheck = () => {
+      if (!checkIn || !checkOut) return;
+      const from = checkIn.value;
+      const to = checkOut.value;
+      if (!from || !to) {
+        hideAvailability();
+        return;
+      }
+      if (to <= from) {
+        setState("unavailable", messages.dateOrder);
+        return;
+      }
+      window.clearTimeout(debounce);
+      debounce = window.setTimeout(() => void checkAvailability(from, to), 420);
+    };
+
+    checkIn?.addEventListener("change", maybeCheck);
+    checkOut?.addEventListener("change", maybeCheck);
+
+    // Fechas mínimas y coherencia entre llegada y salida
+    const today = new Date().toISOString().slice(0, 10);
+    if (checkIn) checkIn.min = today;
+    if (checkOut) checkOut.min = today;
+    checkIn?.addEventListener("change", () => {
+      if (!checkOut) return;
+      checkOut.min = checkIn.value || today;
+      if (checkIn.value && checkOut.value && checkOut.value <= checkIn.value) {
+        checkOut.value = "";
+      }
+    });
+
+    // Preselección desde la URL (?checkIn=&checkOut=&guests=) que envía el hero
+    const params = new URLSearchParams(window.location.search);
+    const preIn = params.get("checkIn");
+    const preOut = params.get("checkOut");
+    const preGuests = params.get("guests");
+    if (preIn && checkIn && !checkIn.value) checkIn.value = preIn;
+    if (preOut && checkOut && !checkOut.value) checkOut.value = preOut;
+    if (preGuests) {
+      const guests = form.querySelector<HTMLInputElement>('input[name="guests"]');
+      if (guests) guests.value = preGuests;
+    }
+    if (preIn && preOut) maybeCheck();
+
+    // Envío
+    form.addEventListener("submit", async (event) => {
+      if (state === "unavailable") {
+        event.preventDefault();
+        if (messageBox) {
+          messageBox.className = "bookform__message bookform__message--error";
+          messageBox.textContent = messages.busyLong;
+          messageBox.hidden = false;
+        }
+        return;
+      }
+
+      if (!form.checkValidity()) return;
+
+      event.preventDefault();
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add("btn--loading");
+      }
+
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { Accept: "application/json" },
+        });
+        const data = await response.json();
+
+        if (data.ok) {
+          if (messageBox) {
+            messageBox.className = "bookform__message bookform__message--success";
+            messageBox.textContent = `${messages.successTitle}. ${messages.successMessage}`;
+            messageBox.hidden = false;
+          }
+          form.reset();
+          hideAvailability();
+        } else {
+          if (messageBox) {
+            messageBox.className = "bookform__message bookform__message--error";
+            messageBox.textContent = data.message || messages.errorMessage;
+            messageBox.hidden = false;
+          }
+        }
+      } catch {
+        if (messageBox) {
+          messageBox.className = "bookform__message bookform__message--error";
+          messageBox.textContent = messages.errorMessage;
+          messageBox.hidden = false;
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove("btn--loading");
+        }
+      }
+    });
+  });
+</script>

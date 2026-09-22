@@ -1,0 +1,149 @@
+---
+/**
+ * RatingSummary — valoraciones por plataforma.
+ *
+ * Cada plataforma se muestra con SU logotipo, SU nota sobre SU escala y SU
+ * número de opiniones, con el mismo peso visual las dos. Debajo, un recuento
+ * total.
+ *
+ * Qué NO hace, y por qué:
+ *
+ *   No combina las notas en una sola cifra. Antes existía un promedio
+ *   ponderado que daba 9,6 sobre 10: una nota que no existe en ninguna
+ *   plataforma y que además era peor que la de Booking (9,9), cuyo volumen es
+ *   pequeño pero cuya nota es la mejor. Publicar una puntuación propia cruzando
+ *   datos de terceros no es defendible: Google exige que las valoraciones
+ *   estructuradas correspondan a reseñas reales y verificables.
+ *
+ * El recuento total sí se comunica ("176 opiniones"), pero como cantidad, nunca
+ * como nota.
+ *
+ * Props:
+ *   variant — "light" (fondos claros) · "dark" (fondos oscuros)
+ *   size    — alto del logotipo en px
+ */
+import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
+import { aggregateRatings, getTotalReviews } from "~/data/reviews";
+import RatingSource from "~/components/ui/RatingSource.astro";
+
+interface Props {
+  variant?: "light" | "dark";
+  size?: number;
+  class?: string;
+}
+
+const { variant = "light", size = 22, class: className } = Astro.props;
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+
+const total = getTotalReviews();
+
+/** Estrellas rellenas según la nota sobre su propia escala. */
+const filledStars = (score: number, scale: number) => Math.round((score / scale) * 5);
+---
+
+<div class:list={["rsummary", `rsummary--${variant}`, className]}>
+  <ul class="rsummary__list" role="list">
+    {aggregateRatings.map((rating) => (
+      <li class="rsummary__item">
+        <RatingSource
+          source={rating.source}
+          score={rating.score}
+          scale={rating.scale}
+          count={rating.count}
+          url={rating.url}
+          variant={variant}
+          size={size}
+        />
+
+        <span class="rsummary__stars" aria-hidden="true">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <svg viewBox="0 0 24 24" class:list={["rsummary__star", i < filledStars(rating.score, rating.scale) && "is-on"]}>
+              <path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.2-5.9 3.2 1.2-6.5L2.5 9.5l6.6-.9z"></path>
+            </svg>
+          ))}
+        </span>
+      </li>
+    ))}
+  </ul>
+
+  <p class="rsummary__total">
+    <strong class="tnum">{total}</strong>
+    {tr.reviews.countMany} · {tr.reviews.ratingSources}
+  </p>
+</div>
+
+<style>
+  .rsummary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  /*
+   * Una fila por plataforma, alineada en columna: logotipo y nota arriba,
+   * estrellas debajo. Al no intentar comprimirlas en una sola línea, cada
+   * plataforma conserva su propia escala (9,9/10 y 4,9/5) sin que el lector
+   * tenga que convertir nada mentalmente.
+   */
+  .rsummary__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-4) var(--space-10);
+  }
+
+  .rsummary__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .rsummary__stars {
+    display: inline-flex;
+    gap: 3px;
+  }
+
+  .rsummary__star {
+    width: 0.9rem;
+    height: 0.9rem;
+    fill: var(--color-line-strong);
+    stroke: none;
+  }
+
+  .rsummary__star.is-on {
+    fill: var(--color-brass);
+  }
+
+  .rsummary--dark .rsummary__star {
+    fill: var(--on-dark-border-strong);
+  }
+
+  .rsummary--dark .rsummary__star.is-on {
+    fill: var(--color-brass);
+  }
+
+  .rsummary__total {
+    max-width: none;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .rsummary__total strong {
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+  }
+
+  .rsummary--dark .rsummary__total {
+    color: var(--on-dark-text-muted);
+  }
+
+  .rsummary--dark .rsummary__total strong {
+    color: var(--color-text-inverse);
+  }
+</style>

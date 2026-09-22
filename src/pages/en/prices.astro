@@ -1,0 +1,32 @@
+---
+/**
+ * /en/prices/ — precios (inglés).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import PricingPage from "~/components/sections/PricingPage.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "en";
+const tr = t(locale);
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.pricing.title, path: "/cennik/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Apartment prices on Lake Szeląg"
+  description="Clear pricing at Apartamenty Liberta: from 700 PLN per night in low season, 900 PLN in high season. The hot tub, firewood, parking, WiFi and Netflix are included. 5% off from 7 nights."
+  canonicalPath="/cennik/"
+  ogImage="/og-terrace.jpg"
+  schema={schema}
+>
+  <PricingPage locale={locale} />
+</BaseLayout>

@@ -1,0 +1,547 @@
+---
+/**
+ * ApartmentCard — tarjeta de apartamento.
+ *
+ * Variantes:
+ *   vertical   → rejilla de 4 en la home. La foto manda; los datos van debajo.
+ *   horizontal → listado /apartamenty/. Foto a un lado, contenido al otro.
+ *
+ * Qué cambió frente a la versión anterior, que se veía plana:
+ *
+ *   1. La vista de cada apartamento (jardín, playa, atardecer, piscina) ahora es
+ *      visible en la propia tarjeta. Antes solo se intuía por el primer
+ *      highlight, así que las cuatro tarjetas parecían la misma repetida cuatro
+ *      veces; la vista es justo lo que las diferencia.
+ *   2. Las cifras (m², huéspedes, siquiera) pasan de una línea corrida a una
+ *      rejilla 2×2 con etiqueta y valor: se leen de un vistazo en lugar de
+ *      tener que interpretar "6+2 Goście".
+ *   3. Se añaden dos sellos de equipamiento (balia y taras) que sí son
+ *      diferenciales de producto y no estaban en la tarjeta.
+ *   4. El precio gana jerarquía: la cifra es el elemento más grande del pie y
+ *      lleva su etiqueta encima, en lugar de un "od 700 zł / noc" en línea.
+ *
+ * El marcado conserva las clases genéricas (.card__title, .card__link) porque
+ * el subrayado de foco y el enlace que cubre la tarjeta dependen de ellas.
+ */
+import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+import { type Apartment } from "~/data/apartments";
+import { formatPLN } from "~/lib/format";
+import Icon from "~/components/ui/Icon.astro";
+import SmartImage from "~/components/ui/SmartImage.astro";
+import type { IconName } from "~/data/icons";
+
+interface Props {
+  apartment: Apartment;
+  layout?: "vertical" | "horizontal";
+  index?: number;
+  /** Idioma explícito (para renderizar desde la home compartida) */
+  locale?: Locale;
+}
+
+const { apartment, layout = "vertical", index = 0, locale: localeProp } = Astro.props;
+const locale: Locale = localeProp ?? getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+
+const name = apartment.names[locale];
+const highlights = apartment.highlights[locale];
+const lead = highlights[0];
+
+const imageSrc = `/assets/apartments/${apartment.id}/${apartment.photos.hero}`;
+const href = localeLink(locale, `/apartamenty/${apartment.slugs[locale]}/`);
+
+/**
+ * Vista de cada apartamento, en el idioma de la página.
+ *
+ * Es el dato que realmente distingue las cuatro unidades: el resto (metraje,
+ * dormitorios, equipamiento) es idéntico. Se declara aquí porque no vive en
+ * data/apartments.ts y es información factual del complejo, tomada del listado
+ * comparativo que ya estaba en el sitio.
+ */
+const views: Record<string, Record<Locale, string>> = {
+  "liberta-i": { pl: "Widok na jezioro", en: "Lake view", de: "Seeblick" },
+  "liberta-ii": { pl: "Widok na plażę", en: "Beach view", de: "Strandblick" },
+  "liberta-iii": { pl: "Zachód słońca", en: "Sunset view", de: "Sonnenuntergang" },
+  "liberta-iv": { pl: "Przy plaży i balii", en: "By the beach and hot tub", de: "Am Strand und Hot Tub" },
+};
+
+const view = views[apartment.id]?.[locale] ?? tr.apartment.view;
+
+/** Texto alternativo descriptivo y traducido (el alt es contenido de imagen). */
+const imageAlt: Record<string, Record<string, string>> = {
+  "exterior-dzien": {
+    pl: "Apartament z zewnątrz, widok od strony jeziora",
+    en: "The apartment from outside, seen from the lake",
+    de: "Die Ferienwohnung von außen, vom See aus gesehen",
+  },
+  "exterior-noc": {
+    pl: "Apartament wieczorem z oświetlonym tarasem",
+    en: "The apartment at night with its lit terrace",
+    de: "Die Ferienwohnung am Abend mit beleuchteter Terrasse",
+  },
+};
+
+const heroBase = apartment.photos.hero.replace(/\.(jpe?g|png|webp)$/i, "");
+
+const alt =
+  imageAlt[heroBase]?.[locale] ??
+  (locale === "pl"
+    ? `${name} — wnętrze z widokiem na jezioro`
+    : locale === "de"
+      ? `${name} — Innenansicht mit Seeblick`
+      : `${name} — interior with lake view`);
+
+/** Cifras en rejilla 2×2, cada una con su etiqueta. */
+const specs: Array<{ icon: IconName; value: string; label: string }> = [
+  { icon: "ruler", value: `${apartment.specs.sizeM2} m²`, label: tr.apartment.size },
+  {
+    icon: "users",
+    value: `${apartment.specs.sleeps}+${apartment.specs.extraSleeps}`,
+    label: tr.apartment.sleeps,
+  },
+  { icon: "bed", value: `${apartment.specs.bedrooms}`, label: tr.apartment.bedrooms },
+  { icon: "bath", value: `${apartment.specs.bathrooms}`, label: tr.apartment.bathrooms },
+];
+---
+
+<article
+  class:list={["acard", `acard--${layout}`]}
+  data-reveal
+  style={`--reveal-delay:${Math.min(index * 60, 240)}ms`}
+>
+  <a class="card__link acard__link" href={href}>
+    <figure class="acard__media">
+      <SmartImage
+        src={imageSrc}
+        alt={alt}
+        sizes={layout === "horizontal"
+          ? "(min-width: 768px) 50vw, 100vw"
+          : "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"}
+        priority={layout === "vertical" && index < 2}
+      />
+
+      <span class="acard__num">{tr.apartment.apartmentAria} {apartment.number}</span>
+
+      <span class="acard__view">
+        <Icon name="sunrise" size={14} />
+        {view}
+      </span>
+    </figure>
+
+    <div class="acard__body">
+      <h3 class="card__title acard__title">{name}</h3>
+
+      <p class="acard__lead">{lead}</p>
+
+      <ul class="acard__specs" role="list">
+        {specs.map((spec) => (
+          <li>
+            <span class="acard__spec-icon"><Icon name={spec.icon} size={15} /></span>
+            <span class="acard__spec-text">
+              <strong class="tnum">{spec.value}</strong>
+              <span>{spec.label}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {/*
+        Los otros dos diferenciadores del apartamento.
+
+        Antes aquí había dos sellos fijos ("Balia góralska", "Zadaszony taras")
+        idénticos en las cuatro tarjetas: ocho apariciones de lo mismo en una
+        rejilla de cuatro. El equipamiento ya se describe una sola vez en la
+        sección de instalaciones, así que este hueco se usa para lo que SÍ
+        cambia de un apartamento a otro. Los datos ya lo tenían: doce
+        diferenciadores distintos, ninguno repetido.
+      */}
+      <ul class="acard__points" role="list">
+        {highlights.slice(1).map((item) => (
+          <li>
+            <Icon name="check" size={13} />
+            {item}
+          </li>
+        ))}
+      </ul>
+
+      <div class="acard__foot">
+        <p class="acard__price">
+          <span class="acard__price-label">{tr.apartment.cardPriceLabel}</span>
+          <span class="acard__price-value">
+            <span class="acard__price-from">{tr.apartment.from}</span>
+            <strong class="tnum">{formatPLN(apartment.pricing.lowSeasonPLN)}</strong>
+          </span>
+        </p>
+
+        <span class="acard__cta">
+          {tr.cta.viewApartment}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 5l7 7-7 7"></path>
+          </svg>
+        </span>
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+  /* ===========================================================================
+     ESTRUCTURA
+     =========================================================================== */
+
+  .acard {
+    height: 100%;
+  }
+
+  .acard__link {
+    display: flex;
+    flex-direction: column;
+    /*
+     * El ancho es obligatorio: `.acard__link` es un flex column, y en ese modo
+     * el ancho por defecto lo fija el contenido de cada hijo. Sin esto, en el
+     * listado la tarjeta no llenaba su columna y se quedaba a la mitad.
+     */
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      box-shadow var(--transition-slow),
+      border-color var(--transition-base);
+  }
+
+  .acard__link:hover {
+    transform: translateY(-4px);
+    border-color: transparent;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* --------------------------------------------------------------- Imagen */
+
+  .acard__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--color-bg-muted);
+    flex-shrink: 0;
+  }
+
+  .acard__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-slower) var(--ease-out);
+  }
+
+  .acard__link:hover .acard__media :global(img) {
+    transform: scale(1.05);
+  }
+
+  /*
+   * Velo permanente (no solo al pasar el ratón): las dos etiquetas van sobre la
+   * foto y en varias de ellas la zona inferior es clara (agua, arena), así que
+   * sin velo el texto blanco no llega a contraste.
+   */
+  .acard__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(6, 14, 11, 0.72) 0%,
+      rgba(6, 14, 11, 0.34) 34%,
+      rgba(6, 14, 11, 0.05) 62%,
+      rgba(6, 14, 11, 0.24) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Número de apartamento, arriba a la izquierda */
+  .acard__num {
+    position: absolute;
+    top: var(--space-4);
+    left: var(--space-4);
+    z-index: 1;
+    padding: 0.3rem 0.7rem;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--glass-bg-inverse);
+    border: 1px solid var(--on-dark-border);
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* Vista del apartamento, abajo a la izquierda: lo que diferencia cada unidad */
+  .acard__view {
+    position: absolute;
+    left: var(--space-4);
+    bottom: var(--space-4);
+    right: var(--space-4);
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(6, 14, 11, 0.6);
+    max-width: none;
+  }
+
+  .acard__view :global(.icon) {
+    color: #8ed3ab;
+    flex-shrink: 0;
+  }
+
+  /* -------------------------------------------------------------- Contenido */
+
+  .acard__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    flex: 1;
+  }
+
+  .acard__title {
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+  }
+
+  .acard__lead {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    max-width: none;
+    /*
+     * SIEMPRE dos líneas. Los textos traducidos tienen largos muy distintos
+     * (unos caben en una línea y otros en dos) y sin fijar la altura las
+     * tarjetas quedaban descuadradas por dentro: en la misma fila, unas
+     * mostraban 40 px de aire antes del precio y otras 16.
+     */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(2 * var(--leading-relaxed) * 1em);
+  }
+
+  /* --- Cifras 2×2 --- */
+
+  .acard__specs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3) var(--space-4);
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .acard__specs li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .acard__spec-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-xs);
+    background: var(--color-accent-faded);
+    color: var(--color-accent);
+  }
+
+  .acard__spec-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    min-width: 0;
+  }
+
+  .acard__spec-text strong {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+
+  /*
+   * La etiqueta NO se recorta ni se parte: en una tarjeta de 271 px la columna
+   * útil ronda los 85 px y "Powierzchnia" no cabía. Se acortó el texto en el
+   * diccionario ("Metraż") y aquí se impide el recorte, para que un idioma con
+   * una palabra larga se note en los tests en vez de quedar cortado en silencio.
+   */
+  .acard__spec-text span {
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    white-space: nowrap;
+  }
+
+  /*
+   * Diferenciadores del apartamento.
+   *
+   * Esto ocupó el sitio de los antiguos sellos de equipamiento, que eran
+   * idénticos en las cuatro tarjetas. Dos líneas con visto, cada una distinta
+   * en cada apartamento: aquí es donde la tarjeta dice algo que las otras tres
+   * no dicen.
+   *
+   * `flex: 1` para que este bloque absorba la diferencia de alto entre tarjetas
+   * y el precio quede siempre a la misma distancia de la línea. Antes lo hacía
+   * el texto de apoyo, pero con un tope de dos líneas ese margen ya no absorbía
+   * nada y el pie bailaba entre 16 y 33 px de una tarjeta a otra.
+   */
+  .acard__points {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1 1 auto;
+  }
+
+  .acard__points li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+    color: var(--color-text-muted);
+  }
+
+  .acard__points :global(.icon) {
+    color: var(--color-accent);
+    flex-shrink: 0;
+    margin-top: 0.2em;
+  }
+
+  /* --- Pie: precio + acción --- */
+
+  .acard__foot {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: auto;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .acard__price {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: none;
+  }
+
+  .acard__price-label {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .acard__price-value {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1);
+  }
+
+  .acard__price-from {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  .acard__price-value strong {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-normal);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+    line-height: 1;
+  }
+
+  .acard__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  .acard__cta svg {
+    width: 1rem;
+    height: 1rem;
+    transition: transform var(--transition-base);
+  }
+
+  .acard__link:hover .acard__cta svg {
+    transform: translateX(3px);
+  }
+
+  /* ===========================================================================
+     HORIZONTAL — listado /apartamenty/
+     =========================================================================== */
+
+  /* Imagen alternada: impar a la izquierda, par a la derecha */
+  @media (min-width: 768px) {
+    .acard--horizontal:nth-child(even) .acard__link {
+      flex-direction: row-reverse;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .acard--horizontal .acard__link {
+      flex-direction: row;
+      align-items: stretch;
+    }
+
+    .acard--horizontal .acard__media {
+      width: 46%;
+      aspect-ratio: auto;
+      height: auto;
+      min-height: 22rem;
+    }
+
+    .acard--horizontal .acard__body {
+      width: 54%;
+      padding: clamp(1.75rem, 3.2vw, 3rem);
+      gap: var(--space-5);
+    }
+
+    .acard--horizontal .acard__title {
+      font-size: var(--text-3xl);
+    }
+
+    .acard--horizontal .acard__lead {
+      font-size: var(--text-base);
+      -webkit-line-clamp: 3;
+      min-height: calc(3 * var(--leading-relaxed) * 1em);
+    }
+
+    /* En el listado hay anchura para las cuatro cifras en una fila */
+    .acard--horizontal .acard__specs {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

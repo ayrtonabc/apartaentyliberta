@@ -1,0 +1,13 @@
+---
+/**
+ * /rezerwacja/wyniki/ — resultados de la búsqueda del hero (polaco).
+ *
+ * SSR: lee la disponibilidad en cada petición. Si se prerenderizara, quedaría
+ * congelada con las fechas del build.
+ */
+import SearchResults from "~/components/sections/SearchResults.astro";
+
+export const prerender = false;
+---
+
+<SearchResults locale="pl" />

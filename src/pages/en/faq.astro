@@ -1,0 +1,50 @@
+---
+/**
+ * /en/faq/ — preguntas frecuentes (inglés).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import PageHero from "~/components/ui/PageHero.astro";
+import FaqSection from "~/components/content/FaqSection.astro";
+import CtaBand from "~/components/sections/CtaBand.astro";
+import { type Locale, localeLink, t } from "~/lib/i18n";
+import { getFaq } from "~/data/faq";
+import { buildFaqSchema, buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "en";
+const tr = t(locale);
+const items = getFaq(locale);
+
+const schemas = [
+  buildFaqSchema(items),
+  buildBreadcrumbSchema(
+    [
+      { name: tr.nav.home, path: "/" },
+      { name: tr.nav.faq, path: "/faq/" },
+    ],
+    locale,
+  ),
+];
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Questions and answers about staying at Liberta"
+  description="Booking, payment, deposits, minimum stay, the wood-fired hot tub, the sauna, pets, parking, catering and massages — answers to the questions our guests ask most."
+  canonicalPath="/faq/"
+  schema={schemas}
+>
+  <PageHero
+    eyebrow={tr.nav.faq}
+    title={tr.faq.title}
+    lead={tr.faq.lead}
+    crumbs={[
+      { name: tr.nav.home, href: localeLink(locale, "/") },
+      { name: tr.nav.faq },
+    ]}
+  />
+
+  <FaqSection showHeading={false} />
+
+  <CtaBand title={tr.home.ctaBandTitle} text={tr.home.ctaBandText} note={tr.home.ctaBandNote} />
+</BaseLayout>

@@ -1,0 +1,505 @@
+---
+/**
+ * Hero — portada cinematográfica de la home.
+ *
+ * Decisiones de diseño y rendimiento:
+ *   - El fondo es un VÍDEO en bucle, sin audio y sin controles. Antes eran tres
+ *     fotos que rotaban por JS; el vídeo da movimiento real y elimina toda la
+ *     maquinaria del carrusel (temporizador, puntos de navegación, estados).
+ *   - `poster` con el primer fotograma: se ve algo nítido al instante mientras
+ *     el vídeo carga, y cubre a quien tenga el vídeo desactivado o
+ *     `prefers-reduced-motion`.
+ *   - El móvil descarga una variante de 960 px en vez de la de 1440 px. Un MP4
+ *     no admite srcset, así que el cambio se hace con <source media>.
+ *   - El titular y el subtítulo llevan su propia sombra corta: el plano tiene
+ *     agua y cielo muy claros y el texto necesita contraste propio.
+ *   - La barra de consulta de fechas cierra la portada. Es lo último que se ve
+ *     antes de la franja de confianza, que va justo debajo con el 105 m, la
+ *     balia, los pomosty y la climatización.
+ *
+ *     Aquí hubo además tres sellos ("Balia góralska", "Dwa pomosty",
+ *     "Parking"). Se quitaron: los dos primeros eran LITERALMENTE los dos
+ *     primeros pilares de esa franja, a menos de 100 px de distancia, y el
+ *     parking ya aparece en la sección de equipamiento. Repetir lo mismo dos
+ *     veces seguidas no refuerza, hace que la página parezca relleno.
+ */
+import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+
+/** Texto alternativo del fondo, por idioma (el vídeo se describe, no se transcribe). */
+const videoLabel =
+  locale === "pl"
+    ? "Widok z drona na Jezioro Szeląg Wielki i Apartamenty Liberta"
+    : locale === "de"
+      ? "Drohnenansicht des Szeląg-Sees und der Apartamenty Liberta"
+      : "Drone view of Lake Szeląg Wielki and Apartamenty Liberta";
+
+/**
+ * Destino del buscador de la portada.
+ *
+ * Antes enviaba al formulario de reserva, que no responde a "¿hay sitio?": el
+ * huésped rellenaba otro formulario y esperaba un correo. Ahora va a la página
+ * de resultados, que sí contesta: disponible, ocupado y fechas alternativas.
+ */
+const searchHref = localeLink(locale, "/rezerwacja/wyniki/");
+---
+
+<section class="hero" data-hero>
+  <div class="hero__media">
+    {/*
+      Vídeo de fondo: en bucle, sin audio y sin controles.
+
+      - `muted` es obligatorio (además de `-an` en el archivo): sin él ningún
+        navegador reproduce en autoplay.
+      - `playsinline` evita que iOS lo abra a pantalla completa.
+      - `aria-hidden` porque es decorativo; el titular ya describe el lugar.
+      - `tabindex="-1"` para que no entre en el orden de tabulación: sin él,
+        algunos navegadores lo hacen enfocable y aparece un marco de foco.
+      - Las dos fuentes son el mismo vídeo a distinta resolución, no formatos
+        alternativos: el navegador elige por `media` y solo descarga una.
+    */}
+    <video
+      class="hero__video"
+      poster="/assets/video/hero-poster.webp"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      disablepictureinpicture
+      aria-hidden="true"
+      tabindex="-1"
+      data-hero-video
+    >
+      <source src="/assets/video/hero-movil.mp4" type="video/mp4" media="(max-width: 767px)" />
+      <source src="/assets/video/hero.mp4" type="video/mp4" />
+    </video>
+    <div class="hero__scrim"></div>
+  </div>
+
+  <div class="hero__inner">
+    <div class="container hero__container">
+      <p class="hero__eyebrow">
+        <span class="hero__dot" aria-hidden="true"></span>
+        {tr.hero.eyebrow}
+      </p>
+
+      <h1 class="hero__title">{tr.hero.title}</h1>
+
+      <p class="hero__subtitle">{tr.hero.subtitle}</p>
+
+      <!-- Consulta rápida de fechas -->
+      <form class="hero__quick" method="get" action={searchHref}>
+        <div class="hero__field">
+          <label for="hero-in">{tr.form.checkIn}</label>
+          <input type="date" id="hero-in" name="checkIn" />
+        </div>
+        <span class="hero__arrow" aria-hidden="true">→</span>
+        <div class="hero__field">
+          <label for="hero-out">{tr.form.checkOut}</label>
+          <input type="date" id="hero-out" name="checkOut" />
+        </div>
+        <div class="hero__field hero__field--sm">
+          <label for="hero-guests">{tr.form.guests}</label>
+          <input type="number" id="hero-guests" name="guests" min="1" max="8" value="6" />
+        </div>
+        <button class="btn btn--primary hero__submit" type="submit">
+          {tr.cta.checkAvailability}
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /*
+     * min-height (no height fija) y sin 100svh forzado: el hero mide lo que mide
+     * su contenido, y el contenido se dimensiona con la altura de la ventana.
+     * Así en un portátil de 720 px de alto todo entra sin scroll, y en un
+     * monitor grande la portada no se queda corta.
+     */
+    min-height: min(100svh, 52rem);
+    padding-top: calc(var(--header-height) + var(--space-6));
+    padding-bottom: var(--space-5);
+    color: #fff;
+    overflow: hidden;
+    background: var(--color-bg-inverse);
+    isolation: isolate;
+  }
+
+  @media (min-width: 1024px) {
+    .hero {
+      padding-top: calc(var(--header-height-lg) + var(--space-6));
+    }
+  }
+
+  /* ------------------------------------------------------------- MEDIA */
+
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  /*
+   * El vídeo cubre todo el bloque, como hacían las fotos.
+   *
+   * `object-position: center 58%` mantenía el encuadre de las fotos; en este
+   * plano de dron interesa el centro, que es donde están el complejo y el lago.
+   */
+  .hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 52%;
+    background: none;
+  }
+
+  /*
+   * Con `prefers-reduced-motion` no se reproduce. El atributo `poster` queda a
+   * la vista, así que el hero sigue teniendo imagen y no un hueco negro.
+   * Se oculta el vídeo en vez de pausarlo por JS para que la decisión sea CSS y
+   * no dependa de que el script llegue a ejecutarse.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .hero__video {
+      display: none;
+    }
+  }
+
+  /*
+   * Velo sobre el vídeo: una capa plana + un refuerzo arriba para el navbar.
+   *
+   * El grueso es UNA capa uniforme. Antes eran dos degradados superpuestos (uno
+   * vertical de 0,86 abajo a 0,04 arriba y otro horizontal de 0,34 a 0) que
+   * sumaban un 90% de negro en la esquina inferior izquierda, justo donde está el
+   * buscador: el vídeo se veía casi negro en la zona más grande de la pantalla.
+   *
+   * El propietario lo resumió así: "tiene muchos filtros que están cagando la
+   * imagen". Ahora es plano, con un único refuerzo corto arriba.
+   *
+   * POR QUÉ HAY REFUERZO ARRIBA
+   *
+   * La barra de navegación flota sobre el vídeo y su texto es claro. Con el velo
+   * plano y un plano de cielo o agua clara detrás, el navbar se perdía. Este
+   * degradado cubre solo la franja de la barra (unos 7rem) y se apaga antes de
+   * llegar al titular, así que no toca ni el texto ni el buscador.
+   *
+   * Valores medidos, no elegidos a ojo: el contraste de cada texto se comprueba
+   * sobre fotogramas reales del vídeo con scripts/measure-hero-contrast.mjs. Si se
+   * cambia el vídeo o estos números, hay que VOLVER A MEDIR.
+   */
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(6, 14, 11, 0.5) 0%, rgba(6, 14, 11, 0) 7rem),
+      rgba(6, 14, 11, 0.4);
+  }
+
+  /* ----------------------------------------------------------- CONTENIDO */
+
+  .hero__inner {
+    position: relative;
+    flex: 1;
+    display: flex;
+    /*
+     * Centrado vertical, no pegado abajo.
+     *
+     * Con `flex-end` el bloque quedaba con 50 px bajo el buscador y hasta 400 px
+     * libres por encima: el mensaje se leía como descolgado hacia el pie y el
+     * vídeo perdía presencia justo donde está el texto. Centrado, el aire se
+     * reparte y el titular sube a la zona donde el plano se ve mejor.
+     *
+     * Medido con scripts/measure-hero-position.mjs en siete ventanas × tres
+     * idiomas para comprobar que ninguna combinación desborda.
+     */
+    align-items: center;
+    padding-block: min(var(--space-10), 4vh);
+  }
+
+  .hero__container {
+    max-width: 50rem;
+  }
+
+  .hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--on-dark-text);
+    max-width: none;
+  }
+
+  .hero__dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: #8ed3ab;
+    flex-shrink: 0;
+  }
+
+  /*
+   * Titular dimensionado con la ALTURA de la ventana, no solo con el ancho.
+   *
+   * Medido sobre el DOM real: con 88 px ocupaba 3 líneas y empujaba el buscador
+   * y los datos fuera de la primera pantalla. Barriendo cuerpo × ancho (ver
+   * scripts/measure-hero-sweep.mjs), el corte a 2 líneas está en 28ch, y el
+   * cuerpo máximo que mantiene esas 2 líneas con las tres traducciones es
+   * ~4.5rem. De ahí este clamp.
+   */
+  .hero__title {
+    margin-top: min(var(--space-5), 2vh);
+    /*
+     * min() de dos ejes: el ancho manda en móvil (si no, 8.7svh daría 73 px en
+     * un teléfono y el titular se iría a 6 líneas) y la altura manda en
+     * escritorio, donde es lo que decide si el buscador entra en pantalla.
+     */
+    font-size: clamp(2rem, min(8.2vw, 8.7svh), 4.5rem);
+    line-height: 1.03;
+    letter-spacing: var(--tracking-tighter);
+    color: #fff;
+    text-wrap: balance;
+    max-width: 28ch;
+    /*
+     * UN solo contorno, sin halo.
+     *
+     * Antes había dos sombras: un contorno de 2px y un halo de 44px al 50%. Ese
+     * halo pintaba una mancha oscura difusa alrededor del titular que sobre el
+     * agua clara se leía como suciedad. Con el velo plano detrás, el contorno
+     * corto basta para despegar las letras del fondo.
+     */
+    text-shadow: 0 1px 3px rgba(6, 14, 11, 0.55);
+  }
+
+  .hero__subtitle {
+    margin-top: min(var(--space-5), 2.2vh);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--on-dark-text);
+    /* 60ch en dos o tres líneas completas; text-wrap: pretty evita que la
+       última quede con una sola palabra colgando. */
+    max-width: 60ch;
+    text-wrap: pretty;
+    text-shadow: 0 1px 3px rgba(6, 14, 11, 0.6);
+  }
+
+  /* ------------------------------------------------------ BARRA DE FECHAS */
+
+  /*
+   * Separación entre el bloque de texto y la barra de reservas.
+   *
+   * Antes eran 32 px y los dos bloques se leían como una sola masa. Medido con
+   * scripts/measure-hero-sweep.mjs: con 48 px el hero sigue cabiendo sin scroll
+   * en todas las ventanas de escritorio y en las tres traducciones; 56 px ya
+   * desbordaba en alemán a 360×640. En móvil se mantiene un tope porque ahí
+   * cada píxel cuenta.
+   */
+  .hero__quick {
+    display: grid;
+    gap: var(--space-3);
+    align-items: end;
+    margin-top: 48px;
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-elevated);
+    box-shadow: var(--shadow-xl);
+    grid-template-columns: 1fr;
+    max-width: 52rem;
+  }
+
+  /*
+   * En móvil el buscador se compacta: las dos fechas van en la misma fila y los
+   * huéspedes comparten línea con el botón. Sin esto, el formulario ocupaba
+   * media pantalla y empujaba la oferta y los datos fuera de la primera vista.
+   * Los datos pasan a rejilla de dos columnas porque en línea no caben.
+   */
+  @media (max-width: 639px) {
+    .hero__quick {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3) var(--space-4);
+      padding: var(--space-4);
+      /* En móvil el hueco de escritorio no cabe: cada píxel cuenta */
+      margin-top: var(--space-6);
+    }
+
+    .hero__field--sm {
+      grid-column: 1;
+    }
+
+    .hero__submit {
+      grid-column: 2;
+      align-self: end;
+      padding-block: 0.85rem;
+      font-size: var(--text-xs);
+    }
+
+  }
+
+  @media (min-width: 768px) {
+    .hero__quick {
+      grid-template-columns: 1fr auto 1fr 0.7fr auto;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5);
+    }
+  }
+
+  .hero__field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .hero__field label {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .hero__field input {
+    width: 100%;
+    padding: 0.35rem 0;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    border-radius: 0;
+  }
+
+  .hero__field input:focus {
+    outline: none;
+    border-bottom-color: var(--color-accent);
+    box-shadow: none;
+  }
+
+  .hero__field input::-webkit-calendar-picker-indicator {
+    opacity: 0.5;
+    cursor: pointer;
+  }
+
+  .hero__arrow {
+    display: none;
+    color: var(--color-text-subtle);
+  }
+
+  @media (min-width: 768px) {
+    .hero__arrow { display: block; }
+  }
+
+  .hero__submit {
+    white-space: nowrap;
+  }
+
+  /* ------------------------------------------------------------ BOTÓN */
+
+  @media (min-width: 768px) {
+    .hero__submit {
+      padding-block: 1rem;
+    }
+  }
+
+  /* Móvil muy bajo (≤ 680 px de alto): se recorta el aire vertical para que la
+     portada quepa entera. No se oculta nada, solo se ajusta el ritmo. */
+  @media (max-width: 639px) and (max-height: 680px) {
+    .hero {
+      /* 76px es el alto real de la barra en móvil: no hace falta reservar 96 */
+      padding-top: calc(var(--header-height) + var(--space-2));
+      padding-bottom: var(--space-2);
+    }
+
+    .hero__title {
+      font-size: 1.875rem;
+      margin-top: var(--space-3);
+    }
+
+    .hero__subtitle {
+      margin-top: var(--space-3);
+      font-size: var(--text-sm);
+      line-height: 1.5;
+    }
+
+    .hero__quick {
+      gap: var(--space-2) var(--space-4);
+      padding: var(--space-3) var(--space-4);
+      /*
+       * 32 px es el hueco máximo que cabe en alemán a 360×640 (medido). En una
+       * pantalla tan baja no se puede pedir la separación de escritorio: con
+       * 40 px el hero desborda 2 px.
+       */
+      margin-top: var(--space-6);
+    }
+  }
+</style>
+<script>
+  /**
+   * El fondo es un <video autoplay loop muted>, así que el navegador lo
+   * reproduce solo y no hace falta la maquinaria del carrusel anterior
+   * (temporizador, puntos, navegación por teclado).
+   *
+   * Aquí solo queda lo que el HTML no puede expresar:
+   *
+   *   1. prefers-reduced-motion → pausar. Con `display: none` en CSS el
+   *      elemento sigue descargando y consumiendo CPU, así que además se pausa.
+   *   2. No reproducir fuera de pantalla. El hero se ve al cargar, pero al
+   *      bajar por la página el vídeo seguiría decodificando sin motivo.
+   *   3. Reintentar el play si el navegador lo bloquea al principio (algunos
+   *      posponen el autoplay hasta que la pestaña está visible).
+   */
+  const video = document.querySelector<HTMLVideoElement>("[data-hero-video]");
+
+  if (video) {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const sync = () => {
+      if (reduced.matches) {
+        video.pause();
+        return;
+      }
+      // `play()` devuelve una promesa que se rechaza si el navegador lo bloquea
+      void video.play().catch(() => {});
+    };
+
+    sync();
+    reduced.addEventListener("change", sync);
+
+    // Fuera de pantalla se pausa; al volver, se reanuda
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        if (entry.isIntersecting) sync();
+        else video.pause();
+      },
+      { threshold: 0.05 },
+    );
+    observer.observe(video);
+
+    // Si el play inicial se bloqueó, se reintenta al primer gesto del usuario
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        if (!document.hidden) sync();
+      },
+      { passive: true },
+    );
+  }
+</script>

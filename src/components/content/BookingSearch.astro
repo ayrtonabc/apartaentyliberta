@@ -1,0 +1,776 @@
+---
+/**
+ * BookingSearch — buscador inteligente de reservas estilo Booking, adaptado
+ * a UNA sola ubicación con cuatro apartamentos.
+ *
+ * FLUJO
+ *
+ *   1. Fechas (check-in / check-out) + personas
+ *   2. Mostrar los 4 apartamentos con su precio total (noches × tarifa) y
+ *      marcando los no disponibles (fechas bloqueadas en el set demo)
+ *   3. Pulsar "Reservar este apartamento" → scroll al formulario y lo
+ *      rellena con apartamento + fechas + personas
+ *
+ * INTEGRACIÓN CON EL FORMULARIO EXISTENTE
+ *
+ * El <BookingForm> ya soporta:
+ *   - prop `apartmentId` (preselecciona apartamento)
+ *   - query string `?checkIn=YYYY-MM-DD&checkOut=YYYY-MM-DD&guests=N`
+ *
+ * Este buscador usa esos dos canales. El JS rellena el formulario y, si
+ * la URL tiene parámetros, también deja las fechas preseleccionadas.
+ *
+ * DISPONIBILIDAD DEMO
+ *
+ * `blockedRanges` es un set fijo de fechas marcadas como ocupadas. Está
+ * aquí para que el cliente vea el flujo funcionando (cómo se ve un
+ * apartamento no disponible vs uno disponible). Para quitar las fechas
+ * demo, basta con poner el array a `[]` o usar la disponibilidad real
+ * desde `lib/availability` cuando el cliente lo pida.
+ *
+ * PRECIO
+ *
+ * Tarifa base por apartamento × número de noches. Sin temporada: tarifa
+ * única por apartamento (la que viene de `pricing.lowSeasonPLN`).
+ *
+ * Props:
+ *   locale — idioma para los textos
+ */
+import { type Locale, localeLink, t } from "~/lib/i18n";
+import { apartments } from "~/data/apartments";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const tr = t(locale);
+
+const copy: Record<Locale, {
+  eyebrow: string;
+  title: string;
+  lead: string;
+  checkIn: string;
+  checkOut: string;
+  guests: string;
+  search: string;
+  nights: string;
+  night: string;
+  perNight: string;
+  total: string;
+  reserve: string;
+  available: string;
+  notAvailable: string;
+  capacity: string;
+  guestsUnit: string;
+  selectDates: string;
+  adultsLabel: string;
+}> = {
+  pl: {
+    eyebrow: "Rezerwacja",
+    title: "Sprawdź dostępność terminu",
+    lead: "Wybierz daty i liczbę osób — zobaczysz wolne apartamenty z ceną za cały pobyt. Bez prowizji portali, rezerwacja bezpośrednio u właściciela.",
+    checkIn: "Przyjazd",
+    checkOut: "Wyjazd",
+    guests: "Osoby",
+    search: "Szukaj",
+    nights: "nocy",
+    night: "noc",
+    perNight: "/ noc",
+    total: "Razem",
+    reserve: "Zarezerwuj ten apartament",
+    available: "Wolny termin",
+    notAvailable: "Termin zajęty",
+    capacity: "do",
+    guestsUnit: "osób",
+    selectDates: "Wybierz daty przyjazdu i wyjazdu",
+    adultsLabel: "Liczba osób",
+  },
+  en: {
+    eyebrow: "Booking",
+    title: "Check availability",
+    lead: "Pick your dates and number of guests — you'll see which apartments are free with the total price. No platform fees, direct booking with the owner.",
+    checkIn: "Check-in",
+    checkOut: "Check-out",
+    guests: "Guests",
+    search: "Search",
+    nights: "nights",
+    night: "night",
+    perNight: "/ night",
+    total: "Total",
+    reserve: "Book this apartment",
+    available: "Available",
+    notAvailable: "Not available",
+    capacity: "up to",
+    guestsUnit: "guests",
+    selectDates: "Select check-in and check-out dates",
+    adultsLabel: "Number of guests",
+  },
+  de: {
+    eyebrow: "Buchung",
+    title: "Verfügbarkeit prüfen",
+    lead: "Wählen Sie Daten und Personenzahl — Sie sehen freie Apartments mit Gesamtpreis. Keine Plattformgebühren, direkte Buchung beim Eigentümer.",
+    checkIn: "Anreise",
+    checkOut: "Abreise",
+    guests: "Personen",
+    search: "Suchen",
+    nights: "Nächte",
+    night: "Nacht",
+    perNight: "/ Nacht",
+    total: "Gesamt",
+    reserve: "Dieses Apartment buchen",
+    available: "Verfügbar",
+    notAvailable: "Nicht verfügbar",
+    capacity: "bis",
+    guestsUnit: "Personen",
+    selectDates: "An- und Abreisedaten wählen",
+    adultsLabel: "Anzahl der Personen",
+  },
+};
+
+const c = copy[locale];
+
+/**
+ * RANGOS BLOQUEADOS DE EJEMPLO (DEMO).
+ *
+ * Tres rangos cortos en distintos apartamentos, en distintos momentos del año,
+ * para que el cliente vea el flujo:
+ *
+ *   Liberta I:   14–20 sep 2026
+ *   Liberta II:  2–8 oct 2026
+ *   Liberta III: 22–28 dic 2026
+ *   Liberta IV:  10–16 sep 2026 + 6–12 nov 2026
+ *
+ * Cuando el cliente quiera disponibilidad real, basta con:
+ *   1. Vaciar este array, o
+ *   2. Reemplazar `isApartmentBlocked()` por una llamada a
+ *      `loadBookedRanges(apartmentId)` de `lib/availability`.
+ *
+ * Las fechas están en formato ISO (YYYY-MM-DD) para comparar con
+ * `new Date(input.value)` del input date.
+ */
+const blockedRanges: Record<string, Array<[string, string]>> = {
+  i:   [["2026-09-14", "2026-09-20"]],
+  ii:  [["2026-10-02", "2026-10-08"]],
+  iii: [["2026-12-22", "2026-12-28"]],
+  iv:  [["2026-09-10", "2026-09-16"], ["2026-11-06", "2026-11-12"]],
+};
+
+/** Fecha mínima por defecto: hoy. */
+const todayISO = new Date().toISOString().slice(0, 10);
+
+/** Mañana como check-out por defecto. */
+const tomorrowISO = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+---
+
+<section class="bsearch section" aria-labelledby="bsearch-title">
+  <div class="container">
+    <header class="bsearch__head" data-reveal>
+      <p class="eyebrow">{c.eyebrow}</p>
+      <h1 id="bsearch-title" class="bsearch__title">{c.title}</h1>
+      <p class="lead">{c.lead}</p>
+    </header>
+
+    <form class="bsearch__form" data-bsearch-form data-reveal>
+      <div class="bsearch__field">
+        <label for="bsearch-checkin">{c.checkIn}</label>
+        <input
+          id="bsearch-checkin"
+          type="date"
+          name="checkIn"
+          min={todayISO}
+          required
+        />
+      </div>
+
+      <div class="bsearch__field">
+        <label for="bsearch-checkout">{c.checkOut}</label>
+        <input
+          id="bsearch-checkout"
+          type="date"
+          name="checkOut"
+          min={tomorrowISO}
+          required
+        />
+      </div>
+
+      <div class="bsearch__field">
+        <label for="bsearch-guests">{c.guests}</label>
+        <select id="bsearch-guests" name="guests" required>
+          {Array.from({ length: 8 }, (_, i) => i + 1).map((n) => (
+            <option value={n}>{n} {c.guestsUnit}</option>
+          ))}
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn--primary bsearch__submit">
+        {c.search}
+      </button>
+    </form>
+
+    <p class="bsearch__hint" id="bsearch-hint" hidden>
+      {c.selectDates}
+    </p>
+
+    <!--
+      RESULTADOS
+
+      Se renderizan como una rejilla de 4 cards. El JS los hace aparecer
+      dinámicamente al enviar el formulario. Cada card lleva:
+        - data-apartment-id  → el ID corto (i/ii/iii/iv)
+        - data-price-per-night → precio en PLN
+        - data-sleeps        → capacidad máxima (incluido sofá cama)
+        - data-image         → ruta de la foto del apartamento
+
+      Los textos traducibles van en data-attrs para que el JS los lea sin
+      tocar el DOM. Sin esto, el JS tendría que hacer fetch de las traducciones
+      y se pierde el offline-first que tiene la página.
+    -->
+    <div class="bsearch__results" id="bsearch-results" hidden>
+      <h2 class="bsearch__results-title">
+        <span id="bsearch-results-summary"></span>
+      </h2>
+
+      <ul class="bsearch__grid" role="list" id="bsearch-grid">
+        {apartments.map((apt) => {
+          const id = apt.id.replace("liberta-", "");
+          const maxGuests = apt.specs.sleeps + apt.specs.extraSleeps;
+          return (
+            <li
+              class="bsearch__card"
+              data-bsearch-card
+              data-apartment-id={id}
+              data-price-per-night={apt.pricing.lowSeasonPLN}
+              data-sleeps={maxGuests}
+              data-image={`/assets/apartments/${apt.id}/${apt.photos.hero}`}
+              data-name-pl={apt.names.pl}
+              data-name-en={apt.names.en}
+              data-name-de={apt.names.de}
+              data-num={apt.number}
+              hidden
+            >
+              <a class="bsearch__card-media" href={localeLink(locale, `/apartamenty/${apt.id}/`)}>
+                <img
+                  src={`/assets/apartments/${apt.id}/${apt.photos.hero}`}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  width="600"
+                  height="400"
+                />
+              </a>
+              <div class="bsearch__card-body">
+                <h3 class="bsearch__card-title">
+                  <span data-bsearch-name>{apt.names[locale]}</span>
+                  <span class="bsearch__card-cap">
+                    {c.capacity} {maxGuests} {c.guestsUnit}
+                  </span>
+                </h3>
+
+                <div class="bsearch__card-price">
+                  <span class="bsearch__card-total" data-bsearch-total></span>
+                  <span class="bsearch__card-per" data-bsearch-per></span>
+                </div>
+
+                <p class="bsearch__card-status" data-bsearch-status></p>
+
+                <a
+                  class="btn btn--primary bsearch__card-cta"
+                  data-bsearch-cta
+                  href={localeLink(locale, "/rezerwacja/")}
+                >
+                  {c.reserve}
+                </a>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+  /*
+   * LÓGICA DEL BUSCADOR — FRONTEND ONLY.
+   *
+   * No toca la API /api/booking: solo lee fechas/guests del form, calcula
+   * precios por apartamento (precio base × noches), filtra los no
+   * disponibles por el set demo `data-blocked-ranges` y, al pulsar el CTA
+   * de un apartamento, rellena el <BookingForm> de la página + hace scroll.
+   *
+   * El <BookingForm> ya estaba en la página antes del buscador; vive justo
+   * debajo. Su marca en el DOM es `data-bf-form` (lo lee el script).
+   */
+  type DateLike = string; // YYYY-MM-DD
+
+  // Mapa de traducciones para los textos que el JS necesita generar.
+  const TEXTS = /* @__PURE__ */ JSON.parse(
+    document.querySelector("[data-bsearch-texts]")?.textContent ?? "{}",
+  ) as {
+    available: string;
+    notAvailable: string;
+    nights: string;
+    night: string;
+    perNight: string;
+    total: string;
+    selectDates: string;
+    guestsUnit: string;
+    capacity: string;
+    reserve: string;
+  };
+
+  // Rangos bloqueados por apartamento (inyectados como data-attribute en
+  // el primer card para tenerlos accesibles desde el script).
+  const BLOCKED = /* @__PURE__ */ (() => {
+    const node = document.querySelector("[data-bsearch-blocked]");
+    if (!node) return {} as Record<string, Array<[string, string]>>;
+    try {
+      return JSON.parse(node.textContent ?? "{}") as Record<string, Array<[string, string]>>;
+    } catch {
+      return {};
+    }
+  })();
+
+  /**
+   * Comprueba si un apartamento está bloqueado en el rango [checkIn, checkOut).
+   * Devuelve true si CUALQUIER día del rango está bloqueado.
+   */
+  function isApartmentBlocked(id: string, checkIn: Date, checkOut: Date): boolean {
+    const ranges = BLOCKED[id];
+    if (!ranges) return false;
+    const inMs = checkIn.getTime();
+    const outMs = checkOut.getTime();
+    for (const [from, to] of ranges) {
+      const fromMs = new Date(from).getTime();
+      const toMs = new Date(to).getTime();
+      // solape: inicio < fin_del_bloqueo && fin > inicio_del_bloqueo
+      if (inMs < toMs && outMs > fromMs) return true;
+    }
+    return false;
+  }
+
+  /** Diferencia de días entre dos fechas (ignora horas). */
+  function diffNights(checkIn: Date, checkOut: Date): number {
+    const ms = checkOut.getTime() - checkIn.getTime();
+    return Math.max(0, Math.round(ms / 86400000));
+  }
+
+  /**
+   * Rellena el BookingForm que está más abajo con los datos de la selección.
+   * El form expone `data-bf-form` (marcado en BookingForm.astro); tiene
+   * un input name="apartment" y los inputs name="checkIn"/"checkOut"/
+   * "guests". Si en algún momento cambia la marca, este script deja de
+   * funcionar y hay que revisarlo.
+   */
+  function fillBookingForm(apartmentId: string, checkIn: string, checkOut: string, guests: string): void {
+    const form = document.querySelector<HTMLFormElement>("[data-bf-form]");
+    if (!form) return;
+    const setVal = (name: string, val: string) => {
+      const el = form.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`);
+      if (el) {
+        el.value = val;
+        // Disparar change para que listeners del form reaccionen (p.ej. la
+        // comprobación de disponibilidad en vivo).
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    };
+    setVal("apartment", apartmentId);
+    setVal("checkIn", checkIn);
+    setVal("checkOut", checkOut);
+    setVal("guests", guests);
+  }
+
+  /**
+   * Scroll suave hasta el formulario de reserva.
+   * El header es sticky, así que descontamos su altura aproximada.
+   */
+  function scrollToBookingForm(): void {
+    const form = document.querySelector<HTMLElement>("[data-bf-form]");
+    if (!form) return;
+    const header = document.querySelector<HTMLElement>("header.hdr");
+    const offset = header ? header.getBoundingClientRect().height + 16 : 0;
+    const top = form.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: "smooth" });
+  }
+
+  function formatPLN(value: number): string {
+    return new Intl.NumberFormat("pl-PL", {
+      style: "currency",
+      currency: "PLN",
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
+
+  function init(): void {
+    const form = document.querySelector<HTMLFormElement>("[data-bsearch-form]");
+    const results = document.getElementById("bsearch-results");
+    const grid = document.getElementById("bsearch-grid");
+    const hint = document.getElementById("bsearch-hint");
+    const summary = document.getElementById("bsearch-results-summary");
+    if (!form || !results || !grid || !hint || !summary) return;
+
+    // Restaurar selección desde la URL (cuando vienes del hero con ?checkIn=...).
+    const params = new URLSearchParams(window.location.search);
+    const urlIn = params.get("checkIn");
+    const urlOut = params.get("checkOut");
+    const urlGuests = params.get("guests");
+    if (urlIn) (form.querySelector("[name=checkIn]") as HTMLInputElement).value = urlIn;
+    if (urlOut) (form.querySelector("[name=checkOut]") as HTMLInputElement).value = urlOut;
+    if (urlGuests) (form.querySelector("[name=guests]") as HTMLSelectElement).value = urlGuests;
+
+    // Si ya hay datos en la URL, calcular al cargar.
+    if (urlIn && urlOut) {
+      update();
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      update();
+    });
+
+    function update(): void {
+      const checkInStr = (form.querySelector("[name=checkIn]") as HTMLInputElement).value;
+      const checkOutStr = (form.querySelector("[name=checkOut]") as HTMLInputElement).value;
+      const guestsStr = (form.querySelector("[name=guests]") as HTMLSelectElement).value;
+      if (!checkInStr || !checkOutStr) {
+        hint!.hidden = false;
+        results!.hidden = true;
+        return;
+      }
+      const checkIn = new Date(checkInStr);
+      const checkOut = new Date(checkOutStr);
+      if (checkOut <= checkIn) {
+        hint!.textContent = "Data wyjazdu musi być później niż data przyjazdu.";
+        hint!.hidden = false;
+        results!.hidden = true;
+        return;
+      }
+      hint!.hidden = true;
+      results!.hidden = false;
+
+      const nights = diffNights(checkIn, checkOut);
+      const guests = parseInt(guestsStr, 10) || 1;
+      summary!.textContent = `${nights} ${nights === 1 ? TEXTS.night : TEXTS.nights} · ${guests} ${TEXTS.guestsUnit}`;
+
+      const cards = grid!.querySelectorAll<HTMLElement>("[data-bsearch-card]");
+      let visibleCount = 0;
+      cards.forEach((card) => {
+        const pricePerNight = parseInt(card.dataset.pricePerNight ?? "0", 10);
+        const sleeps = parseInt(card.dataset.sleeps ?? "0", 10);
+        const id = card.dataset.apartmentId ?? "";
+        const fits = guests <= sleeps;
+        const blocked = isApartmentBlocked(id, checkIn, checkOut);
+        const ok = fits && !blocked;
+        if (!ok) {
+          card.hidden = true;
+          return;
+        }
+        card.hidden = false;
+        visibleCount++;
+        const total = pricePerNight * nights;
+        const totalEl = card.querySelector("[data-bsearch-total]");
+        const perEl = card.querySelector("[data-bsearch-per]");
+        const statusEl = card.querySelector("[data-bsearch-status]");
+        const ctaEl = card.querySelector<HTMLAnchorElement>("[data-bsearch-cta]");
+        if (totalEl) totalEl.textContent = `${formatPLN(total)} ${TEXTS.total}`;
+        if (perEl) perEl.textContent = `${formatPLN(pricePerNight)} ${TEXTS.perNight}`;
+        if (statusEl) {
+          statusEl.textContent = TEXTS.available;
+          statusEl.dataset.state = "ok";
+        }
+        if (ctaEl) {
+          ctaEl.onclick = (ev) => {
+            ev.preventDefault();
+            fillBookingForm(id, checkInStr, checkOutStr, guestsStr);
+            scrollToBookingForm();
+          };
+        }
+      });
+
+      // Si NINGÚN apartamento pasa el filtro, mostramos un mensaje.
+      const empty = document.getElementById("bsearch-empty");
+      if (empty) empty.hidden = visibleCount > 0;
+
+      // Sincronizar la URL para que el back/forward del navegador respete
+      // la búsqueda y para que el formulario reciba los datos al recargar.
+      const next = new URLSearchParams(window.location.search);
+      next.set("checkIn", checkInStr);
+      next.set("checkOut", checkOutStr);
+      next.set("guests", guestsStr);
+      const url = `${window.location.pathname}?${next.toString()}`;
+      window.history.replaceState(null, "", url);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+</script>
+
+<script type="application/json" data-bsearch-texts>
+  {JSON.stringify({
+    available: c.available,
+    notAvailable: c.notAvailable,
+    nights: c.nights,
+    night: c.night,
+    perNight: c.perNight,
+    total: c.total,
+    selectDates: c.selectDates,
+    guestsUnit: c.guestsUnit,
+    capacity: c.capacity,
+    reserve: c.reserve,
+  })}
+</script>
+
+<script type="application/json" data-bsearch-blocked>
+  {JSON.stringify(blockedRanges)}
+</script>
+
+<style>
+  .bsearch__head {
+    text-align: center;
+    max-width: 40rem;
+    margin: 0 auto var(--space-10);
+  }
+
+  .bsearch__title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin-block: var(--space-2) var(--space-4);
+  }
+
+  @media (min-width: 1024px) {
+    .bsearch__title {
+      font-size: var(--text-4xl);
+    }
+  }
+
+  /*
+   * FORMULARIO DE BÚSQUEDA
+   *
+   * Una sola barra horizontal en escritorio con 3 campos + botón. En
+   * móvil se apila. La separación entre campos se marca con un border-left
+   * en escritorio para recordar al usuario que son "etapas" del mismo flujo
+   * tipo Booking: llegas → sales →多少人.
+   */
+  .bsearch__form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  @media (min-width: 640px) {
+    .bsearch__form {
+      grid-template-columns: 1fr 1fr 1fr auto;
+      align-items: end;
+      gap: 0;
+      padding: var(--space-3) var(--space-4);
+    }
+  }
+
+  .bsearch__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .bsearch__field + .bsearch__field {
+      border-left: 1px solid var(--color-line);
+    }
+  }
+
+  .bsearch__field label {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .bsearch__field input,
+  .bsearch__field select {
+    width: 100%;
+    padding: var(--space-2) 0;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-text);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    cursor: pointer;
+  }
+
+  .bsearch__field input:focus,
+  .bsearch__field select:focus {
+    outline: none;
+  }
+
+  .bsearch__submit {
+    width: 100%;
+    margin-top: var(--space-2);
+  }
+
+  @media (min-width: 640px) {
+    .bsearch__submit {
+      width: auto;
+      margin-top: 0;
+      margin-left: var(--space-2);
+    }
+  }
+
+  .bsearch__hint {
+    margin-top: var(--space-4);
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .bsearch__results {
+    margin-top: var(--space-10);
+  }
+
+  .bsearch__results-title {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-6);
+    text-align: center;
+  }
+
+  .bsearch__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 640px) {
+    .bsearch__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .bsearch__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .bsearch__card {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+
+  .bsearch__card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .bsearch__card-media {
+    display: block;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    background: var(--color-bg-muted);
+  }
+
+  .bsearch__card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .bsearch__card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    flex: 1;
+  }
+
+  .bsearch__card-title {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text);
+  }
+
+  .bsearch__card-cap {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .bsearch__card-price {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .bsearch__card-total {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text);
+  }
+
+  .bsearch__card-per {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  .bsearch__card-status {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin: 0;
+  }
+
+  .bsearch__card-cta {
+    margin-top: auto;
+  }
+
+  #bsearch-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+</style>

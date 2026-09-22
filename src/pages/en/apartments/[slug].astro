@@ -1,0 +1,71 @@
+---
+/**
+ * /en/apartments/[slug]/ — ficha individual (inglés).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import ApartmentDetail from "~/components/sections/ApartmentDetail.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { apartments, type Apartment } from "~/data/apartments";
+import { buildAccommodationSchema, buildBreadcrumbSchema } from "~/lib/seo";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  return apartments.map((apartment) => ({
+    params: { slug: apartment.slugs.en },
+    props: { apartment },
+  }));
+}
+
+interface Props {
+  apartment: Apartment;
+}
+
+const { apartment } = Astro.props;
+const locale: Locale = "en";
+const tr = t(locale);
+
+const name = apartment.names[locale];
+const canonicalPath = `/apartamenty/${apartment.slugs.pl}/`;
+const heroImage = `/assets/apartments/${apartment.id}/${apartment.photos.hero}`;
+/** Imagen social propia (1200×630) para que las previsualizaciones no se recorten. */
+const ogImage = `/og-liberta-${apartment.slugs.pl.replace("liberta-", "")}.jpg`;
+
+const schemas = [
+  buildAccommodationSchema({
+    id: apartment.id,
+    name,
+    description: apartment.description[locale],
+    sizeM2: apartment.specs.sizeM2,
+    sleeps: apartment.specs.sleeps,
+    bedrooms: apartment.specs.bedrooms,
+    bathrooms: apartment.specs.bathrooms,
+    image: heroImage,
+    images: apartment.photos.gallery.map((p) => `/assets/apartments/${apartment.id}/${p}`),
+    lowSeasonPLN: apartment.pricing.lowSeasonPLN,
+    highSeasonPLN: apartment.pricing.highSeasonPLN,
+    canonicalPath,
+    locale,
+  }),
+  buildBreadcrumbSchema(
+    [
+      { name: tr.nav.home, path: "/" },
+      { name: tr.nav.apartments, path: "/apartamenty/" },
+      { name, path: canonicalPath },
+    ],
+    locale,
+  ),
+];
+---
+
+<BaseLayout
+  title={`${name} — ${apartment.specs.sizeM2} m² with a private hot tub`}
+  description={`${name}: ${apartment.specs.sizeM2} m², ${apartment.specs.sleeps} guests, ${apartment.specs.bedrooms} bedrooms, a private wood-fired hot tub and a terrace overlooking Lake Szeląg. From ${apartment.pricing.lowSeasonPLN} PLN per night.`}
+  canonicalPath={canonicalPath}
+  ogImage={ogImage}
+  preloadImage={heroImage}
+  ogType="article"
+  schema={schemas}
+>
+  <ApartmentDetail apartment={apartment} locale={locale} />
+</BaseLayout>

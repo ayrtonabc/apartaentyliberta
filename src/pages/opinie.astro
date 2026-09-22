@@ -1,0 +1,32 @@
+---
+/**
+ * /opinie/ — opiniones de huéspedes (polaco).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import ReviewsPage from "~/components/sections/ReviewsPage.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "pl";
+const tr = t(locale);
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.reviews.eyebrow, path: "/opinie/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Opinie gości — 9,9/10 na Booking.com"
+  description="Prawdziwe opinie gości Apartamentów Liberta w Starych Jabłonkach: 9,9/10 na Booking.com i 5,0 w Google. Sprawdź, co piszą o balii góralskiej, widoku na jezioro i opiece właściciela."
+  canonicalPath="/opinie/"
+  ogImage="/og-terrace.jpg"
+  schema={schema}
+>
+  <ReviewsPage locale={locale} />
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+/**
+ * /rezerwacja/ — reserva (polaco).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import BookingPage from "~/components/sections/BookingPage.astro";
+import { type Locale, t } from "~/lib/i18n";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+
+const locale: Locale = "pl";
+const tr = t(locale);
+
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.nav.booking, path: "/rezerwacja/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Rezerwacja apartamentu nad Jeziorem Szeląg"
+  description="Zarezerwuj bezpośrednio u właściciela — bez prowizji portali. Sprawdź dostępność terminu, wyślij zapytanie i otrzymaj potwierdzenie w ciągu 24 godzin. Zadatek 30%."
+  canonicalPath="/rezerwacja/"
+  ogImage="/og-terrace.jpg"
+  schema={schema}
+  hideMobileCta={false}
+>
+  <BookingPage locale={locale} />
+</BaseLayout>

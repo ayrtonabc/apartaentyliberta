@@ -1,0 +1,146 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import PageHero from "~/components/ui/PageHero.astro";
+import { buildBreadcrumbSchema } from "~/lib/seo";
+import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+import { site } from "~/data/site";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+const tr = t(locale);
+const schema = buildBreadcrumbSchema(
+  [
+    { name: tr.nav.home, path: "/" },
+    { name: tr.footer.privacy, path: "/polityka-prywatnosci/" },
+  ],
+  locale,
+);
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="Polityka prywatności"
+  description="Polityka prywatności Apartamentów Liberta: administrator danych, zakres zbieranych danych, cele przetwarzania, okres przechowywania, prawa gości i pliki cookies."
+  canonicalPath="/polityka-prywatnosci/"
+  schema={schema}
+>
+  <PageHero
+    eyebrow={tr.footer.legal}
+    title="Polityka prywatności"
+    lead="Jak zbieramy, przechowujemy i chronimy Twoje dane osobowe."
+    crumbs={[
+      { name: tr.nav.home, href: localeLink(locale, "/") },
+      { name: tr.footer.privacy },
+    ]}
+  />
+
+  <section class="section">
+    <div class="container container--narrow">
+      <div class="prose">
+        <p class="text-muted text-small">Ostatnia aktualizacja: 2026</p>
+        <h2>1. Administrator danych</h2>
+        <p>
+          Administratorem Twoich danych osobowych jest Apartamenty Liberta,
+          z siedzibą w Starych Jabłonkach, gmina Kątno, powiat ostródzki,
+          województwo warmińsko-mazurskie.
+        </p>
+        <p>
+          Kontakt w sprawie ochrony danych: {site.email} · {site.phone.display}
+        </p>
+
+        <h2>2. Jakie dane zbieramy</h2>
+        <p>Zbieramy następujące dane osobowe:</p>
+        <ul>
+          <li>Imię i nazwisko</li>
+          <li>Adres email</li>
+          <li>Numer telefonu</li>
+          <li>Daty planowanego pobytu</li>
+          <li>Liczba gości</li>
+          <li>Uwagi (opcjonalnie)</li>
+          <li>Adres IP (w logach serwera)</li>
+        </ul>
+
+        <h2>3. Cel przetwarzania</h2>
+        <p>Twoje dane przetwarzamy w celu:</p>
+        <ul>
+          <li>Odpowiedzi na Twoje zapytanie o rezerwację</li>
+          <li>Realizacji umowy najmu (po potwierdzeniu rezerwacji)</li>
+          <li>Obsługi płatności (zaliczka 30%, reszta)</li>
+          <li>Kontaktu w sprawie Twojego pobytu</li>
+          <li>Wystawienia faktury/rachunku</li>
+          <li>Wypełnienia obowiązków podatkowych i rachunkowych</li>
+        </ul>
+
+        <h2>4. Podstawa prawna</h2>
+        <p>
+          Podstawą prawną przetwarzania Twoich danych jest:
+        </p>
+        <ul>
+          <li>Art. 6 ust. 1 lit. b) RODO — wykonanie umowy</li>
+          <li>Art. 6 ust. 1 lit. a) RODO — Twoja zgoda (marketing, jeśli wyrażona)</li>
+          <li>Art. 6 ust. 1 lit. c) RODO — obowiązek prawny (rachunkowość)</li>
+          <li>Art. 6 ust. 1 lit. f) RODO — prawnie uzasadniony interes (obrona roszczeń)</li>
+        </ul>
+
+        <h2>5. Okres przechowywania</h2>
+        <ul>
+          <li>Dane z zapytania (niezrealizowanego): 90 dni</li>
+          <li>Dane z rezerwacji: 5 lat (obowiązek rachunkowy)</li>
+          <li>Dane z korespondencji: 3 lata</li>
+          <li>Logi serwera: 30 dni</li>
+        </ul>
+
+        <h2>6. Odbiorcy danych</h2>
+        <p>Twoje dane mogą być przekazywane:</p>
+        <ul>
+          <li>Dostawcy usług email (Resend Inc.) — do wysyłki powiadomień</li>
+          <li>Dostawcy hostingu — do przechowywania strony</li>
+          <li>Biuro rachunkowe — do obsługi księgowej</li>
+          <li>Organy państwowe — gdy wymagają tego przepisy prawa</li>
+        </ul>
+        <p>
+          Nie sprzedajemy ani nie wynajmujemy Twoich danych osobowych.
+        </p>
+
+        <h2>7. Twoje prawa</h2>
+        <p>Masz prawo do:</p>
+        <ul>
+          <li>Dostępu do swoich danych (art. 15 RODO)</li>
+          <li>Sprostowania danych (art. 16 RODO)</li>
+          <li>Usunięcia danych (art. 17 RODO)</li>
+          <li>Ograniczenia przetwarzania (art. 18 RODO)</li>
+          <li>Przenoszenia danych (art. 20 RODO)</li>
+          <li>Sprzeciwu wobec przetwarzania (art. 21 RODO)</li>
+          <li>Wniesienia skargi do Prezesa UODO (art. 77 RODO)</li>
+        </ul>
+
+        <h2>8. Pliki cookies</h2>
+        <p>
+          Nasza strona używa tylko niezbędnych plików cookies (sesyjnych, do zapamiętania wybranego języka).
+          Nie używamy cookies marketingowych ani analitycznych bez Twojej zgody.
+        </p>
+
+        <h2>9. Bezpieczeństwo</h2>
+        <p>
+          Twoje dane są chronione przez:
+        </p>
+        <ul>
+          <li>Szyfrowanie transmisji (HTTPS/TLS)</li>
+          <li>Honeypot i rate-limiting na formularzach</li>
+          <li>Regularne aktualizacje bezpieczeństwa serwera</li>
+          <li>Minimalizację danych — zbieramy tylko to, co potrzebne</li>
+        </ul>
+
+        <h2>10. Zmiany w polityce prywatności</h2>
+        <p>
+          O wszelkich zmianach w niniejszej polityce poinformujemy na tej stronie.
+          W przypadku istotnych zmian skontaktujemy się z Tobą bezpośrednio.
+        </p>
+
+        <p class="text-muted text-small u-mt-12">
+          Ostatnia aktualizacja: 2026
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

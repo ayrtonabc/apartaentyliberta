@@ -1,0 +1,573 @@
+---
+/**
+ * PricingPage — cennik completo.
+ * Compartido por /cennik/, /en/prices/ y /de/preise/.
+ */
+import { type Locale, localeLink, t } from "~/lib/i18n";
+import { apartments } from "~/data/apartments";
+import { formatPLN } from "~/lib/format";
+import { site } from "~/data/site";
+
+import PageHero from "~/components/ui/PageHero.astro";
+import CtaBand from "~/components/sections/CtaBand.astro";
+import FaqSection from "~/components/content/FaqSection.astro";
+import Icon from "~/components/ui/Icon.astro";
+import SectionHeading from "~/components/ui/SectionHeading.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const tr = t(locale);
+
+const lowMin = Math.min(...apartments.map((a) => a.pricing.lowSeasonPLN));
+const lowMax = Math.max(...apartments.map((a) => a.pricing.lowSeasonPLN));
+const highMin = Math.min(...apartments.map((a) => a.pricing.highSeasonPLN));
+const highMax = Math.max(...apartments.map((a) => a.pricing.highSeasonPLN));
+
+const copy: Record<
+  Locale,
+  {
+    crumbs: string;
+    seasonsTitle: string;
+    seasonsLead: string;
+    tableRates: string;
+    tableSeason: string;
+    tableApartment: string;
+    tableLow: string;
+    tableHigh: string;
+    extrasTitle: string;
+    extrasLead: string;
+    extrasService: string;
+    extrasPrice: string;
+    extrasNote: string;
+    noteText: string;
+  }
+> = {
+  pl: {
+    crumbs: "Cennik",
+    seasonsTitle: "Kiedy warto przyjechać",
+    seasonsLead:
+      "Sezon na Mazurach ma dwa szczyty: ferie zimowe i wakacje. Wiosna i jesień to najlepszy stosunek ceny do pogody — jezioro jest puste, a ceny najniższe w roku.",
+    tableRates: "Stawki za apartament",
+    tableSeason: "Sezon",
+    tableApartment: "Apartament",
+    tableLow: "Sezon niski",
+    tableHigh: "Sezon wysoki",
+    extrasTitle: "Usługi dodatkowe",
+    extrasLead: "Płatne osobno, na miejscu. Wszystko do uzgodnienia przy rezerwacji.",
+    extrasService: "Usługa",
+    extrasPrice: "Cena",
+    extrasNote: "Usługi dodatkowe rozliczamy na miejscu — nie doliczamy ich do zadatku.",
+    noteText:
+      "Ceny obejmują apartament dla maksymalnie 6 osób. Dostawka w salonie dla 2 dodatkowych osób: 100 zł za noc.",
+  },
+  en: {
+    crumbs: "Prices",
+    seasonsTitle: "When to come",
+    seasonsLead:
+      "Masuria has two peaks: the winter break and the summer holidays. Spring and autumn give the best value for the weather — the lake is empty and rates are at their lowest.",
+    tableRates: "Apartment rates",
+    tableSeason: "Season",
+    tableApartment: "Apartment",
+    tableLow: "Low season",
+    tableHigh: "High season",
+    extrasTitle: "Additional services",
+    extrasLead: "Paid separately, on site. Everything can be arranged when you book.",
+    extrasService: "Service",
+    extrasPrice: "Price",
+    extrasNote: "Additional services are settled on site — we do not add them to the deposit.",
+    noteText:
+      "Rates cover the apartment for up to 6 guests. An extra bed in the living room for 2 more guests: 100 PLN per night.",
+  },
+  de: {
+    crumbs: "Preise",
+    seasonsTitle: "Wann Sie kommen sollten",
+    seasonsLead:
+      "Masuren hat zwei Spitzen: die Winterferien und die Sommerferien. Frühling und Herbst bieten das beste Verhältnis von Preis und Wetter — der See ist leer und die Preise am niedrigsten.",
+    tableRates: "Preise pro Wohnung",
+    tableSeason: "Saison",
+    tableApartment: "Ferienwohnung",
+    tableLow: "Nebensaison",
+    tableHigh: "Hochsaison",
+    extrasTitle: "Zusatzleistungen",
+    extrasLead: "Separat vor Ort zu zahlen. Alles lässt sich bei der Buchung vereinbaren.",
+    extrasService: "Leistung",
+    extrasPrice: "Preis",
+    extrasNote: "Zusatzleistungen rechnen wir vor Ort ab — sie kommen nicht zur Anzahlung hinzu.",
+    noteText:
+      "Die Preise gelten für die Wohnung mit bis zu 6 Personen. Zustellbett im Wohnzimmer für 2 weitere Gäste: 100 PLN pro Nacht.",
+  },
+};
+
+const c = copy[locale];
+
+const seasons = [
+  {
+    icon: "snow" as const,
+    title: tr.pricing.seasonWinter,
+    note: tr.pricing.seasonWinterNote,
+    tone: "cool",
+  },
+  {
+    icon: "leaf" as const,
+    title: tr.pricing.seasonSpring,
+    note: tr.pricing.seasonSpringNote,
+    tone: "soft",
+  },
+  {
+    icon: "sun" as const,
+    title: tr.pricing.seasonSummer,
+    note: tr.pricing.seasonSummerNote,
+    tone: "warm",
+  },
+  {
+    icon: "sunrise" as const,
+    title: tr.pricing.seasonAutumn,
+    note: tr.pricing.seasonAutumnNote,
+    tone: "gold",
+  },
+];
+
+const paymentSteps = [
+  tr.pricing.paymentStep1,
+  tr.pricing.paymentStep2,
+  tr.pricing.paymentStep3,
+  tr.pricing.paymentStep4,
+];
+
+const extras = [
+  { name: tr.pricing.breakfast, price: `60 zł ${tr.pricing.perPerson}` },
+  { name: tr.pricing.lunch, price: `90 zł ${tr.pricing.perPerson}` },
+  { name: tr.pricing.extraBed, price: `100 zł ${tr.apartment.perNight}` },
+  { name: tr.pricing.linens, price: "60 zł" },
+  { name: tr.pricing.towels, price: "40 zł" },
+  {
+    name: locale === "pl" ? "Masaż w apartamencie" : locale === "de" ? "Massage in der Wohnung" : "Massage in your apartment",
+    price: "od 180 zł",
+  },
+  {
+    name: locale === "pl" ? "Rejs motorówką" : locale === "de" ? "Motorbootausflug" : "Motorboat trip",
+    price: "od 250 zł",
+  },
+  {
+    name: locale === "pl" ? "Wyjazd na strzelnicę" : locale === "de" ? "Ausflug zum Schießstand" : "Shooting range trip",
+    price: "od 200 zł",
+  },
+];
+---
+
+<PageHero
+  eyebrow={tr.pricing.title}
+  title={tr.home.pricingTitle}
+  lead={tr.home.pricingLead}
+  crumbs={[
+    { name: tr.nav.home, href: localeLink(locale, "/") },
+    { name: tr.pricing.title },
+  ]}
+/>
+
+<!-- ================================================================ TEMPORADAS -->
+<section class="section">
+  <div class="container">
+    <SectionHeading eyebrow={tr.pricing.subtitle} title={c.seasonsTitle} lead={c.seasonsLead} />
+
+    <ul class="seasons" role="list">
+      {seasons.map((season, index) => (
+        <li class:list={["seasons__item", `seasons__item--${season.tone}`]} data-reveal style={`--reveal-delay:${index * 60}ms`}>
+          <span class="seasons__icon"><Icon name={season.icon} size={22} /></span>
+          <h3 class="seasons__name">{season.title}</h3>
+          <p class="seasons__note">{season.note}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================================= TARIFAS -->
+<section class="section section--bg">
+  <div class="container">
+    <SectionHeading eyebrow={tr.pricing.subtitle} title={c.tableRates} lead={c.noteText} />
+
+    <div class="rates" data-reveal>
+      <table class="table">
+        <caption class="sr-only">{c.tableRates}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{c.tableApartment}</th>
+            <th scope="col">
+              {c.tableLow}
+              <span class="rates__meta">{tr.pricing.lowSeasonDates}</span>
+            </th>
+            <th scope="col">
+              {c.tableHigh}
+              <span class="rates__meta">{tr.pricing.highSeasonDates}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {apartments.map((apartment) => (
+            <tr>
+              <th scope="row">
+                <a href={localeLink(locale, `/apartamenty/${apartment.slugs[locale]}/`)}>
+                  {apartment.names[locale]}
+                </a>
+                <span class="rates__sub">
+                  {apartment.specs.sizeM2} m² · {apartment.specs.sleeps}+{apartment.specs.extraSleeps} {tr.apartment.sleeps}
+                </span>
+              </th>
+              <td>{formatPLN(apartment.pricing.lowSeasonPLN)}</td>
+              <td class="is-highlight">{formatPLN(apartment.pricing.highSeasonPLN)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">{tr.pricing.discounts}</th>
+            <td colspan="2">
+              {tr.pricing.discount7} · {tr.pricing.discount13}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{tr.pricing.minStay}</th>
+            <td colspan="2">{tr.pricing.minStayDates}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <p class="rates__range">
+      <Icon name="info" size={15} />
+      {locale === "pl"
+        ? `Sezon niski: ${formatPLN(lowMin)}–${formatPLN(lowMax)} · Sezon wysoki: ${formatPLN(highMin)}–${formatPLN(highMax)}`
+        : locale === "de"
+          ? `Nebensaison: ${formatPLN(lowMin)}–${formatPLN(lowMax)} · Hochsaison: ${formatPLN(highMin)}–${formatPLN(highMax)}`
+          : `Low season: ${formatPLN(lowMin)}–${formatPLN(lowMax)} · High season: ${formatPLN(highMin)}–${formatPLN(highMax)}`}
+    </p>
+  </div>
+</section>
+
+<!-- ================================================================== EXTRAS -->
+<section class="section">
+  <div class="container">
+    <div class="extras-grid split split--balanced split--start">
+      <div data-reveal>
+        <span class="eyebrow">{tr.pricing.extras}</span>
+        <h2 class="extras-title">{c.extrasTitle}</h2>
+        <p class="lead">{c.extrasLead}</p>
+
+        <ol class="steps" role="list">
+          {paymentSteps.map((step, index) => (
+            <li>
+              <span class="steps__num">{index + 1}</span>
+              <span>{step}</span>
+            </li>
+          ))}
+        </ol>
+
+        <div class="notice u-mt-8">
+          <Icon name="info" size={20} class="notice__icon" />
+          <span>{tr.pricing.cancellationText}</span>
+        </div>
+      </div>
+
+      <div data-reveal style="--reveal-delay:120ms">
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="sr-only">{c.extrasTitle}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{c.extrasService}</th>
+                <th scope="col">{c.extrasPrice}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {extras.map((extra) => (
+                <tr>
+                  <th scope="row">{extra.name}</th>
+                  <td>{extra.price}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="extras-note">{c.extrasNote}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================= PAGO -->
+<section class="section section--bg">
+  <div class="container">
+    <div class="pay split split--balanced">
+      <div data-reveal>
+        <span class="eyebrow">{tr.booking.paymentTitle}</span>
+        <h2 class="pay-title">{tr.booking.checkinTitle}</h2>
+        <p class="lead">{tr.booking.checkinText}</p>
+
+        <dl class="pay__details">
+          <div>
+            <dt>{tr.booking.paymentAccount}</dt>
+            <dd>{site.bank.accountHolder}</dd>
+          </div>
+          <div>
+            <dt>{tr.booking.paymentIban}</dt>
+            <dd class="tnum">{site.bank.iban}</dd>
+          </div>
+          <div>
+            <dt>{tr.booking.paymentTitleLabel}</dt>
+            <dd>{site.bank.label}</dd>
+          </div>
+          <div>
+            <dt>{tr.booking.paymentAmount}</dt>
+            <dd>{tr.booking.paymentAmountValue}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="pay__cta" data-reveal style="--reveal-delay:120ms">
+        <h3 class="pay__cta-title">{tr.home.ctaBandTitle}</h3>
+        <p class="pay__cta-text">{tr.home.ctaBandText}</p>
+        <div class="btn-group btn-group--stack">
+          <a class="btn btn--primary btn--lg" href={localeLink(locale, "/rezerwacja/")}>
+            {tr.cta.askQuestion}
+          </a>
+          <a class="btn btn--outline btn--lg" href={`tel:${site.phone.tel}`}>
+            {site.phone.display}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<FaqSection limit={4} showFooterLink />
+
+<CtaBand title={tr.home.ctaBandTitle} text={tr.home.ctaBandText} note={tr.home.ctaBandNote} />
+
+<style>
+  /* Temporadas */
+  .seasons {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .seasons {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .seasons {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .seasons__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-line);
+    background: var(--color-bg-elevated);
+  }
+
+  .seasons__item--cool { background: #eef3f7; border-color: #d8e3ec; }
+  .seasons__item--soft { background: #eef4ec; border-color: #d9e6d6; }
+  .seasons__item--warm { background: #fbf2e2; border-color: #f0e0c4; }
+  .seasons__item--gold { background: #f8efe2; border-color: #eddfc8; }
+
+  .seasons__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-full);
+    background: var(--on-dark-text-muted);
+    color: var(--color-accent);
+  }
+
+  .seasons__name {
+    font-size: var(--text-xl);
+  }
+
+  .seasons__note {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  /* Tarifas */
+  .rates {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+
+  /*
+   * La tabla no debe estirarse a lo ancho del contenedor: la columna de precio
+   * es estrecha y, al ocupar todo el espacio, el precio quedaba pegado al borde
+   * derecho con un hueco enorme en medio. Se acota a un ancho legible.
+   */
+  .rates table {
+    min-width: 30rem;
+    max-width: 46rem;
+  }
+
+  .rates__meta {
+    display: block;
+    margin-top: 3px;
+    max-width: 22ch;
+    font-weight: var(--weight-normal);
+    text-transform: none;
+    letter-spacing: 0;
+    line-height: 1.4;
+    color: var(--color-text-subtle);
+  }
+
+  .rates__sub {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-normal);
+    color: var(--color-text-subtle);
+  }
+
+  .rates tbody td {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    text-align: center;
+  }
+
+  .rates tbody th {
+    padding-right: var(--space-8);
+  }
+
+  .rates tfoot th,
+  .rates tfoot td {
+    background: var(--color-bg-muted);
+    font-size: var(--text-xs);
+    white-space: normal;
+  }
+
+  .rates__range {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    max-width: none;
+  }
+
+  .rates__range :global(.icon) {
+    color: var(--color-accent);
+  }
+
+  /* Extras */
+  .extras-title,
+  .pay-title {
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-5);
+    font-size: var(--text-4xl);
+  }
+
+  .steps {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+    counter-reset: pay;
+  }
+
+  .steps li {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+  }
+
+  .steps__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+  }
+
+  .extras-note {
+    margin-top: var(--space-4);
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+    max-width: none;
+  }
+
+  /* Pago */
+  .pay__details {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .pay__details dt {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    margin-bottom: var(--space-1);
+  }
+
+  .pay__details dd {
+    font-size: var(--text-base);
+    color: var(--color-text);
+  }
+
+  .pay__cta {
+    padding: var(--space-8);
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+    border-radius: var(--radius-xl);
+  }
+
+  .pay__cta-title {
+    font-size: var(--text-3xl);
+    color: var(--color-text-inverse);
+    margin-bottom: var(--space-4);
+  }
+
+  .pay__cta-text {
+    color: var(--on-dark-text-muted);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-6);
+    max-width: none;
+  }
+
+  .pay__cta :global(.btn--outline) {
+    color: var(--color-text-inverse);
+    border-color: var(--on-dark-border-strong);
+  }
+
+  .pay__cta :global(.btn--outline:hover) {
+    background: var(--color-text-inverse);
+    color: var(--color-bg-inverse);
+  }
+</style>

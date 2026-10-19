@@ -148,12 +148,12 @@ Resultados medidos sobre el build de producción (`curl` contra `npm start`,
 
 | Página | HTML sin comprimir | Brotli | Ahorro |
 |---|---|---|---|
-| Home | 219 KB | **30 KB** | 86 % |
+| Home | 352 KB | **35 KB** | 90 % |
 | Ficha de apartamento | 168 KB | **25 KB** | 85 % |
 | Cennik | 112 KB | **18 KB** | 84 % |
 | FAQ | 103 KB | **16 KB** | 84 % |
 
-El peso del despliegue completo es **82 MB** (`dist/client`), casi todo fotos
+El peso del despliegue completo es **87 MB** (`dist/client`), casi todo fotos
 responsive. `public/import-original/` (19,5 MB de originales de cámara) ya no se
 publica: lo saca `scripts/prune-dist.mjs` en `postbuild`.
 
@@ -190,11 +190,11 @@ src/
 │   ├── layout/      Header · Footer · MobileCTA · LanguageSwitcher
 │   ├── ui/          Flag · Icon · SmartImage · PageHero · SectionHeading
 │   ├── content/     ApartmentCard · BookingForm · Gallery · Testimonials
-│   │                FaqSection · MapEmbed · SocialLinks
-│   └── sections/    Hero · TrustStrip · AmenitiesShowcase · AttractionsGrid
-│                    CtaBand · HomeContent · ApartmentDetail · ApartmentsIndex
-│                    PricingPage · AttractionsPage · LocationPage
-│                    BookingPage · ReviewsPage
+│   │                TestimonialCard · FaqSection · MapEmbed · SocialLinks
+│   └── sections/    Hero · TrustStrip · AmenitiesShowcase · WellnessSection
+│                    PricingShowcase · AttractionsGrid · CtaBand · HomeContent
+│                    ApartmentDetail · ApartmentsIndex · PricingPage
+│                    AttractionsPage · LocationPage · BookingPage · ReviewsPage
 ├── data/            site · apartments · amenities · attractions · reviews
 │                    faq · locales · icons · translations/{pl,en,de}
 │                    image-manifest.json (generado)
@@ -277,6 +277,34 @@ node scripts/check-social-filter.mjs 8080 /        # marcas en blanco sobre el h
 node scripts/check-social-filter.mjs 8080 /cennik/ # marcas filtradas en fondo claro
 node scripts/capture-cards.mjs 8080               # tarjetas de apartamento: medidas y capturas
 ```
+
+### Precios, opiniones y sauna (portada)
+
+Tres secciones nuevas, sin librerías externas. Todo el movimiento es CSS y los
+controles son dos scripts pequeños; las imágenes siguen entrando por
+`SmartImage` (srcset, LQIP y dimensiones reales).
+
+**`PricingShowcase.astro` — cennik.** Sustituye las dos tarjetas planas por un
+tablero editorial: a la izquierda, el precio grande con el selector de temporada
+y lo que incluye; a la derecha, una calculadora de estancia (2–14 noches) que
+aplica los descuentos reales del 5 % (7+ noches) y 10 % (13+ noches). El total
+se recalcula en el navegador y se anuncia con `aria-live`; sin JS queda el
+ejemplo de 7 noches. Los precios salen de `apartments.ts`, no están escritos a
+mano en el HTML.
+
+**`Testimonials.astro` — opiniones.** Dos cintas continuas, una de Google y otra
+de Booking.com, con el logotipo de cada plataforma en la tarjeta. Cada cinta
+muestra 10 reseñas con texto suficiente y se puede pausar; las tarjetas largas
+tienen “Czytaj więcej”. El resumen mantiene las dos notas separadas (9,9/10 y
+4,9/5) y el total como recuento (178). Los textos están en polaco; la única
+excepción es la reseña neerlandesa de Jirg. `TestimonialCard.astro` solo pinta
+nombre, estrellas, comentario y plataforma, sin fechas ni países.
+
+**`WellnessSection.astro` — sauna y balia.** La foto de la sauna ya existía en el
+mosaico de instalaciones, pero quedaba como una celda más. Aquí va en grande,
+con la balia y cuatro argumentos concretos (agua caliente diaria, sauna con
+vista, Natura 2000, horarios). La sauna se describe como “na życzenie”, que es
+como funciona: no se vende como incluida si no lo está.
 
 #### Posición del contenido del hero
 
@@ -558,10 +586,10 @@ en `src/data/reviews.ts`; para añadir una opinión solo se toca el primero. El
 logotipo (Google o Booking.com) lo pinta `ReviewLogo.astro` y las estrellas
 `ReviewStars.astro`, que convierte 9,0/10 en 4,5 estrellas.
 
-Los textos de Google están en español porque es la versión que devolvió el
-navegador del propietario; los de Booking conservan el polaco o neerlandés
-original. Cada `<blockquote>` declara su `lang`. Si se quieren en polaco, hay
-que sustituir el texto, no la puntuación.
+Los textos están en polaco: las reseñas de Google llegaron en español
+(traducción del navegador del propietario) y se tradujeron, y las de Booking ya
+estaban en polaco. La única excepción es la reseña neerlandesa de Jirg, que se
+conserva en su idioma original. Cada `<blockquote>` declara su `lang`.
 
 De las **160** opiniones de Google se han importado las **103** que aparecen en
 el perfil; faltan 57 por pegar. Booking está completo: **18 de 18**. La página

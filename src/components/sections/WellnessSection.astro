@@ -1,0 +1,394 @@
+---
+/**
+ * WellnessSection — sauna y balia en la portada.
+ *
+ * El mosaico de instalaciones ya incluía una foto de la sauna, pero quedaba
+ * como una celda más entre quince. Esta sección le da el sitio que vende:
+ * imagen grande, dos fotos reales y copy concreto (no genérico) sobre lo que
+ * encuentra el huésped al volver del lago.
+ */
+import { type Locale, getLocaleFromUrl, localeLink } from "~/lib/i18n";
+import Icon from "~/components/ui/Icon.astro";
+import SmartImage from "~/components/ui/SmartImage.astro";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+
+const copy = {
+  pl: {
+    eyebrow: "Wellness",
+    title: "Sauna, balia i cisza lasu",
+    lead: "Po dniu nad jeziorem wracacie do własnej balii, a wieczorem do sauny z widokiem na wodę. Wszystko na terenie kompleksu, bez wychodzenia za bramę.",
+    badge: "Sauna z widokiem na jezioro",
+    features: [
+      {
+        icon: "flame" as const,
+        title: "Balia napalana drewnem",
+        text: "Prywatna, podgrzewana codziennie. Drewno czeka przygotowane przy balii.",
+      },
+      {
+        icon: "waves" as const,
+        title: "Sauna beczkowa",
+        text: "Przeszklona, z widokiem na jezioro. Udostępniana na życzenie, codziennie 10–22.",
+      },
+      {
+        icon: "tree" as const,
+        title: "Las za płotem",
+        text: "Strefa Natura 2000, 105 m do brzegu, dwa pomosty i plaża dla gości.",
+      },
+      {
+        icon: "clock" as const,
+        title: "Bez pośpiechu",
+        text: "Zameldowanie od 16:00, wymeldowanie do 11:00. Wcześniej? Zapytaj, zwykle się da.",
+      },
+    ],
+    note: "Sauna jest udostępniana na życzenie. Balia góralska i drewno są w cenie pobytu.",
+    cta: "Sprawdź dostępność",
+    link: "Zobacz wszystkie udogodnienia",
+    saunaAlt: "Sauna beczkowa z przeszkleniem i widokiem na jezioro",
+    baliaAlt: "Prywatna balia góralska w ogrodzie Apartamentów Liberta",
+  },
+  en: {
+    eyebrow: "Wellness",
+    title: "Sauna, hot tub and the quiet of the forest",
+    lead: "After a day on the lake you come back to your own hot tub, and in the evening to a sauna with a view of the water. All inside the resort, without leaving the gate.",
+    badge: "Sauna with a lake view",
+    features: [
+      {
+        icon: "flame" as const,
+        title: "Wood-fired hot tub",
+        text: "Private, heated every day. Firewood is left ready beside it.",
+      },
+      {
+        icon: "waves" as const,
+        title: "Barrel sauna",
+        text: "Glazed, looking out over the lake. Available on request, daily 10am–10pm.",
+      },
+      {
+        icon: "tree" as const,
+        title: "Forest at the fence",
+        text: "Natura 2000 area, 105 m to the shore, two piers and a beach for guests.",
+      },
+      {
+        icon: "clock" as const,
+        title: "No rush",
+        text: "Check-in from 4pm, check-out by 11am. Earlier? Ask — it is usually possible.",
+      },
+    ],
+    note: "The sauna is available on request. The hot tub and firewood are included in your stay.",
+    cta: "Check availability",
+    link: "See all facilities",
+    saunaAlt: "Barrel sauna with glazing and a view of the lake",
+    baliaAlt: "Private wood-fired hot tub in the Liberta garden",
+  },
+  de: {
+    eyebrow: "Wellness",
+    title: "Sauna, Hot Tub und die Ruhe des Waldes",
+    lead: "Nach einem Tag am See kommt ihr in euren eigenen Hot Tub zurück und abends in eine Sauna mit Blick aufs Wasser. Alles auf dem Gelände, ohne das Tor zu verlassen.",
+    badge: "Sauna mit Seeblick",
+    features: [
+      {
+        icon: "flame" as const,
+        title: "Holzbeheizter Hot Tub",
+        text: "Privat, täglich beheizt. Das Brennholz liegt bereit.",
+      },
+      {
+        icon: "waves" as const,
+        title: "Fasssauna",
+        text: "Verglast, mit Blick auf den See. Auf Anfrage, täglich 10–22 Uhr.",
+      },
+      {
+        icon: "tree" as const,
+        title: "Wald direkt am Zaun",
+        text: "Natura-2000-Gebiet, 105 m zum Ufer, zwei Stege und ein Strand für Gäste.",
+      },
+      {
+        icon: "clock" as const,
+        title: "Ohne Eile",
+        text: "Check-in ab 16 Uhr, Check-out bis 11 Uhr. Früher? Fragt einfach — meistens geht es.",
+      },
+    ],
+    note: "Die Sauna wird auf Anfrage bereitgestellt. Hot Tub und Brennholz sind im Aufenthalt enthalten.",
+    cta: "Verfügbarkeit prüfen",
+    link: "Alle Ausstattung ansehen",
+    saunaAlt: "Fasssauna mit Verglasung und Blick auf den See",
+    baliaAlt: "Privater Holz-Hot-Tub im Garten von Apartamenty Liberta",
+  },
+}[locale];
+---
+
+<section class="wellness section" id="wellness" aria-labelledby="wellness-title">
+  <div class="container">
+    <div class="wellness__grid">
+      <div class="wellness__copy" data-reveal>
+        <span class="eyebrow">{copy.eyebrow}</span>
+        <h2 class="wellness__title" id="wellness-title">{copy.title}</h2>
+        <p class="wellness__lead">{copy.lead}</p>
+
+        <ul class="wellness__features" role="list">
+          {copy.features.map((feature) => (
+            <li>
+              <span class="wellness__icon"><Icon name={feature.icon} size={19} /></span>
+              <span>
+                <strong>{feature.title}</strong>
+                <small>{feature.text}</small>
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <p class="wellness__note">{copy.note}</p>
+
+        <div class="wellness__actions">
+          <a class="btn btn--primary" href={localeLink(locale, "/rezerwacja/")}>{copy.cta}</a>
+          <a class="wellness__link" href={localeLink(locale, "/apartamenty/")}>
+            {copy.link}
+            <Icon name="arrow-right" size={14} />
+          </a>
+        </div>
+      </div>
+
+      <div class="wellness__media" data-reveal style="--reveal-delay:100ms">
+        <figure class="wellness__sauna">
+          <SmartImage
+            src="/assets/facilities/sauna.webp"
+            alt={copy.saunaAlt}
+            sizes="(min-width: 1024px) 34vw, (min-width: 640px) 50vw, 100vw"
+          />
+          <figcaption class="wellness__badge">
+            <Icon name="waves" size={15} />
+            {copy.badge}
+          </figcaption>
+        </figure>
+
+        <figure class="wellness__balia">
+          <SmartImage
+            src="/assets/facilities/balia.webp"
+            alt={copy.baliaAlt}
+            sizes="(min-width: 1024px) 26vw, (min-width: 640px) 40vw, 100vw"
+          />
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .wellness {
+    background: var(--color-bg);
+  }
+
+  .wellness__grid {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: center;
+  }
+
+  @media (min-width: 1024px) {
+    .wellness__grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    }
+  }
+
+  .wellness__copy {
+    max-width: 40rem;
+  }
+
+  .wellness__title {
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: clamp(2.2rem, 4.8vw, 4.4rem);
+    line-height: 1.03;
+    letter-spacing: var(--tracking-tighter);
+    text-wrap: balance;
+  }
+
+  .wellness__lead {
+    max-width: 52ch;
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    text-wrap: pretty;
+  }
+
+  .wellness__features {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4) var(--space-6);
+    margin-top: var(--space-8);
+  }
+
+  @media (min-width: 640px) {
+    .wellness__features {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .wellness__features li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .wellness__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    color: var(--color-accent);
+    background: var(--color-accent-faded);
+    border-radius: var(--radius-full);
+  }
+
+  .wellness__features strong,
+  .wellness__features small {
+    display: block;
+  }
+
+  .wellness__features strong {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .wellness__features small {
+    margin-top: 3px;
+    font-size: var(--text-sm);
+    line-height: 1.45;
+    color: var(--color-text-muted);
+  }
+
+  .wellness__note {
+    margin-top: var(--space-6);
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--color-brass);
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  .wellness__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    margin-top: var(--space-7);
+  }
+
+  .wellness__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .wellness__link:hover {
+    text-decoration: underline;
+  }
+
+  /* --------------------------------------------------------------- Fotos */
+
+  .wellness__media {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    grid-template-rows: 1fr auto;
+    gap: var(--space-4);
+    align-items: end;
+  }
+
+  .wellness__sauna,
+  .wellness__balia {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-muted);
+    box-shadow: var(--shadow-md);
+  }
+
+  .wellness__sauna {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    aspect-ratio: 3 / 4;
+  }
+
+  .wellness__balia {
+    grid-column: 2;
+    grid-row: 2;
+    aspect-ratio: 4 / 3;
+  }
+
+  .wellness__sauna :global(img),
+  .wellness__balia :global(img) {
+    transition: transform var(--duration-slower) var(--ease-out);
+  }
+
+  .wellness__sauna:hover :global(img),
+  .wellness__balia:hover :global(img) {
+    transform: scale(1.035);
+  }
+
+  .wellness__badge {
+    position: absolute;
+    left: var(--space-4);
+    bottom: var(--space-4);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.5rem 0.8rem;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(6, 14, 11, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  @media (max-width: 767px) {
+    .wellness__media {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .wellness__sauna {
+      aspect-ratio: 4 / 5;
+    }
+
+    .wellness__badge {
+      left: var(--space-3);
+      bottom: var(--space-3);
+      right: var(--space-3);
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .wellness__media {
+      grid-template-columns: 1fr;
+    }
+
+    .wellness__sauna,
+    .wellness__balia {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
+    .wellness__sauna {
+      aspect-ratio: 3 / 4;
+    }
+  }
+</style>

@@ -177,8 +177,22 @@ async function main() {
   await mkdir(dirname(MANIFEST_PATH), { recursive: true });
   await writeFile(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
-  // Variantes huérfanas: <base>-<ancho>.webp cuyo original ya no está
-  const orphans = await pruneOrphanVariants(manifest);
+  // Variantes huérfanas: <base>-<ancho>.webp cuyo original ya no está.
+  //
+  // Solo se limpian si el manifiesto está COMPLETO (ninguna entrada obsoleta).
+  // Si en esta pasada se han descartado claves, es señal de que el manifiesto no
+  // refleja todas las fuentes: borrar entonces "huérfanas" elimina variantes de
+  // imágenes que sí existen (pasó: 39 variantes borradas y el manifiesto cayendo
+  // de 88 a 78 imágenes en una sola ejecución).
+  let orphans = 0;
+  if (stale === 0) {
+    orphans = await pruneOrphanVariants(manifest);
+  } else {
+    console.warn(
+      `[images] limpieza de huérfanas omitida: el manifiesto ha perdido ${stale} entradas en esta pasada. ` +
+        "Regenera con `npm run clean && npm run images:responsive` y revisa antes de borrar nada.",
+    );
+  }
 
   console.log(
     `[images] ${Object.keys(manifest).length} imágenes · ${generated} variantes nuevas · ${skipped} ya vigentes` +

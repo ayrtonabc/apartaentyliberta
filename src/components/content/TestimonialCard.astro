@@ -1,0 +1,149 @@
+---
+/**
+ * TestimonialCard — tarjeta de una opinión para el carrusel de la portada.
+ *
+ * Solo nombre, estrellas, comentario y logotipo de la plataforma. El comentario
+ * se recorta a cinco líneas y se puede desplegar sin salir de la tarjeta.
+ */
+import type { Review } from "~/data/reviews";
+import ReviewLogo from "~/components/ui/ReviewLogo.astro";
+import ReviewStars from "~/components/ui/ReviewStars.astro";
+
+interface Props {
+  review: Review;
+  moreLabel: string;
+  lessLabel: string;
+  expanded?: boolean;
+  duplicate?: boolean;
+}
+
+const { review, moreLabel, lessLabel, expanded = false, duplicate = false } = Astro.props;
+const canExpand = review.text.length > 180;
+---
+
+<article
+  class:list={["tcard", expanded && "is-open"]}
+  data-review-card
+  data-source={review.source}
+  aria-hidden={duplicate ? "true" : undefined}
+>
+  <div class="tcard__top">
+    <ReviewLogo source={review.source} />
+    <ReviewStars rating={review.rating} scale={review.ratingScale} size={13} />
+  </div>
+
+  <blockquote class="tcard__quote" lang={review.lang}>
+    <p class="tcard__text" data-review-text>{review.text}</p>
+  </blockquote>
+
+  <footer class="tcard__foot">
+    <strong class="tcard__author">{review.author}</strong>
+
+    {canExpand && (
+      <button
+        class="tcard__toggle"
+        type="button"
+        data-review-toggle
+        data-more={moreLabel}
+        data-less={lessLabel}
+        aria-expanded="false"
+        tabindex={duplicate ? -1 : undefined}
+      >
+        {moreLabel}
+      </button>
+    )}
+  </footer>
+</article>
+
+<style>
+  .tcard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    width: 21rem;
+    min-height: 16.5rem;
+    padding: var(--space-5);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    white-space: normal;
+    transition: border-color var(--transition-base), transform var(--transition-base);
+  }
+
+  .tcard:hover {
+    border-color: var(--color-line-strong);
+    transform: translateY(-2px);
+  }
+
+  .tcard__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .tcard__quote {
+    margin: 0;
+    flex: 1;
+  }
+
+  .tcard__text {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: 1.62;
+    color: var(--color-text-muted);
+    max-width: none;
+    text-wrap: pretty;
+  }
+
+  .tcard.is-open .tcard__text {
+    display: block;
+    overflow: visible;
+  }
+
+  .tcard__foot {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .tcard__author {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text);
+  }
+
+  .tcard__toggle {
+    flex-shrink: 0;
+    padding: 0;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent);
+    cursor: pointer;
+  }
+
+  .tcard__toggle:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 767px) {
+    .tcard {
+      width: 17.5rem;
+      min-height: 15rem;
+    }
+  }
+</style>

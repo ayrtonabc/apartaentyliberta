@@ -1,474 +1,575 @@
 ---
 /**
- * Testimonials — prueba social con las opiniones en el idioma del visitante.
+ * Testimonials — sección de opiniones de la portada.
  *
- * Estructura: valoraciones por plataforma (RatingSummary) + carrusel navegable
- * por teclado, con puntos, flechas y swipe. Prioriza las opiniones escritas en
- * el idioma del mercado (ver reviewsForLocale).
+ * Dos cintas continuas, una por plataforma, con las reseñas reales y el
+ * logotipo de su origen. El objetivo es que la prueba social se lea como parte
+ * del producto, no como un widget pegado: tipografía editorial, tarjetas con
+ * el comentario completo desplegable y un resumen de las dos notas separadas.
+ *
+ * No se inventan fechas, países ni estancias: la tarjeta solo lleva nombre,
+ * estrellas, comentario y plataforma.
  */
 import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
-import { reviewsForLocale } from "~/data/reviews";
+import { aggregateRatings, getTotalReviews, reviewsForLocale } from "~/data/reviews";
 import Icon from "~/components/ui/Icon.astro";
-import SectionHeading from "~/components/ui/SectionHeading.astro";
-import RatingSummary from "~/components/ui/RatingSummary.astro";
-import ReviewStars from "~/components/ui/ReviewStars.astro";
 import ReviewLogo from "~/components/ui/ReviewLogo.astro";
-
-interface Props {
-  limit?: number;
-}
-
-const { limit = 6 } = Astro.props;
+import ReviewStars from "~/components/ui/ReviewStars.astro";
+import TestimonialCard from "~/components/content/TestimonialCard.astro";
 
 const locale: Locale = getLocaleFromUrl(Astro.url);
 const tr = t(locale);
+const total = getTotalReviews();
 
-const items = reviewsForLocale(locale).slice(0, limit);
+const all = reviewsForLocale(locale);
+
+/**
+ * Selección para las cintas.
+ *
+ * No se pintan las 121 tarjetas: duplicarlas para el bucle dejaría 240 nodos y
+ * un HTML enorme. Se eligen las reseñas con texto suficiente y buena nota; el
+ * resto sigue disponible en /opinie/.
+ */
+const googleReviews = all
+  .filter((review) => review.source === "google" && review.rating >= 4 && review.text.trim().length > 45)
+  .slice(0, 10);
+
+const bookingReviews = all
+  .filter((review) => review.source === "booking" && review.rating >= 8 && review.text.trim().length > 30)
+  .slice(0, 10);
+
+const copy = {
+  pl: {
+    title: "To mówią",
+    accent: "nasi goście",
+    lead: "Nie kupujemy opinii i nie prosimy o nie przy wymeldowaniu. Te pochodzą z publicznych profili Google i Booking.com — także te mniej wygodne.",
+    totalLabel: "opinii w Google i Booking.com",
+    verified: "Profile publiczne, opinie weryfikowalne",
+    googleRow: "Google",
+    bookingRow: "Booking.com",
+    profile: "Zobacz profil",
+    pause: "Pauza",
+    play: "Wznów",
+    readMore: "Czytaj więcej",
+    readLess: "Zwiń",
+    footNote: "Każdą opinię można sprawdzić w profilu, z którego pochodzi.",
+    cta: "Sprawdź dostępność",
+  },
+  en: {
+    title: "What our",
+    accent: "guests say",
+    lead: "We do not buy reviews and we never ask for them at check-out. These come from public Google and Booking.com profiles — including the less comfortable ones.",
+    totalLabel: "reviews on Google and Booking.com",
+    verified: "Public profiles, verifiable reviews",
+    googleRow: "Google",
+    bookingRow: "Booking.com",
+    profile: "View profile",
+    pause: "Pause",
+    play: "Resume",
+    readMore: "Read more",
+    readLess: "Show less",
+    footNote: "Every review can be checked in the profile it came from.",
+    cta: "Check availability",
+  },
+  de: {
+    title: "Das sagen",
+    accent: "unsere Gäste",
+    lead: "Wir kaufen keine Bewertungen und fragen beim Check-out nie danach. Diese stammen aus öffentlichen Google- und Booking.com-Profilen — auch die unbequemen.",
+    totalLabel: "Bewertungen auf Google und Booking.com",
+    verified: "Öffentliche Profile, überprüfbare Bewertungen",
+    googleRow: "Google",
+    bookingRow: "Booking.com",
+    profile: "Profil ansehen",
+    pause: "Pause",
+    play: "Weiter",
+    readMore: "Weiterlesen",
+    readLess: "Zuklappen",
+    footNote: "Jede Bewertung lässt sich im jeweiligen Profil prüfen.",
+    cta: "Verfügbarkeit prüfen",
+  },
+}[locale];
+
+const fmtScore = (score: number) => score.toString().replace(".", ",");
+const platform = (source: "google" | "booking") => aggregateRatings.find((rating) => rating.source === source);
+const google = platform("google");
+const booking = platform("booking");
 ---
 
-<section class="rev section" id="opinie">
+<section class="revs" id="opinie" aria-labelledby="revs-title">
   <div class="container">
-    <SectionHeading eyebrow={tr.reviews.eyebrow} title={tr.home.reviewsTitle} lead={tr.home.reviewsLead} />
-
-    <!-- Valoraciones por plataforma -->
-    <div class="rev__summary" data-reveal>
-      <RatingSummary size={22} />
-    </div>
-
-    <!-- Carrusel -->
-    <div
-      class="rev__carousel"
-      data-carousel
-      data-interval="7000"
-      role="group"
-      aria-roledescription="carousel"
-      aria-label={tr.reviews.title}
-      tabindex="0"
-    >
-      <div class="rev__viewport" data-carousel-viewport>
-        {items.map((review, index) => (
-          <article
-            class="rev__slide"
-            data-carousel-slide={index}
-            aria-hidden={index === 0 ? "false" : "true"}
-            aria-label={`${index + 1} / ${items.length}`}
-          >
-            <div class="rev__card">
-              <Icon name="quote" fill size={26} class="rev__quote" />
-
-              <p class="rev__text">{review.text}</p>
-
-              <footer class="rev__footer">
-                <div class="rev__author">
-                  <span class="rev__author-text">
-                    <strong>{review.author}</strong>
-                    <ReviewStars rating={review.rating} scale={review.ratingScale} size={13} />
-                  </span>
-                </div>
-
-                <ReviewLogo source={review.source} />
-              </footer>
-            </div>
-          </article>
-        ))}
+    <header class="revs__head">
+      <div class="revs__intro" data-reveal>
+        <span class="eyebrow">{tr.reviews.eyebrow}</span>
+        <h2 class="revs__title" id="revs-title">
+          {copy.title} <em>{copy.accent}</em>
+        </h2>
+        <p class="revs__lead">{copy.lead}</p>
       </div>
 
-      <div class="rev__controls">
-        <button class="rev__nav" type="button" aria-label={tr.a11y.prevPhoto} data-carousel-prev>
-          <Icon name="arrow-right" size={18} class="rev__nav-icon rev__nav-icon--prev" />
-        </button>
+      <aside class="revs__summary" data-reveal style="--reveal-delay:90ms" aria-label={tr.reviews.eyebrow}>
+        <p class="revs__summary-top">
+          <strong class="revs__total">{total}</strong>
+          <span>{copy.totalLabel}</span>
+        </p>
 
-        <div class="rev__dots" role="tablist" aria-label={tr.reviews.title}>
-          {items.map((_, index) => (
-            <button
-              class="rev__dot"
-              type="button"
-              role="tab"
-              aria-selected={index === 0 ? "true" : "false"}
-              aria-label={`${index + 1}`}
-              data-carousel-dot={index}
-            ></button>
+        <ul class="revs__platforms" role="list">
+          {aggregateRatings.map((rating) => (
+            <li>
+              <a
+                class="revs__platform"
+                href={rating.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${rating.label} — ${fmtScore(rating.score)}/${rating.scale} (${rating.count})`}
+              >
+                <ReviewLogo source={rating.source} />
+                <span class="revs__score tnum">
+                  {fmtScore(rating.score)}<em>/{rating.scale}</em>
+                </span>
+                <span class="revs__count">({rating.count})</span>
+                <ReviewStars rating={rating.score} scale={rating.scale} size={12} />
+              </a>
+            </li>
           ))}
+        </ul>
+
+        <p class="revs__verified">
+          <Icon name="check" size={14} />
+          {copy.verified}
+        </p>
+      </aside>
+    </header>
+
+    <div class="revs__rows">
+      <div class="revs__row">
+        <div class="revs__row-head">
+          <span class="revs__row-label">
+            <ReviewLogo source="google" />
+            <span>{copy.googleRow} · {google?.count}</span>
+          </span>
+          <div class="revs__row-actions">
+            <button
+              class="revs__pause"
+              type="button"
+              data-marquee-toggle
+              data-pause={copy.pause}
+              data-play={copy.play}
+              aria-pressed="false"
+            >
+              {copy.pause}
+            </button>
+            <a class="revs__row-link" href={google?.url} target="_blank" rel="noopener noreferrer">
+              {copy.profile}
+              <Icon name="arrow-right" size={13} />
+            </a>
+          </div>
         </div>
 
-        <button class="rev__nav" type="button" aria-label={tr.a11y.nextPhoto} data-carousel-next>
-          <Icon name="arrow-right" size={18} />
-        </button>
+        <div class="revs__viewport" aria-label={`${copy.googleRow} — ${copy.totalLabel}`}>
+          <div class="revs__track">
+            <div class="revs__group">
+              {googleReviews.map((review) => (
+                <TestimonialCard review={review} moreLabel={copy.readMore} lessLabel={copy.readLess} />
+              ))}
+            </div>
+            <div class="revs__group" aria-hidden="true" inert>
+              {googleReviews.map((review) => (
+                <TestimonialCard review={review} moreLabel={copy.readMore} lessLabel={copy.readLess} duplicate />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="revs__row">
+        <div class="revs__row-head">
+          <span class="revs__row-label">
+            <ReviewLogo source="booking" />
+            <span>{copy.bookingRow} · {booking?.count}</span>
+          </span>
+          <div class="revs__row-actions">
+            <button
+              class="revs__pause"
+              type="button"
+              data-marquee-toggle
+              data-pause={copy.pause}
+              data-play={copy.play}
+              aria-pressed="false"
+            >
+              {copy.pause}
+            </button>
+            <a class="revs__row-link" href={booking?.url} target="_blank" rel="noopener noreferrer">
+              {copy.profile}
+              <Icon name="arrow-right" size={13} />
+            </a>
+          </div>
+        </div>
+
+        <div class="revs__viewport" aria-label={`${copy.bookingRow} — ${copy.totalLabel}`}>
+          <div class="revs__track revs__track--reverse">
+            <div class="revs__group">
+              {bookingReviews.map((review) => (
+                <TestimonialCard review={review} moreLabel={copy.readMore} lessLabel={copy.readLess} />
+              ))}
+            </div>
+            <div class="revs__group" aria-hidden="true" inert>
+              {bookingReviews.map((review) => (
+                <TestimonialCard review={review} moreLabel={copy.readMore} lessLabel={copy.readLess} duplicate />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="rev__cta" data-reveal>
-      <a class="btn btn--outline" href={localeLink(locale, "/opinie/")}>
-        {tr.cta.seeAllReviews}
-      </a>
-    </div>
+    <footer class="revs__foot">
+      <p class="revs__foot-note">{copy.footNote}</p>
+      <div class="revs__actions">
+        <a class="btn btn--primary" href={localeLink(locale, "/rezerwacja/")}>{copy.cta}</a>
+      </div>
+    </footer>
   </div>
 </section>
 
 <style>
-  .rev {
-    background: var(--color-bg);
+  .revs {
+    position: relative;
+    padding-block: var(--section-y);
+    background: var(--color-bg-muted);
+    border-block: 1px solid var(--color-line);
+    overflow: hidden;
+  }
+
+  .revs__head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    align-items: end;
+  }
+
+  @media (min-width: 1024px) {
+    .revs__head {
+      grid-template-columns: minmax(0, 1fr) 22rem;
+      gap: var(--space-12);
+    }
+  }
+
+  .revs__intro {
+    max-width: 44rem;
+  }
+
+  .revs__title {
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: clamp(2.4rem, 5.2vw, 4.8rem);
+    line-height: 1.02;
+    letter-spacing: var(--tracking-tighter);
+    text-wrap: balance;
+  }
+
+  .revs__title em {
+    font-style: italic;
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-color: var(--color-brass);
+    text-decoration-thickness: 0.12em;
+    text-underline-offset: 0.08em;
+  }
+
+  .revs__lead {
+    max-width: 56ch;
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    text-wrap: pretty;
   }
 
   /* ------------------------------------------------------------- Resumen */
 
-  .rev__summary {
+  .revs__summary {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-6) var(--space-10);
-    padding: var(--space-6) var(--space-8);
-    margin-bottom: var(--space-10);
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-6);
     background: var(--color-bg-elevated);
     border: 1px solid var(--color-line);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
   }
 
-  .rev__overall {
+  .revs__summary-top {
     display: flex;
-    align-items: center;
-    gap: var(--space-4);
+    align-items: baseline;
+    gap: var(--space-3);
+    max-width: none;
   }
 
-  .rev__overall-score {
+  .revs__total {
     font-family: var(--font-display);
-    font-size: var(--text-5xl);
-    line-height: 1;
+    font-size: clamp(2.8rem, 6vw, 4rem);
+    line-height: 0.9;
     letter-spacing: var(--tracking-tighter);
     color: var(--color-text);
     font-variant-numeric: tabular-nums;
   }
 
-  .rev__overall-meta {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .rev__stars {
-    display: inline-flex;
-    gap: 2px;
-    color: var(--color-brass);
-  }
-
-  /* Estrella apagada = gris de línea. Con trazo dorado parecía activa. */
-  .rev__stars :global(.is-off) {
-    color: var(--color-line-strong);
-  }
-
-  .rev__stars :global(svg) {
-    fill: currentColor;
-    stroke: none;
-  }
-
-  .rev__overall-label {
+  .revs__summary-top span {
     font-family: var(--font-grotesk);
-    font-size: var(--text-xs);
+    font-size: var(--text-2xs);
+    line-height: 1.35;
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
-    color: var(--color-text-muted);
+    color: var(--color-text-subtle);
   }
 
-  .rev__sources {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-  }
-
-  .rev__source {
+  .revs__platforms {
     display: grid;
-    grid-template-columns: auto auto;
+    gap: var(--space-2);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .revs__platform {
+    display: flex;
     align-items: center;
-    gap: 0 var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-md);
-    transition: border-color var(--transition-base), transform var(--transition-base);
+    gap: var(--space-2);
+    min-height: 2rem;
+    padding: var(--space-1) 0;
+    color: inherit;
+    transition: opacity var(--transition-base);
   }
 
-  .rev__source:hover {
-    border-color: var(--color-accent);
-    transform: translateY(-2px);
+  .revs__platform:hover {
+    opacity: 0.7;
   }
 
-  .rev__source-name {
-    grid-column: 1;
-    font-family: var(--font-grotesk);
-    font-size: var(--text-xs);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wide);
+  .revs__platform :global(.rlogo) {
+    flex-shrink: 0;
+  }
+
+  .revs__score {
+    margin-left: auto;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    line-height: 1;
     color: var(--color-text);
   }
 
-  .rev__source-score {
-    grid-column: 2;
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    color: var(--color-accent);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .rev__source-score em {
+  .revs__score em {
     font-style: normal;
     font-size: 0.6em;
     color: var(--color-text-subtle);
   }
 
-  .rev__source-count {
-    grid-column: 1 / -1;
+  .revs__count {
     font-size: var(--text-2xs);
+    color: var(--color-text-subtle);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .revs__verified {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-width: none;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-line);
+    font-size: var(--text-2xs);
+    line-height: 1.4;
     color: var(--color-text-subtle);
   }
 
-  .rev__source :global(.icon) {
-    display: none;
+  .revs__verified :global(.icon) {
+    color: var(--color-accent);
+    flex-shrink: 0;
   }
 
-  /* ------------------------------------------------------------ Carrusel */
+  /* --------------------------------------------------------------- Cintas */
 
-  .rev__carousel {
-    position: relative;
-  }
-
-  .rev__viewport {
+  .revs__rows {
     display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 100%;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    overscroll-behavior-x: contain;
-    gap: var(--space-4);
+    gap: var(--space-8);
+    margin-top: var(--space-10);
   }
 
-  .rev__viewport::-webkit-scrollbar {
-    display: none;
-  }
-
-  .rev__slide {
-    scroll-snap-align: center;
-  }
-
-  .rev__card {
+  .revs__row-head {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-    height: 100%;
-    min-height: 17rem;
-    padding: clamp(1.5rem, 4vw, 3rem);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-xl);
-  }
-
-  /*
-   * `:global` obligatorio, mismo motivo que en Gallery: el <svg> lo pinta
-   * <Icon>, no este componente, así que no lleva su `data-astro-cid`. Sin esto
-   * la comilla salía sin el color atenuado y la flecha "anterior" no se giraba.
-   */
-  :global(.rev__quote) {
-    color: var(--color-accent-soft);
-    opacity: 0.6;
-  }
-
-  .rev__text {
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    line-height: var(--leading-normal);
-    letter-spacing: var(--tracking-tight);
-    color: var(--color-text);
-    max-width: 62ch;
-    text-wrap: pretty;
-  }
-
-  .rev__footer {
-    display: flex;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
-    margin-top: auto;
-    padding-top: var(--space-5);
+    margin-bottom: var(--space-3);
+  }
+
+  .revs__row-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .revs__row-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .revs__row-link,
+  .revs__pause {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .revs__pause {
+    color: var(--color-text-subtle);
+  }
+
+  .revs__pause:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .revs__row-link:hover {
+    text-decoration: underline;
+  }
+
+  .revs__viewport {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+  }
+
+  .revs__track {
+    display: flex;
+    width: max-content;
+    animation: revs-scroll 86s linear infinite;
+    will-change: transform;
+  }
+
+  .revs__track--reverse {
+    animation-direction: reverse;
+    animation-duration: 94s;
+  }
+
+  .revs__group {
+    display: flex;
+    gap: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .revs__viewport:hover .revs__track,
+  .revs__viewport:focus-within .revs__track,
+  .revs__viewport.is-paused .revs__track {
+    animation-play-state: paused;
+  }
+
+  @keyframes revs-scroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  /* ---------------------------------------------------------------- Cierre */
+
+  .revs__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-10);
+    padding-top: var(--space-6);
     border-top: 1px solid var(--color-line);
   }
 
-  .rev__author {
+  .revs__foot-note {
+    max-width: 46ch;
+    font-size: var(--text-xs);
+    color: var(--color-text-subtle);
+  }
+
+  .revs__actions {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
-  }
-
-  .rev__author-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.3;
-  }
-
-  .rev__author-text strong {
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
-  }
-
-  .rev__author-text :global(.rstars) {
-    margin-top: 2px;
-  }
-
-  .rev__footer :global(.rlogo) {
-    margin-left: auto;
-  }
-
-  /* ------------------------------------------------------------ Controles */
-
-  .rev__controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-wrap: wrap;
     gap: var(--space-5);
-    margin-top: var(--space-7);
   }
 
-  .rev__nav {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    color: var(--color-text);
-    border: 1px solid var(--color-line-strong);
-    border-radius: var(--radius-full);
-    transition: background-color var(--transition-base), border-color var(--transition-base), color var(--transition-base);
+  @media (max-width: 767px) {
+    .revs__summary {
+      padding: var(--space-5);
+    }
+
+    .revs__viewport {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    .revs__track,
+    .revs__track--reverse {
+      animation-duration: 70s;
+    }
+
+    .revs__foot {
+      align-items: flex-start;
+    }
   }
 
-  .rev__nav:hover {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    color: var(--color-text-on-accent);
-  }
+  @media (prefers-reduced-motion: reduce) {
+    .revs__track,
+    .revs__track--reverse {
+      animation: none;
+    }
 
-  :global(.rev__nav-icon--prev) {
-    transform: rotate(180deg);
-  }
+    .revs__viewport {
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
 
-  .rev__dots {
-    display: flex;
-    gap: var(--space-2);
-  }
+    .revs__group {
+      scroll-snap-align: start;
+    }
 
-  .rev__dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: var(--radius-full);
-    background: var(--color-line-strong);
-    transition: background-color var(--transition-base), width var(--transition-base);
-  }
-
-  .rev__dot[aria-selected="true"] {
-    width: 1.5rem;
-    background: var(--color-accent);
-  }
-
-  .rev__cta {
-    display: flex;
-    justify-content: center;
-    margin-top: var(--space-10);
+    .revs__group[aria-hidden="true"] {
+      display: none;
+    }
   }
 </style>
 
 <script>
-  document.querySelectorAll<HTMLElement>("[data-carousel]").forEach((root) => {
-    const viewport = root.querySelector<HTMLElement>("[data-carousel-viewport]");
-    const slides = Array.from(root.querySelectorAll<HTMLElement>("[data-carousel-slide]"));
-    const dots = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-carousel-dot]"));
-    const prev = root.querySelector<HTMLButtonElement>("[data-carousel-prev]");
-    const next = root.querySelector<HTMLButtonElement>("[data-carousel-next]");
-    if (!viewport || slides.length === 0) return;
-
-    let index = 0;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let timer: number | undefined;
-
-    const goTo = (target: number) => {
-      index = (target + slides.length) % slides.length;
-      const slide = slides[index];
-      if (!slide) return;
-      viewport.scrollTo({
-        left: slide.offsetLeft - viewport.offsetLeft,
-        behavior: reduced.matches ? "auto" : "smooth",
-      });
-      dots.forEach((dot, i) => dot.setAttribute("aria-selected", i === index ? "true" : "false"));
-    };
-
-    const stop = () => {
-      if (timer !== undefined) window.clearInterval(timer);
-      timer = undefined;
-    };
-
-    const start = () => {
-      stop();
-      if (reduced.matches || slides.length < 2) return;
-      const interval = Number(root.dataset.interval ?? 7000);
-      timer = window.setInterval(() => goTo(index + 1), interval);
-    };
-
-    // Sincroniza el índice cuando el usuario arrastra con el dedo
-    let scrollTimer: number | undefined;
-    viewport.addEventListener(
-      "scroll",
-      () => {
-        if (scrollTimer !== undefined) window.clearTimeout(scrollTimer);
-        scrollTimer = window.setTimeout(() => {
-          const closest = slides.reduce(
-            (best, slide, i) => {
-              const distance = Math.abs(slide.offsetLeft - viewport.offsetLeft - viewport.scrollLeft);
-              return distance < best.distance ? { i, distance } : best;
-            },
-            { i: index, distance: Number.POSITIVE_INFINITY },
-          );
-          index = closest.i;
-          dots.forEach((dot, i) => dot.setAttribute("aria-selected", i === index ? "true" : "false"));
-        }, 120);
-      },
-      { passive: true },
-    );
-
-    prev?.addEventListener("click", () => {
-      goTo(index - 1);
-      if (timer !== undefined) start();
+  document.querySelectorAll<HTMLButtonElement>("[data-review-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const card = button.closest<HTMLElement>("[data-review-card]");
+      if (!card) return;
+      const open = card.classList.toggle("is-open");
+      button.setAttribute("aria-expanded", String(open));
+      button.textContent = open ? (button.dataset.less ?? "Zwiń") : (button.dataset.more ?? "Czytaj więcej");
     });
+  });
 
-    next?.addEventListener("click", () => {
-      goTo(index + 1);
-      if (timer !== undefined) start();
+  document.querySelectorAll<HTMLButtonElement>("[data-marquee-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const row = button.closest(".revs__row");
+      const viewport = row?.querySelector<HTMLElement>(".revs__viewport");
+      if (!viewport) return;
+      const paused = viewport.classList.toggle("is-paused");
+      button.setAttribute("aria-pressed", String(paused));
+      button.textContent = paused ? (button.dataset.play ?? "Wznów") : (button.dataset.pause ?? "Pauza");
     });
-
-    dots.forEach((dot, i) =>
-      dot.addEventListener("click", () => {
-        goTo(i);
-        if (timer !== undefined) start();
-      }),
-    );
-
-    root.addEventListener("mouseenter", stop);
-    root.addEventListener("mouseleave", start);
-    root.addEventListener("focusin", stop);
-    root.addEventListener("focusout", start);
-
-    root.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        goTo(index + 1);
-      } else if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        goTo(index - 1);
-      }
-    });
-
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) stop();
-      else start();
-    });
-
-    start();
   });
 </script>

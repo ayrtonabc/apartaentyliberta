@@ -93,6 +93,24 @@ export default defineConfig({
     "/en/price-list/": "/en/prices/",
   },
   vite: {
+    /**
+     * El vigilante de archivos NO debe mirar los artefactos de auditoría.
+     *
+     * Los scripts de `scripts/` y `.audit/` abren Chrome con un
+     * `--user-data-dir` propio dentro del proyecto (`.audit-profile*`). Chrome
+     * mantiene esos ficheros bloqueados (Cookies, GPUPersistentCache…), así que
+     * Vite lanzaba `EBUSY: resource busy or locked, watch …` en bucle: decenas
+     * de unhandled rejections por sesión y el servidor de desarrollo
+     * reiniciándose solo.
+     *
+     * `dist/` también se ignora: lo reescribe cada `npm run build` y no hace
+     * falta recalcular nada por ello.
+     */
+    server: {
+      watch: {
+        ignored: ["**/.audit/**", "**/.audit-profile*/**", "**/dist/**"],
+      },
+    },
     build: {
       // esbuild minifica el CSS sin expandir shorthand ni añadir prefijos
       // heredados: con lightningcss el bundle inlinado crecía ~70%.

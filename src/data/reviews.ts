@@ -6,10 +6,10 @@
  * nombre, puntuación, comentario y plataforma. Sin fechas, país ni tipo de
  * estancia, a petición del propietario.
  *
- * Los textos de Google son la traducción al español que devolvió el navegador
- * del propietario; los de Booking están en su idioma original. Por eso cada
- * opinión conserva su `lang` y el `<blockquote>` lo declara: el navegador sabe
- * qué reglas de lectura aplicar y no se finge que todo está en polaco.
+ * Los textos están en polaco. Las reseñas de Google llegaron en español
+ * (traducción del navegador del propietario) y se tradujeron al polaco; la
+ * única excepción es la reseña neerlandesa de Jirg, que se conserva en su
+ * idioma original. Cada `<blockquote>` declara su `lang`.
  *
  * `rating` está siempre normalizado sobre la escala indicada en `ratingScale`.
  * La tarjeta lo convierte a 5 estrellas (Booking 9,0 → 4,5 estrellas).

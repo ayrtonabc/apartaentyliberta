@@ -194,7 +194,16 @@ export function buildLodgingBusinessSchema(locale: Locale = defaultLocale) {
       reviewCount: rating.count,
       url: rating.url,
     })),
-    sameAs: [site.social.facebook, site.social.instagram],
+    /*
+     * Perfiles públicos de la misma entidad. Incluir Google y Booking ayuda a
+     * que los motores de respuesta (AEO/GEO) unan la ficha del alojamiento con
+     * sus reseñas verificables, sin inventar una nota combinada.
+     */
+    sameAs: [
+      site.social.facebook,
+      site.social.instagram,
+      ...aggregateRatings.map((rating) => rating.url).filter((url): url is string => Boolean(url)),
+    ],
   };
 }
 

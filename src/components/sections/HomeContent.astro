@@ -14,13 +14,14 @@ import {
 } from "~/lib/i18n";
 import { site } from "~/data/site";
 import { apartments } from "~/data/apartments";
-import { formatPLN } from "~/lib/format";
 
 import Hero from "~/components/sections/Hero.astro";
 import TrustStrip from "~/components/sections/TrustStrip.astro";
 import AttractionCardHome from "~/components/content/AttractionCardHome.astro";
 import { attractions } from "~/data/attractions";
 import AmenitiesShowcase from "~/components/sections/AmenitiesShowcase.astro";
+import WellnessSection from "~/components/sections/WellnessSection.astro";
+import PricingShowcase from "~/components/sections/PricingShowcase.astro";
 import CtaBand from "~/components/sections/CtaBand.astro";
 import Testimonials from "~/components/content/Testimonials.astro";
 import FaqSection from "~/components/content/FaqSection.astro";
@@ -37,9 +38,6 @@ interface Props {
 
 const { locale } = Astro.props;
 const tr = t(locale);
-
-const lowestPrice = Math.min(...apartments.map((a) => a.pricing.lowSeasonPLN));
-const highestPrice = Math.max(...apartments.map((a) => a.pricing.highSeasonPLN));
 
 /**
  * Fotos del mosaico del complejo, tomadas de public/assets/facilities.
@@ -333,13 +331,6 @@ const distances = [
   { icon: "car" as const, label: tr.home.locationDistanceGdansk, value: tr.home.locationDistanceGdanskValue },
 ];
 
-const includes = [
-  tr.home.pricingInclude1,
-  tr.home.pricingInclude2,
-  tr.home.pricingInclude3,
-  tr.home.pricingInclude4,
-];
-
 const aboutTitle =
   locale === "pl"
     ? "Domki letniskowe na Mazurach — i coś znacznie więcej"
@@ -475,6 +466,9 @@ const aboutTitle =
 <!-- =========================================================== EQUIPAMIENTO -->
 <AmenitiesShowcase />
 
+<!-- ================================================================ WELLNESS -->
+<WellnessSection />
+
 <!-- ============================================================ EXPERIENCIAS -->
 <section class="section">
   <div class="container">
@@ -571,53 +565,7 @@ const aboutTitle =
 </section>
 
 <!-- ================================================================ PRECIOS -->
-<section class="section" id="cennik">
-  <div class="container">
-    <SectionHeading
-      eyebrow={tr.home.pricingEyebrow}
-      title={tr.home.pricingTitle}
-      lead={tr.home.pricingLead}
-    />
-
-    <div class="price-preview">
-      <div class="price-preview__cards" data-reveal>
-        <article class="price-preview__card">
-          <span class="price-preview__season">{tr.home.pricingSeasonLow}</span>
-          <span class="price-preview__amount">
-            {formatPLN(lowestPrice)}
-            <em>{tr.home.pricingPerNight}</em>
-          </span>
-          <span class="price-preview__note">{tr.home.pricingSeasonLowMonths}</span>
-        </article>
-
-        <article class="price-preview__card price-preview__card--accent">
-          <span class="price-preview__season">{tr.home.pricingSeasonHigh}</span>
-          <span class="price-preview__amount">
-            {formatPLN(highestPrice)}
-            <em>{tr.home.pricingPerNight}</em>
-          </span>
-          <span class="price-preview__note">{tr.home.pricingSeasonHighMonths}</span>
-        </article>
-      </div>
-
-      <aside class="price-preview__aside" data-reveal style="--reveal-delay:100ms">
-        <h3 class="price-preview__aside-title">{tr.home.pricingIncludes}</h3>
-        <ul class="list-check" role="list">
-          {includes.map((item) => (
-            <li>{item}</li>
-          ))}
-        </ul>
-        <p class="price-preview__aside-note">{tr.home.pricingIncludesNote}</p>
-        <p class="price-preview__discount">
-          <strong>{tr.pricing.discounts}:</strong> {tr.pricing.discount7} · {tr.pricing.discount13}
-        </p>
-        <a class="btn btn--outline btn--full" href={localeLink(locale, "/cennik/")}>
-          {tr.home.pricingFull}
-        </a>
-      </aside>
-    </div>
-  </div>
-</section>
+<PricingShowcase locale={locale} />
 
 <!-- ================================================================= OPINIONES -->
 <Testimonials limit={6} />
@@ -1110,134 +1058,6 @@ const aboutTitle =
       min-height: 30rem;
       height: 100%;
     }
-  }
-
-  /* ---------------------------------------------------------------- Precios */
-
-  .price-preview {
-    display: grid;
-    gap: var(--space-6);
-  }
-
-  @media (min-width: 1024px) {
-    .price-preview {
-      grid-template-columns: 1.2fr 1fr;
-      gap: var(--space-8);
-      align-items: start;
-    }
-  }
-
-  .price-preview__cards {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  @media (min-width: 640px) {
-    .price-preview__cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  .price-preview__card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    padding: var(--space-7);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-xl);
-  }
-
-  /* La nota de temporada se ancla abajo: así las dos tarjetas cuadran aunque
-     uno de los textos de fechas ocupe dos líneas y el otro una. */
-  .price-preview__note {
-    margin-top: auto;
-    padding-top: var(--space-4);
-    font-size: var(--text-xs);
-    color: var(--color-text-subtle);
-    line-height: 1.5;
-    text-wrap: pretty;
-  }
-
-  .price-preview__card--accent {
-    background: var(--color-bg-inverse);
-    border-color: transparent;
-    color: var(--color-text-inverse);
-  }
-
-  .price-preview__card--accent .price-preview__season,
-  .price-preview__card--accent .price-preview__note {
-    color: var(--on-dark-text-muted);
-  }
-
-  .price-preview__card--accent .price-preview__amount {
-    color: #fff;
-  }
-
-  .price-preview__season {
-    font-family: var(--font-grotesk);
-    font-size: var(--text-2xs);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-widest);
-    text-transform: uppercase;
-    color: var(--color-text-subtle);
-  }
-
-  .price-preview__amount {
-    font-family: var(--font-display);
-    font-size: var(--text-5xl);
-    line-height: 1;
-    letter-spacing: var(--tracking-tighter);
-    color: var(--color-text);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .price-preview__amount em {
-    display: block;
-    margin-top: var(--space-2);
-    font-family: var(--font-body);
-    font-style: normal;
-    font-size: var(--text-sm);
-    letter-spacing: 0;
-    color: var(--color-text-muted);
-  }
-
-  .price-preview__note {
-    margin-top: auto;
-    padding-top: var(--space-4);
-    font-size: var(--text-xs);
-    color: var(--color-text-subtle);
-    line-height: 1.5;
-    text-wrap: pretty;
-  }
-
-  .price-preview__aside {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
-    padding: var(--space-8);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-xl);
-  }
-
-  .price-preview__aside-title {
-    font-family: var(--font-grotesk);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-  }
-
-  .price-preview__aside-note,
-  .price-preview__discount {
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
-    max-width: none;
-  }
-
-  .price-preview__discount strong {
-    color: var(--color-text);
   }
 
 </style>

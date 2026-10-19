@@ -1,0 +1,321 @@
+---
+/**
+ * WelcomeSection — el texto editorial de bienvenida de la web anterior, con
+ * una firma y un mosaico de fotos reales del complejo.
+ *
+ * Sustituye el antiguo bloque "complex" (galería + comparador), que el cliente
+ * considera de sobra. Las fotos salen de `public/assets/facilities`, como pidió;
+ * no se reutilizan las de sauna/balia que ya viven en la sección Wellness.
+ */
+import { type Locale, getLocaleFromUrl, localeLink } from "~/lib/i18n";
+import Icon from "~/components/ui/Icon.astro";
+import SmartImage from "~/components/ui/SmartImage.astro";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+
+const copy = {
+  pl: {
+    eyebrow: "Mazury",
+    title: "Witaj na Mazurach",
+    paragraphs: [
+      "Wyobraź sobie poranne promienie mazurskiego słońca, delikatnie muskający twarz wiatr, a przed Tobą, jak na wyciągnięcie ręki, płynące po jeziorze niewielkie fale – takie rozpoczęcie dnia oferują Apartamenty na Mazurach Liberta.",
+      "Gdy już się on zacznie, to do Twojej dyspozycji pozostawiamy luksusowy, klimatyzowany apartament, taras z bezpośrednim widokiem na jezioro, dwa pomosty, plażę, klasyczną góralską banię, grill, tereny zielone, pobliskie lasy, rejsy własną motorówką i wiele, wiele atrakcji regionu.",
+      "A co gdy dzień chyli się ku końcowi? Spędzając czas w naszych apartamentach na Mazurach masz darmowy bilet na kolejny spektakl. Tym razem słońce powoli chowa się za jeziorem, rozświetlając niebo feerią barw i przepięknych gradientów, rysując na tafli wody gest pożegnania dnia.",
+      "Tego wszystkiego możesz doświadczyć już niedługo. Wystarczy zrobić prosty krok. Wystarczy odwiedzić Apartamenty Liberta na Mazurach.",
+    ],
+    cta: "Zobacz apartamenty",
+    signatureAlt: "Zapraszamy — podpis Ani i Piotra Birbach",
+    alts: [
+      "Kompleks Apartamentów Liberta z zewnątrz, oświetlone tarasy wieczorem",
+      "Salon z kominkiem na drewno i widokiem na jezioro",
+      "Kuchnia z wyspą i drewnianym blatem",
+      "Jezioro Szeląg Wielki o zachodzie słońca",
+      "Zadaszony taras z widokiem na jezioro",
+      "Ognisko nad brzegiem jeziora",
+      "Jadalnia z dużym stołem, otwarta na salon",
+    ],
+  },
+  en: {
+    eyebrow: "Masuria",
+    title: "Welcome to Masuria",
+    paragraphs: [
+      "Imagine the morning rays of the Masurian sun, a gentle breeze on your face, and small waves drifting across the lake just within reach — that is how a day begins at Apartamenty Liberta.",
+      "Once it starts, you have a luxury air-conditioned apartment, a terrace with a direct lake view, two piers, a beach, a classic highland hot tub, a BBQ, green grounds, nearby forests, trips on the owner's motorboat and many more attractions of the region.",
+      "And when the day draws to a close? Staying at our Masurian apartments gives you a free ticket to another performance. This time the sun slowly sets behind the lake, lighting the sky with a kaleidoscope of colours and gradients and drawing a farewell gesture on the water.",
+      "You can experience all of this soon. It takes one simple step: visit Apartamenty Liberta in Masuria.",
+    ],
+    cta: "See the apartments",
+    signatureAlt: "Zapraszamy — signature of Ania and Piotr Birbach",
+    alts: [
+      "The Apartamenty Liberta complex from outside, terraces lit in the evening",
+      "Living room with a wood-burning fireplace and lake view",
+      "Kitchen with an island and a wooden worktop",
+      "Lake Szeląg Wielki at sunset",
+      "Covered terrace with a lake view",
+      "Fire pit by the lake",
+      "Dining area with a large table, open to the living room",
+    ],
+  },
+  de: {
+    eyebrow: "Masuren",
+    title: "Willkommen in Masuren",
+    paragraphs: [
+      "Stellen Sie sich die morgendlichen Strahlen der masurischen Sonne vor, einen sanften Wind auf dem Gesicht und vor Ihnen, zum Greifen nah, kleine Wellen auf dem See — so beginnt ein Tag in den Apartamenty Liberta.",
+      "Wenn er beginnt, stehen Ihnen eine luxuriöse, klimatisierte Ferienwohnung, eine Terrasse mit direktem Seeblick, zwei Stege, ein Strand, ein klassischer Holz-Hot-Tub, ein Grill, grüne Flächen, nahe Wälder, eine Fahrt mit dem eigenen Motorboot des Eigentümers und viele weitere Attraktionen der Region zur Verfügung.",
+      "Und wenn der Tag zu Ende geht? Wer Zeit in unseren masurischen Ferienwohnungen verbringt, bekommt eine Freikarte für die nächste Vorstellung. Diesmal versinkt die Sonne langsam hinter dem See, lässt den Himmel in einer Vielfalt von Farben und Verläufen leuchten und zeichnet eine Abschiedsgeste auf die Wasserfläche.",
+      "All das können Sie bald erleben. Ein einfacher Schritt genügt: ein Besuch der Apartamenty Liberta in Masuren.",
+    ],
+    cta: "Ferienwohnungen ansehen",
+    signatureAlt: "Zapraszamy — Unterschrift von Ania und Piotr Birbach",
+    alts: [
+      "Die Anlage Apartamenty Liberta von außen, beleuchtete Terrassen am Abend",
+      "Wohnzimmer mit Holzofen und Seeblick",
+      "Küche mit Kochinsel und Holzplatte",
+      "Der Szeląg-See bei Sonnenuntergang",
+      "Überdachte Terrasse mit Seeblick",
+      "Feuerstelle am Seeufer",
+      "Essbereich mit großem Tisch, offen zum Wohnzimmer",
+    ],
+  },
+}[locale];
+
+const photos = [
+  { src: "/assets/facilities/apartament-z-zewnatrz.webp", index: 0, size: "big" as const },
+  { src: "/assets/facilities/salon-z-kominkiem.webp", index: 1 },
+  { src: "/assets/facilities/kuchnia.webp", index: 2 },
+  { src: "/assets/facilities/lake.webp", index: 3, size: "wide" as const },
+  { src: "/assets/facilities/taras.webp", index: 4 },
+  { src: "/assets/facilities/miejsce-na-ognisko.webp", index: 5 },
+  { src: "/assets/facilities/jadalnia.webp", index: 6 },
+];
+---
+
+<section class="welcome section" id="witaj" aria-labelledby="welcome-title">
+  <div class="container">
+    <div class="welcome__grid">
+      <div class="welcome__copy" data-reveal>
+        <span class="eyebrow">{copy.eyebrow}</span>
+        <h2 class="welcome__title" id="welcome-title">{copy.title}</h2>
+
+        <div class="welcome__prose">
+          {copy.paragraphs.map((paragraph, index) => (
+            <p class:list={[index === 0 && "welcome__lead"]}>{paragraph}</p>
+          ))}
+        </div>
+
+        <img
+          class="welcome__signature"
+          src="/assets/branding/podpis.png"
+          alt={copy.signatureAlt}
+          width="292"
+          height="74"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      <div class="welcome__gallery" data-reveal style="--reveal-delay:100ms">
+        {photos.map((photo) => (
+          <figure class:list={["welcome__shot", photo.size && `welcome__shot--${photo.size}`]}>
+            <SmartImage
+              src={photo.src}
+              alt={copy.alts[photo.index]}
+              sizes={photo.size === "big" ? "(min-width: 1024px) 46vw, 100vw" : "(min-width: 1024px) 23vw, (min-width: 640px) 48vw, 100vw"}
+            />
+          </figure>
+        ))}
+
+        <a class="welcome__cta" href={localeLink(locale, "/apartamenty/")}>
+          <span class="welcome__cta-eyebrow">{copy.eyebrow}</span>
+          <strong>{copy.cta}</strong>
+          <span class="welcome__cta-arrow" aria-hidden="true">
+            <Icon name="arrow-right" size={18} />
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .welcome {
+    background: var(--color-bg);
+  }
+
+  .welcome__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    .welcome__grid {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    }
+  }
+
+  .welcome__copy {
+    max-width: 40rem;
+  }
+
+  .welcome__title {
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-6);
+    font-size: clamp(2.6rem, 5vw, 4.8rem);
+    line-height: 1.02;
+    letter-spacing: var(--tracking-tighter);
+    text-wrap: balance;
+  }
+
+  .welcome__prose {
+    max-width: 56ch;
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .welcome__prose p {
+    max-width: none;
+    margin: 0 0 var(--space-4);
+    text-wrap: pretty;
+  }
+
+  .welcome__prose p:last-child {
+    margin-bottom: 0;
+  }
+
+  .welcome__lead {
+    color: var(--color-text);
+    font-size: var(--text-lg);
+    line-height: 1.55;
+  }
+
+  /* Capitular editorial: una sola letra, sin adornos. */
+  .welcome__lead::first-letter {
+    float: left;
+    padding-right: 0.08em;
+    font-family: var(--font-display);
+    font-size: 3.4em;
+    line-height: 0.78;
+    color: var(--color-accent);
+  }
+
+  .welcome__signature {
+    display: block;
+    width: clamp(7rem, 12vw, 10rem);
+    height: auto;
+    margin-top: var(--space-7);
+    opacity: 0.9;
+  }
+
+  /* --------------------------------------------------------------- Mosaico */
+
+  .welcome__gallery {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: clamp(9rem, 15vw, 13rem);
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 640px) {
+    .welcome__gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .welcome__shot--big,
+    .welcome__shot--wide {
+      grid-column: span 2;
+    }
+
+    .welcome__shot--big {
+      grid-row: span 2;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .welcome__gallery {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-auto-rows: clamp(8rem, 10vw, 11rem);
+    }
+
+    .welcome__shot--big {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .welcome__shot--wide {
+      grid-column: span 2;
+    }
+  }
+
+  .welcome__shot {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-muted);
+  }
+
+  .welcome__shot :global(img) {
+    transition: transform var(--duration-slower) var(--ease-out);
+  }
+
+  .welcome__shot:hover :global(img) {
+    transform: scale(1.035);
+  }
+
+  .welcome__cta {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-height: 10rem;
+    padding: var(--space-5);
+    color: var(--color-text-inverse);
+    background: var(--color-accent);
+    border-radius: var(--radius-lg);
+    transition: transform var(--transition-base), background-color var(--transition-base);
+  }
+
+  .welcome__cta:hover {
+    transform: translateY(-3px);
+    background: var(--color-accent-deep, #123c2d);
+  }
+
+  .welcome__cta-eyebrow {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-accent-soft);
+  }
+
+  .welcome__cta strong {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    text-wrap: balance;
+  }
+
+  .welcome__cta-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    margin-top: auto;
+    color: var(--color-text-inverse);
+    border: 1px solid var(--on-dark-border-strong, rgba(255, 255, 255, 0.35));
+    border-radius: var(--radius-full);
+  }
+
+  @media (max-width: 639px) {
+    .welcome__gallery {
+      grid-auto-rows: 12rem;
+    }
+  }
+</style>

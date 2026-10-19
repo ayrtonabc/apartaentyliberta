@@ -148,12 +148,12 @@ Resultados medidos sobre el build de producción (`curl` contra `npm start`,
 
 | Página | HTML sin comprimir | Brotli | Ahorro |
 |---|---|---|---|
-| Home | 379 KB | **38 KB** | 90 % |
+| Home | 381 KB | **39 KB** | 90 % |
 | Ficha de apartamento | 168 KB | **25 KB** | 85 % |
 | Cennik | 112 KB | **18 KB** | 84 % |
 | FAQ | 103 KB | **16 KB** | 84 % |
 
-El peso del despliegue completo es **86 MB** (`dist/client`), casi todo fotos
+El peso del despliegue completo es **90 MB** (`dist/client`), casi todo fotos
 responsive. `public/import-original/` (19,5 MB de originales de cámara) ya no se
 publica: lo saca `scripts/prune-dist.mjs` en `postbuild`.
 
@@ -193,7 +193,8 @@ src/
 │   │                TestimonialCard · VideoCard · FaqSection · MapEmbed
 │   │                SocialLinks
 │   └── sections/    Hero · TrustStrip · AmenitiesShowcase · WellnessSection
-│                    PricingShowcase · VideoWallSection · AttractionsGrid
+│                    WelcomeSection · PricingShowcase · VideoWallSection
+│                    AttractionsGrid
 │                    CtaBand · HomeContent · ApartmentDetail · ApartmentsIndex
 │                    PricingPage · AttractionsPage · LocationPage
 │                    BookingPage · ReviewsPage
@@ -310,6 +311,14 @@ entregó el propietario en `zdjecia sauna ogniski` (importadas con
 editorial combina interiores de sauna en verano e invierno, la sauna de noche,
 la balia y dos fotos de ognisko; la grande ocupa 2×2. La sauna se describe como
 “na życzenie”, que es como funciona: no se vende como incluida si no lo está.
+
+**`WelcomeSection.astro` — “Witaj na Mazurach”.** Sustituye el antiguo bloque
+`complex` (mosaico + comparador) por el texto editorial de la web anterior, la
+firma del propietario (`podpis.png`) y un mosaico de siete fotos de
+`public/assets/facilities`. La primera foto ocupa 2×2, la del lago es una banda
+de dos columnas y la tarjeta verde cierra la rejilla con el enlace a los
+apartamentos. El texto está traducido a EN/DE y no repite las fotos de
+sauna/balia de Wellness.
 
 **`VideoWallSection.astro` — “Nagrano u nas”.** Los ocho vídeos grabados en el
 complejo: seis telediscos (Fisher, Explozja, Lena z Zespołem, Daniel Dąbrowski),

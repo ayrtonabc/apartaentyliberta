@@ -155,6 +155,7 @@ console.log("\n🧩 Componentes:");
   "src/components/sections/TrustStrip.astro",
   "src/components/sections/AmenitiesShowcase.astro",
   "src/components/sections/WellnessSection.astro",
+  "src/components/sections/WelcomeSection.astro",
   "src/components/sections/PricingShowcase.astro",
   "src/components/sections/VideoWallSection.astro",
   "src/components/content/AttractionRow.astro",

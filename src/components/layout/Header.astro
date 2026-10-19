@@ -532,11 +532,19 @@ const isActive = (match: string) =>
     .hdr__phone { display: inline-flex; }
   }
 
-  /* Iconos sociales: solo en escritorio ancho, donde caben sin apretar el nav */
-  .hdr__social { display: none; }
+  /*
+   * Iconos sociales: solo en escritorio ancho, donde caben sin apretar el nav.
+   *
+   * `:global` es OBLIGATORIO aquí. La clase `hdr__social` se le pasa a
+   * <SocialLinks>, que la pinta en SU propio componente; el estilo con scope de
+   * Header añade `[data-astro-cid-…]` y ese atributo no está en la <ul> del hijo.
+   * Resultado: la regla no se aplicaba y los tres iconos salían en móvil,
+   * apretando el logo contra la hamburguesa.
+   */
+  :global(.hdr__social) { display: none; }
 
   @media (min-width: 1200px) {
-    .hdr__social { display: flex; }
+    :global(.hdr__social) { display: flex; }
   }
 
   .hdr__lang { display: none; }

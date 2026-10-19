@@ -101,6 +101,11 @@ const en: typeof pl = {
     reason4Title: "The owner looks after you",
     reason4Text: "Motorboat trip, massage in your apartment, shooting range visit — we arrange it all.",
 
+    /* Portada, sección "Liberta I–IV": el título y la entradilla faltaban. */
+    apartmentsTitle: "Four apartments, one standard",
+    apartmentsLead:
+      "All four have 80 m² over two floors, three bedrooms, two bathrooms and a private hot tub. What differs is their position in the complex: a lake view, the beach and dock, the sunset, or the quietest corner of the garden.",
+
     amenitiesEyebrow: "Amenities",
     amenitiesTitle: "Everything you need — plus a few things you did not expect",
     amenitiesLead:
@@ -181,6 +186,7 @@ const en: typeof pl = {
     sleeps: "Guests",
     bedrooms: "Bedrooms",
     bathrooms: "Bathrooms",
+    bathroomsOne: "Bathroom",
     floor: "First floor",
     ground: "Ground floor",
     perNight: "/ night",

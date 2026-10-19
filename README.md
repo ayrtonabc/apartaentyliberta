@@ -3,7 +3,7 @@
 Sitio web de **Apartamenty Liberta** (Stare Jabłonki, Mazury): cuatro apartamentos
 de 80 m² con balia góralska y vistas al Jezioro Szeląg Wielki.
 
-Construido con Astro 5, tres idiomas (PL / EN / DE), SEO internacional completo y
+Construido con Astro 6, tres idiomas (PL / EN / DE), SEO internacional completo y
 un pipeline de imágenes propio. Pensado como demo de venta y como base de
 producción.
 
@@ -30,7 +30,7 @@ npm start                    # servidor Node con compresión y cabeceras
 
 | Pieza | Elección | Por qué |
 |---|---|---|
-| Framework | Astro 5 (`output: server` + SSG por página) | HTML estático para el contenido, runtime solo para la API |
+| Framework | Astro 6 (`output: server` + SSG por página) | HTML estático para el contenido, runtime solo para la API |
 | Estilos | CSS propio con tokens | Sin dependencias, sin purge, control total del diseño |
 | Tipografía | Serif editorial + sans de sistema | Cero webfonts: sin FOIT, sin peticiones a terceros |
 | Imágenes | `sharp` + manifiesto generado en build | `srcset` real, WebP y placeholder LQIP |
@@ -94,19 +94,33 @@ Tres idiomas con el polaco como idioma por defecto (sin prefijo de URL):
 ### hreflang y canonical
 
 Cada página declara su ruta canónica en polaco (`canonicalPath`), y desde ahí se
-generan el canonical, los tres `hreflang` y el `x-default`. Sin esto, `/en/` y
-`/de/` se autodeclararían duplicados del polaco.
+generan el canonical, el `hreflang` de **cada idioma que existe** y el
+`x-default`. Sin esto, `/en/` y `/de/` se autodeclararían duplicados del polaco.
+
+`routeMap` (`src/data/locales.ts`) es la fuente única de verdad y **solo declara
+un idioma si la página está publicada**. Hay páginas que existen únicamente en
+polaco (reglamento, política de privacidad, festival SUP, pueblos de la comarca):
+
+- No se anuncian en `hreflang` ni en `og:locale:alternate` — un alternate que
+  devuelve 404 es peor que no tener alternate.
+- El selector de idioma, en esas páginas, lleva a la **home** de ese idioma en
+  lugar de a la misma página en polaco o a un 404.
+
+`npm run test:routes` comprueba las dos direcciones: que toda ruta declarada
+tiene página, y que traducir cualquier ruta publicada a cualquier idioma da otra
+ruta publicada. Es el test que faltaba cuando el sitio enlazaba a 58 URLs rotas.
 
 ---
 
 ## SEO
 
-- `canonical` + `hreflang` (pl-PL, en-GB, de-DE, x-default) correctos por idioma
+- `canonical` + `hreflang` (pl-PL, en-GB, de-DE, x-default) correctos por idioma,
+  y solo para las versiones que existen
 - JSON-LD: `Organization`, `LodgingBusiness` (con `AggregateRating`),
   `WebSite`, `Accommodation` + `Offer` por apartamento, `ItemList`,
   `BreadcrumbList`, `FAQPage`
 - Open Graph y Twitter Cards con imágenes 1200×630 generadas (`public/og-*.jpg`)
-- `sitemap-index.xml` + `sitemap-0.xml` (43 URLs, sin `404` ni `/api/`)
+- `sitemap-index.xml` + `sitemap-0.xml` (46 URLs, sin `404` ni `/api/`)
 - `robots.txt` con `Disallow: /api/`
 - Metadatos geográficos (`geo.position`, `ICBM`) para búsquedas locales
 - Un solo `<h1>` por página y `alt` descriptivo y traducido en todas las imágenes
@@ -129,25 +143,42 @@ Objetivos: LCP bajo, CLS 0, sin peticiones bloqueantes.
 | JS diferido | La rotación del hero usa `loading="lazy"` para las diapositivas 2+ |
 | Salto de pintado | `content-visibility` en bloques lejanos |
 
-Resultados medidos sobre el build de producción:
+Resultados medidos sobre el build de producción (`curl` contra `npm start`,
+2026-10: HTML con el CSS inline, sin contar imágenes):
 
-| Página | HTML sin comprimir | Brotli |
-|---|---|---|
-| Home | 201 KB | **28 KB** |
-| Ficha de apartamento | 153 KB | **24 KB** |
-| Cennik | 107 KB | **18 KB** |
-| FAQ | 98 KB | **16 KB** |
+| Página | HTML sin comprimir | Brotli | Ahorro |
+|---|---|---|---|
+| Home | 219 KB | **30 KB** | 86 % |
+| Ficha de apartamento | 168 KB | **25 KB** | 85 % |
+| Cennik | 112 KB | **18 KB** | 84 % |
+| FAQ | 103 KB | **16 KB** | 84 % |
+
+El peso del despliegue completo es **82 MB** (`dist/client`), casi todo fotos
+responsive. `public/import-original/` (19,5 MB de originales de cámara) ya no se
+publica: lo saca `scripts/prune-dist.mjs` en `postbuild`.
 
 ### Cabeceras
 
-`server.mjs` y `src/middleware.ts` aplican:
+`server.mjs` (HTML prerenderizado y estáticos) y `src/middleware.ts` (respuestas
+on-demand: API) aplican:
 
 - `/_astro/*` → `Cache-Control: public, max-age=31536000, immutable`
 - Imágenes → `max-age=604800, stale-while-revalidate=86400`
 - HTML → `max-age=0, must-revalidate`
 - `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`,
   `Permissions-Policy`, `Cross-Origin-Opener-Policy`
+- `Content-Security-Policy`: política sin terceros. `'unsafe-inline'` en
+  `script-src`/`style-src` es obligatorio porque el CSS va inline por diseño;
+  `frame-src` permite solo el iframe de Google Maps (y su consentimiento UE).
+- `Strict-Transport-Security`: solo se envía si la petición llegó por HTTPS
+  (`req.socket.encrypted` o `X-Forwarded-Proto: https`).
 - `Content-Encoding: br` con `Vary: Accept-Encoding`
+- `405` en estáticos para métodos distintos de `GET`/`HEAD`: antes un `POST /`
+  devolvía el HTML con 200 sin pasar por Astro.
+
+Las dos cabeceras de seguridad están duplicadas a propósito en `server.mjs` y
+`middleware.ts`: cubren caminos distintos (estático vs. SSR). Si se cambia una,
+hay que cambiar la otra.
 
 ---
 
@@ -159,7 +190,7 @@ src/
 │   ├── layout/      Header · Footer · MobileCTA · LanguageSwitcher
 │   ├── ui/          Flag · Icon · SmartImage · PageHero · SectionHeading
 │   ├── content/     ApartmentCard · BookingForm · Gallery · Testimonials
-│   │                FaqSection · ContactBlock · MapEmbed
+│   │                FaqSection · MapEmbed · SocialLinks
 │   └── sections/    Hero · TrustStrip · AmenitiesShowcase · AttractionsGrid
 │                    CtaBand · HomeContent · ApartmentDetail · ApartmentsIndex
 │                    PricingPage · AttractionsPage · LocationPage
@@ -183,14 +214,20 @@ src/
 | Comando | Qué hace |
 |---|---|
 | `npm run dev` | Servidor de desarrollo (con predev de assets) |
-| `npm run build` | Build de producción + precompresión Brotli |
+| `npm run build` | Build de producción + precompresión Brotli + limpieza del deploy |
 | `npm start` | Servidor de producción en `PORT` (por defecto 8080) |
+| `npm test` | Los cuatro tests: estructura, sintaxis, rutas e imágenes |
+| `npm run check` | `astro check` (tipos + plantillas). Es el que detecta los errores reales |
 | `npm run typecheck` | `tsc --noEmit` sobre todo el proyecto |
 | `npm run test:structure` | Valida estructura, claves i18n y contaminación de idioma |
 | `npm run test:syntax` | Comprueba comillas y sintaxis de los `.astro` |
+| `npm run test:routes` | Toda ruta de `routeMap` existe y toda traducción lleva a una página publicada |
+| `npm run test:images` | Cada foto declarada en los datos y cada ruta `/assets/` literal existe en disco |
 | `npm run images:responsive` | Regenera variantes WebP + manifiesto LQIP |
+| `npm run images:import` | Importa las fotos nuevas del propietario (normaliza a sRGB/JPEG y limpia las antiguas) |
 | `npm run availability:update` | Importa el calendario iCal de Booking.com |
 | `npm run compress` | Re-precomprime `dist/client` sin recompilar |
+| `npm run prune` | Saca `public/import-original` del deploy sin recompilar |
 | `npm run audit:shots` | Capturas de todas las páginas y secciones con Chrome headless |
 | `npm run audit:styles` | Vuelca los estilos computados reales (contraste, tamaños, alineación) |
 | `npm run clean` | Limpia cachés (`.astro`, `dist`, `node_modules/.vite`) |
@@ -585,8 +622,14 @@ en el primer hueco. Devolver "libre en noviembre" cuando lo útil es lo más
 cercano no sirve de nada.
 
 ```bash
+# El caso "fechas ocupadas" necesita el calendario de ejemplo:
+AVAILABILITY_ALLOW_SAMPLE=1 node ./server.mjs
 node scripts/verify-search-flow.mjs 8080
 ```
+
+Sin calendario conectado el script lo dice y omite ese caso: la página muestra
+"Nie możemy potwierdzić terminu", las tarjetas "Zapytaj" y los 60 días en gris
+("Brak danych"). Antes pintaba todo en verde y afirmaba disponibilidad sin dato.
 
 #### Disponibilidad: de dónde sale el dato (pendiente)
 
@@ -602,14 +645,25 @@ exporte **un iCal por unidad**. Cuando lo haya, el único sitio que cambia es
 calendario distinto a cada unidad y el resto de la página ya funciona.
 
 `src/data/availability.json` es hoy un marcador de posición (`*** not
-configured ***`, cero rangos). Mientras no haya calendario real se usa
-`availability-sample.ics`. **Los avisos importan aquí:** si no se encuentra
-ninguno de los dos, `loadBookedRanges()` responde "todo libre" y lo avisa por
-consola. Ese camino llegó a estar activo **en producción por un error de ruta**:
-el módulo compilado vive en `dist/server/chunks/`, así que resolver la ruta con
-`import.meta.url` buscaba `dist/src/data/…`. En desarrollo no se notaba. La ruta
-se resuelve ahora desde el directorio de trabajo, y `PUBLIC_DATA_DIR` permite
-apuntar a otro sitio (un volumen con el calendario que actualice un cron).
+configured ***`, cero rangos). **Los avisos importan aquí:** si no se encuentra
+ninguno, `loadBookedRanges()` responde "todo libre" y lo avisa por consola. Ese
+camino llegó a estar activo **en producción por un error de ruta**: el módulo
+compilado vive en `dist/server/chunks/`, así que resolver la ruta con
+`import.meta.url` buscaba `dist/src/data/…`. En desarrollo no se notaba.
+
+Reglas vigentes:
+
+- La ruta se resuelve desde `AVAILABILITY_FILE` (ruta explícita) o, si no está,
+  desde el directorio de trabajo. `PUBLIC_DATA_DIR` se mantiene por
+  compatibilidad.
+- **El `.ics` de ejemplo NO se usa en producción.** Contiene reservas inventadas
+  (por ejemplo 2026-11-01 → 2026-11-08) que, con el calendario real sin conectar,
+  rechazaban fechas libres. Solo se lee si `NODE_ENV=development`, o con
+  `AVAILABILITY_ALLOW_SAMPLE=1 node ./server.mjs` para probar en local.
+- Si el calendario lleva **más de 7 días** sin actualizarse, el servidor avisa:
+  un JSON congelado rechaza estancias que ya se liberaron.
+- Sin datos, la página de resultados **no afirma disponibilidad**: dice que no se
+  pudo comprobar el calendario y que se confirma por teléfono o email.
 
 #### Bloque de contacto
 
@@ -690,6 +744,45 @@ El color se resuelve sin duplicar archivos:
 avisa si alguno sale con caja vacía (0×0), que es el síntoma de un SVG mal
 emitido.
 
+#### Fotos de los apartamentos
+
+Cada apartamento tiene su propia galería, con las fotos que envió el
+propietario. Antes las cuatro unidades compartían **el mismo set de 18 fotos
+rotado**, porque el sitio anterior (WordPress) solo tenía ese material.
+
+```bash
+npm run images:import      # importa desde la carpeta del escritorio
+npm run images:responsive # regenera srcset + LQIP (también corre en prebuild)
+```
+
+`scripts/import-new-photos.mjs` es el único sitio donde se decide qué archivo
+del origen acaba en cada apartamento y con qué nombre. Reglas que hay que
+respetar al añadir fotos:
+
+1. **Nombre semántico, no el del archivo original.** Los `alt` de la galería
+   (`ApartmentDetail.astro`) y de la tarjeta (`ApartmentCard.astro`) están
+   indexados por el nombre sin extensión: `salon-parter`, `kuchnia`,
+   `bania-goralska`, `taras`, `kominek`, `sypialnia-pietro-N`… Un archivo con
+   otro nombre pierde su texto alternativo.
+2. **El `hero` de cada ficha tiene que ser horizontal.** La tarjeta y el
+   encabezado de la ficha son formatos anchos; una vertical se recorta por el
+   centro y pierde el encuadre.
+3. **No repetir la misma foto en dos apartamentos.** `domku A` y `domek C`
+   llegaron con 4 archivos idénticos (exterior, salón, cocina y balia): ahora
+   están en Liberta I y III, que son unidades distintas. Si llegan más fotos de
+   `domek C`, sustituirlas ahí.
+4. **Conversión obligatoria a sRGB.** Los PNG exportados de iPhone vienen en
+   Display P3; sin convertir, los naranjas y verdes de la madera salen subidos
+   en navegadores que no interpretan el perfil. El script lo hace (`toColourspace`).
+5. `Liberta IV` sigue con las fotos antiguas: faltan las de `domek d`.
+
+`npm run test:images` comprueba las cuatro cosas que se rompen en silencio al
+cambiar fotos: cada `hero`/`layout`/galería de `apartments.ts`, cada instalación
+de `facilities.ts`, cada `image` de `attractions.ts` y cada ruta `/assets/…`
+escrita a mano. Falla con la ruta exacta y el archivo que la declara. Se añadió
+después de que el 404 y los resultados de búsqueda quedaran con imágenes rotas
+al sustituir las fotos de Liberta II.
+
 #### Aislamiento del navegador (importante)
 
 Todos los scripts de auditoría abren **su propia instancia de Chrome headless**
@@ -720,17 +813,84 @@ script no mata procesos ajenos por su cuenta.
 
 ## Variables de entorno
 
-Copiar `.env.example` a `.env`:
+Copiar `.env.example` a `.env`. `.env` no se versiona.
 
-| Variable | Uso |
-|---|---|
-| `RESEND_API_KEY` | Envío de emails de reserva |
-| `OWNER_EMAIL` | Destino de los avisos |
-| `PUBLIC_SITE_URL` | URL canónica |
-| `PORT` / `HOST` | Servidor de producción |
+| Variable | Obligatoria | Uso |
+|---|---|---|
+| `RESEND_API_KEY` | **Sí, en producción** | Envío de emails de reserva |
+| `OWNER_EMAIL` | No | Destino de los avisos (por defecto, `site.email`) |
+| `BOOKING_FROM_EMAIL` | No | Remitente (dominio verificado en Resend) |
+| `BOOKING_ICAL_URL` | Solo mantenimiento | iCal de Booking para `npm run availability:update` |
+| `AVAILABILITY_FILE` | Recomendada en VPS | JSON de disponibilidad fuera del código |
+| `PORT` / `HOST` | No | Servidor de producción (8080 / 0.0.0.0) |
 
 Si falta `RESEND_API_KEY`, las reservas se registran en el log del servidor en
 lugar de enviarse: útil para probar el formulario sin configurar nada.
+
+**Las variables se leen en TIEMPO DE EJECUCIÓN, no de build.** Esto es
+deliberado: antes la clave se leía con `import.meta.env`, Vite la inlineaba en el
+bundle (`const resendApiKey = undefined`) y el sitio compilado sin la clave no
+podía enviar correos nunca, aunque se configurara después en el servidor. Ahora
+se leen con `process.env` en cada petición y `server.mjs` carga `.env` al
+arrancar (sin pisar lo que venga del entorno del contenedor).
+
+---
+
+## Despliegue (VPS / Docker)
+
+Requisitos: **Node ≥ 22.18** (Astro 6 exige ≥ 22.12; el test de rutas necesita
+eliminación de tipos nativa, 22.18). Está declarado en `engines` y `.nvmrc`.
+
+```bash
+npm ci
+npm run build        # dist/client + dist/server, Brotli y limpieza del deploy
+npm start            # node ./server.mjs  → PORT/HOST de .env
+```
+
+`npm start` sirve el sitio completo con `server.mjs`: HTML prerenderizado desde
+`dist/client` con las variantes `.br`/`.gz`, y las rutas on-demand (`/api/*`,
+404) delegadas al handler de Astro.
+
+Puntos que hay que respetar en el servidor:
+
+1. **El proceso escucha en `0.0.0.0`** y va detrás de Nginx/Caddy con TLS. Las
+   cabeceras HSTS solo se envían si llega `X-Forwarded-Proto: https`: el proxy
+   tiene que mandarla.
+2. **TLS es obligatorio** para la CSP y para que el formulario no viaje en claro.
+3. **El calendario, en un volumen.** `AVAILABILITY_FILE=/srv/liberta-data/availability.json`
+   y un cron cada hora que ejecute `npm run availability:update` desde una copia
+   del repo con `BOOKING_ICAL_URL`. Sin ese cron, el sitio avisa de que el
+   calendario está desactualizado.
+4. **No copies `public/import-original/`**: son 19,5 MB de originales de cámara.
+   `postbuild` ya lo saca de `dist/client` (`npm run prune`).
+5. **Secretos fuera de la imagen.** `RESEND_API_KEY` va por entorno del
+   contenedor o por `.env` en el host, nunca en el `Dockerfile` ni en git.
+
+Un unit de systemd mínimo (ajustar rutas y usuario):
+
+```ini
+[Unit]
+Description=Apartamenty Liberta (Astro SSR)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/apartamenty-liberta
+EnvironmentFile=/srv/apartamenty-liberta/.env
+ExecStart=/usr/bin/node ./server.mjs
+Restart=always
+User=www-data
+# Node escucha en 8080; Nginx hace el TLS y pasa X-Forwarded-Proto: https
+[Install]
+WantedBy=multi-user.target
+```
+
+Comprobación rápida tras desplegar:
+
+```bash
+curl -sI https://apartamentyliberta.pl/ | grep -Ei 'content-encoding|content-security|strict-transport'
+curl -s -o /dev/null -w '%{http_code}\n' https://apartamentyliberta.pl/api/availability?checkIn=2026-12-01&checkOut=2026-12-05
+```
 
 ---
 
@@ -739,7 +899,9 @@ lugar de enviarse: útil para probar el formulario sin configurar nada.
 - Funciona **sin JavaScript** (POST clásico a `/api/booking`)
 - Con JS: comprobación de disponibilidad en vivo, estados de carga y mensajes
 - Validación con Zod en el servidor y honeypot antispam + límite de 5 envíos por
-  hora e IP
+  hora e IP. El límite vive **en memoria del proceso**, así que vale para un
+  único servidor Node; si algún día hay varias instancias, hay que moverlo a
+  Redis/Upstash. No hay Turnstile ni captcha: no se ha implementado.
 - Los emails al huésped y al propietario se generan **en el idioma del visitante**
 - Comprobación contra el calendario importado de Booking.com (fail-open: si el
   calendario no está disponible, la solicitud pasa y el propietario confirma)

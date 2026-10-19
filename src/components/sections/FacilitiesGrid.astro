@@ -21,7 +21,7 @@
  * grandes: son las cuatro que de verdad deciden la reserva (el edificio, el
  * taras, la balia y el salón). El resto van a una columna.
  */
-import { type Locale, t } from "~/lib/i18n";
+import type { Locale } from "~/lib/i18n";
 import { facilities } from "~/data/facilities";
 import SmartImage from "~/components/ui/SmartImage.astro";
 
@@ -30,9 +30,14 @@ interface Props {
 }
 
 const { locale } = Astro.props;
-const tr = t(locale);
 
-const copy: Record<Locale, { eyebrow: string; title: string; lead: string; note: string }> = {
+/*
+ * El tipo no lleva `note`: ese texto pertenece a la leyenda del plano aéreo
+ * (`legendCopy`, más abajo, que sí lo tiene y sí se pinta). Al declararlo aquí
+ * la comprobación de tipos exigía un `note` en los tres idiomas que nadie
+ * usaba, y `astro check` fallaba con TS2741.
+ */
+const copy: Record<Locale, { eyebrow: string; title: string; lead: string }> = {
   pl: {
     eyebrow: "Wspólne dla wszystkich",
     title: "Co jeszcze jest na miejscu",

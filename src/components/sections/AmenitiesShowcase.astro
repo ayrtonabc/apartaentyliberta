@@ -31,6 +31,7 @@ const photos: Array<{
   tall?: boolean;
 }> = [
   {
+    // Balia de Liberta I, al atardecer: es la foto que mejor vende el sitio.
     src: "/assets/apartments/liberta-i/bania-goralska.jpg",
     alt:
       locale === "pl"
@@ -47,13 +48,14 @@ const photos: Array<{
           : "Wood-fired and available all year. By the lake in the evening it tastes entirely different.",
   },
   {
-    src: "/assets/apartments/liberta-i/salon-aneks-1.jpg",
+    // Salón de Liberta III: chimenea encendida + ventanal al jardín.
+    src: "/assets/apartments/liberta-iii/salon-parter.jpg",
     alt:
       locale === "pl"
-        ? "Salon z widokiem na jezioro i kominkiem"
+        ? "Salon z kominkiem i widokiem na jezioro"
         : locale === "de"
-          ? "Wohnzimmer mit Seeblick und Ofen"
-          : "Living room with lake view and wood stove",
+          ? "Wohnzimmer mit Kamin und Seeblick"
+          : "Living room with fireplace and lake view",
     title: locale === "pl" ? "Salon z widokiem" : locale === "de" ? "Wohnzimmer mit Aussicht" : "Living room with a view",
     text:
       locale === "pl"
@@ -63,14 +65,15 @@ const photos: Array<{
           : "A wood stove, a Smart TV with Netflix and full-width glazing.",
   },
   {
-    src: "/assets/apartments/liberta-i/taras.jpg",
+    // Terraza cubierta de Liberta II, con el lago y los lechos al fondo.
+    src: "/assets/apartments/liberta-ii/taras.jpg",
     tall: true,
     alt:
       locale === "pl"
-        ? "Zadaszony taras z meblami i grillem"
+        ? "Zadaszony taras z leżakami i widokiem na jezioro"
         : locale === "de"
-          ? "Überdachte Terrasse mit Möbeln und Grill"
-          : "Covered terrace with furniture and BBQ",
+          ? "Überdachte Terrasse mit Liegestühlen und Seeblick"
+          : "Covered terrace with loungers and a lake view",
     title: locale === "pl" ? "Taras i grill" : locale === "de" ? "Terrasse und Grill" : "Terrace and BBQ",
     text:
       locale === "pl"

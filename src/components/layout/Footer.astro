@@ -307,8 +307,13 @@ const legal = [
      visualmente pegados al teléfono y a la dirección, y se notaban como
      ruido. Subimos el margin a `--space-20` (5 rem ≈ 80 px) y añadimos un
      border-top tenue para marcarlos como un grupo distinto. Si después
-     quiere aún más separación, subir a `--space-24` (6 rem) o más. */
-  .ftr__social {
+     quiere aún más separación, subir a `--space-24` (6 rem) o más.
+
+     `:global` es necesario: `ftr__social` es una clase que se le pasa a
+     <SocialLinks>, así que la <ul> la pinta el hijo y NO lleva el
+     `data-astro-cid` de Footer. Sin :global esta regla no se aplicaba y la
+     separación que se pidió no existía. */
+  :global(.ftr__social) {
     margin-top: var(--space-20);
     padding-top: var(--space-7);
     border-top: 1px solid var(--color-line-inverse);

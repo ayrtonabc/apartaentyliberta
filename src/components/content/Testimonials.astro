@@ -288,7 +288,12 @@ const toTen = (rating: number, scale: number) => (rating / scale) * 10;
     border-radius: var(--radius-xl);
   }
 
-  .rev__quote {
+  /*
+   * `:global` obligatorio, mismo motivo que en Gallery: el <svg> lo pinta
+   * <Icon>, no este componente, así que no lleva su `data-astro-cid`. Sin esto
+   * la comilla salía sin el color atenuado y la flecha "anterior" no se giraba.
+   */
+  :global(.rev__quote) {
     color: var(--color-accent-soft);
     opacity: 0.6;
   }
@@ -417,7 +422,7 @@ const toTen = (rating: number, scale: number) => (rating / scale) * 10;
     color: var(--color-text-on-accent);
   }
 
-  .rev__nav-icon--prev {
+  :global(.rev__nav-icon--prev) {
     transform: rotate(180deg);
   }
 

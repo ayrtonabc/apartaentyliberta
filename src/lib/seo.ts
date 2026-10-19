@@ -11,7 +11,14 @@
 
 import { site } from "~/data/site";
 import { aggregateRatings } from "~/data/reviews";
-import { type Locale, localeMeta, defaultLocale, translatePath } from "~/lib/i18n";
+import {
+  type Locale,
+  localeMeta,
+  defaultLocale,
+  locales,
+  translatePath,
+  hasTranslation,
+} from "~/lib/i18n";
 import { t } from "~/lib/i18n";
 
 export type SeoMeta = {
@@ -47,16 +54,22 @@ export function buildCanonical(canonicalPath: string, locale: Locale): string {
 }
 
 /**
- * hreflang para las tres versiones + x-default.
+ * hreflang para las versiones que existen de verdad + x-default.
+ *
+ * Antes se emitían siempre los tres, aunque `/regulamin/` no tuviera versión
+ * inglesa ni alemana: los alternates apuntaban a 404. Un alternate roto no es
+ * solo inútil, resta confianza al cluster de idiomas.
  */
 export function buildHreflangLinks(
   canonicalPath: string,
   currentLocale: Locale,
 ): Array<{ hreflang: string; href: string }> {
-  const links = (["pl", "en", "de"] as Locale[]).map((locale) => ({
-    hreflang: localeMeta[locale].hreflang,
-    href: absoluteUrl(canonicalPath, locale),
-  }));
+  const links = locales
+    .filter((locale) => hasTranslation(canonicalPath, locale))
+    .map((locale) => ({
+      hreflang: localeMeta[locale].hreflang,
+      href: absoluteUrl(canonicalPath, locale),
+    }));
 
   links.push({ hreflang: "x-default", href: absoluteUrl(canonicalPath, defaultLocale) });
 
@@ -71,8 +84,12 @@ export function buildOgTags(
   meta: SeoMeta,
   locale: Locale,
   canonical: string,
+  canonicalPath?: string,
 ): Array<{ property: string; content: string }> {
-  const altLocales = (["pl", "en", "de"] as Locale[]).filter((l) => l !== locale);
+  const altLocales = locales
+    .filter((l) => l !== locale)
+    // `og:locale:alternate` también debe corresponder a una versión publicada.
+    .filter((l) => (canonicalPath ? hasTranslation(canonicalPath, l) : true));
   const ogImage = meta.ogImage || "/og-default.jpg";
   const imageUrl = ogImage.startsWith("http") ? ogImage : `${BASE}${ogImage}`;
 
@@ -115,7 +132,7 @@ export function buildLodgingBusinessSchema(locale: Locale = defaultLocale) {
       absolute("/assets/hero/hero-1.webp"),
       absolute("/assets/hero/hero-3.webp"),
       absolute("/assets/apartments/liberta-i/exterior-dzien.jpg"),
-      absolute("/assets/apartments/liberta-i/taras.jpg"),
+      absolute("/assets/apartments/liberta-i/bania-goralska.jpg"),
     ],
     logo: absolute("/assets/logo.webp"),
     priceRange: "700–1400 PLN",

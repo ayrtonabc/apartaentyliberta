@@ -23,6 +23,36 @@ import { createBrotliCompress, createGzip, constants as zlibConstants } from "no
 
 process.env.ASTRO_NODE_AUTOSTART = process.env.ASTRO_NODE_AUTOSTART ?? "disabled";
 
+/*
+ * `.env` en el VPS.
+ *
+ * El adaptador de Node NO lee el archivo `.env` al arrancar (Astro solo lo hace
+ * con `astro dev`), así que sin esto un despliegue con `node ./server.mjs` y un
+ * `.env` en la raíz arrancaría sin RESEND_API_KEY y las reservas se quedarían
+ * en el log. `loadEnvFile` no pisa lo que ya venga del entorno, así que en
+ * Docker/systemd las variables del contenedor siguen mandando.
+ *
+ * Disponible desde Node 20.12; en versiones anteriores se ignora sin romper.
+ */
+try {
+  process.loadEnvFile?.();
+} catch {
+  // No hay .env (Docker, systemd, CI): las variables vienen del entorno.
+}
+
+/**
+ * `server.mjs` ES el servidor de producción, así que lo declara.
+ *
+ * Importa por dos cosas:
+ *   1. Astro y sus dependencias toman el camino de producción (sin avisos de
+ *      desarrollo ni comprobaciones extra por petición).
+ *   2. `src/lib/availability.ts` usa NODE_ENV para decidir si puede leer el
+ *      calendario de EJEMPLO. Sin esta línea, `npm start` en un VPS haría
+ *      NODE_ENV=undefined y el `.ics` de muestra —con reservas inventadas—
+ *      bloquearía fechas reales.
+ */
+process.env.NODE_ENV = process.env.NODE_ENV ?? "production";
+
 const { handler } = await import("./dist/server/entry.mjs");
 
 const PORT = Number(process.env.PORT ?? 8080);
@@ -70,7 +100,52 @@ const SECURITY_HEADERS = {
   "X-Frame-Options": "SAMEORIGIN",
   "Permissions-Policy": "geolocation=(self), camera=(), microphone=()",
   "Cross-Origin-Opener-Policy": "same-origin",
+  /**
+   * CSP del sitio.
+   *
+   * Es una política de "sin terceros": el sitio no carga fuentes, scripts ni
+   * imágenes externas; lo único ajeno es el iframe de Google Maps.
+   *
+   * `'unsafe-inline'` en `script-src` y `style-src` es obligatorio aquí: el CSS
+   * va inline en el HTML por diseño (0 peticiones CSS, ver astro.config.mjs) y
+   * Astro emite scripts inline. Aun así bloquea lo que de verdad importa en un
+   * sitio así: inyectar un `<script src="https://malo...">`, secuestrar
+   * `base-uri`, cambiar el destino de un formulario o meter el sitio en un
+   * iframe ajeno.
+   *
+   * `frame-src` incluye consent.google.com porque el embed de Maps puede pasar
+   * por la pantalla de consentimiento de la UE.
+   *
+   * NO se incluye `upgrade-insecure-requests`: mientras el VPS no tenga TLS
+   * forzado, esa directiva rompería el sitio servido por http.
+   */
+  "Content-Security-Policy": [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'self'",
+    "form-action 'self'",
+    "img-src 'self' data:",
+    "font-src 'self' data:",
+    "style-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline'",
+    "connect-src 'self'",
+    /*
+     * `youtube-nocookie.com` está aquí por la sección "Nagrano w Liberta": los
+     * reproductores se insertan solo al pulsar play, así que sin esta directiva
+     * el iframe saldría bloqueado. Se usa el dominio sin cookies para no enviar
+     * datos del visitante a YouTube antes de que lo pida.
+     */
+    "frame-src https://www.google.com https://maps.google.com https://consent.google.com https://www.youtube-nocookie.com",
+  ].join("; "),
 };
+
+/** HSTS solo tiene sentido (y solo se acepta) si la petición llegó por HTTPS. */
+function isHttps(req) {
+  if (req.socket?.encrypted) return true;
+  const proto = String(req.headers["x-forwarded-proto"] ?? "").split(",")[0].trim();
+  return proto === "https";
+}
 
 function cacheControlFor(pathname) {
   if (pathname.startsWith("/_astro/")) return "public, max-age=31536000, immutable";
@@ -131,12 +206,27 @@ async function serveStatic(req, res, url) {
   const resolved = await resolveFile(url.pathname);
   if (!resolved) return false;
 
+  /*
+   * Un archivo estático solo se sirve con GET o HEAD.
+   *
+   * Antes, un POST a `/` devolvía el HTML con 200: la petición ni llegaba a
+   * Astro, así que ni el CSRF de Astro ni el endpoint de reservas veían nada.
+   * Los métodos que sí necesitan cuerpo (la API) no entran aquí porque su ruta
+   * no resuelve a un archivo de dist/client.
+   */
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    res.writeHead(405, { Allow: "GET, HEAD", "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Method not allowed");
+    return true;
+  }
+
   const { size } = resolved;
   const ext = extname(resolved.file).toLowerCase();
   const type = MIME[ext] ?? "application/octet-stream";
 
   res.setHeader("Content-Type", type);
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) res.setHeader(key, value);
+  if (isHttps(req)) res.setHeader("Strict-Transport-Security", "max-age=31536000");
   res.setHeader("Cache-Control", cacheControlFor(url.pathname));
 
   const isHead = req.method === "HEAD";
@@ -156,7 +246,7 @@ async function serveStatic(req, res, url) {
 
   const variant = await pickVariant(resolved.file, encoding);
 
-  res.setHeader("Content-Encoding", variant.precompressed ? encoding : encoding);
+  res.setHeader("Content-Encoding", encoding);
   res.setHeader("Vary", "Accept-Encoding");
 
   if (variant.precompressed) {

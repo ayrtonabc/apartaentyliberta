@@ -104,706 +104,306 @@
     "fallback": "/assets/responsive/assets/hero/hero-lake-1400.webp"
   },
   "assets/apartments/liberta-i/bania-goralska.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905074751.5024,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQBACdASoUAA0APu1iqk2ppaQiMAgBMB2JYwC06B08pAXtABqhWZ8mAAD+521KRc2EQcT4plNofZ9DiCARsUWloHBJImcyJT+eO8AAAAA=",
+    "width": 1448,
+    "height": 1086,
+    "mtimeMs": 1792417997462,
+    "lqip": "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAACQAwCdASoUAA8APu1kq04ppaQiMAgBMB2JQBOj+AA3n6veNS7AAN5hxIWZtN9xUFSdAGCpWss0rgFjlyfNLre2FPCj1SOoJUVtcp+5jPsUCBE0QEoxUqON7hgmZ6gAAAA=",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1448
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/bania-goralska-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-i/bania-goralska-1448.webp"
   },
   "assets/apartments/liberta-i/exterior-dzien.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905075847.2622,
-    "lqip": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAACQAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JaAC06CFjxtNGLbYAAP6zry60xEXJMQLRkLAYrqa6eeIt6JjIUM75L/iqYaU18NzDnUAA",
+    "width": 1154,
+    "height": 1363,
+    "mtimeMs": 1792417997823,
+    "lqip": "data:image/webp;base64,UklGRoQAAABXRUJQVlA4IHgAAADQBACdASoUABgAPu1krE+ppSQiMBgIATAdiWoAnTkAAA1dV696XPUIxk1BgJ9MIADdUaxjCZcr63pOKHjcZjzTR5y7sh9H8ky3qwTsEM7MRumHMuAT1LtYflFidzZiwfGWJPkbIchgqPxQCGayLLLnPWf6S9b8AAA=",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1154
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/exterior-dzien-1400.webp"
-  },
-  "assets/apartments/liberta-i/exterior-noc.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905076274.762,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAwCdASoUAA0APu1kq04ppaQiMAgBMB2JYgCdACGWifO0H9wJGIjQAP7xTOoudpNU5i3/+251zs33qehuldXWGktWGOeoktVeaIAAAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/exterior-noc-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-i/exterior-dzien-1154.webp"
   },
   "assets/apartments/liberta-i/kuchnia.jpg": {
-    "width": 1400,
-    "height": 998,
-    "mtimeMs": 1788905069986.3528,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAADwAwCdASoUAA4APu1iqU2ppaOiMAgBMB2JYwDCgBbumiwxYShNuCYAAP6MD2JNJBpXcUjsraJyCH8lUaexPOLtWJ1lPKLCbK1LY8g+Byt9ajEAAAA=",
+    "width": 1448,
+    "height": 1086,
+    "mtimeMs": 1792417998558,
+    "lqip": "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAABwBACdASoUAA8APu1iqU2ppaOiMAgBMB2JZgCdMoC9AEaZHTEz9i2mDQm14AD+9VLMg82FS2bK6qNYzoUDHKsydz0FTR36m6WWfxA4Dnpy6HaVxvI1dZDS9kmglq7/b+7wXDSL+IFsAAAA",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1448
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/kuchnia-1400.webp"
-  },
-  "assets/apartments/liberta-i/lazienka-parter-1.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905071027.1821,
-    "lqip": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAABQAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JZwC7AAeoZ2qyYAD+04goxwAfaS5mEfqXaauVCOuorbCX2wiG44wAAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/lazienka-parter-1-1400.webp"
-  },
-  "assets/apartments/liberta-i/lazienka-parter-2.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905071481.5117,
-    "lqip": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAACQAwCdASoUAA0APu1iqk2ppaQiMAgBMB2JZwDE2CDT8ZRl0sCgAP4ETRQDumv5E6arAtszSbxS/9FLRaAAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/lazienka-parter-2-1400.webp"
-  },
-  "assets/apartments/liberta-i/lazienka.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905071814.5486,
-    "lqip": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAACQAwCdASoUAA0APu1mq04ppaQiMAgBMB2JZwDCgB5shdjeUTwgANtVlF/7enQDyCj0en7xCozX48HzbAYHwMt+D5wAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/lazienka-1400.webp"
-  },
-  "assets/apartments/liberta-i/lozko-detal.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905074294.771,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAwCdASoUAA8APu1orU6ppiSiMAgBMB2JQBOmUABp2n9WgXBqfIs4AP7H2FWu/c7efFaFTEr4kqSS7LQbqdk3DBa/Vsspu7pSDotEAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/lozko-detal-1400.webp"
-  },
-  "assets/apartments/liberta-i/luksus.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905070670.95,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASoUAA8APu1iqU2ppaOiMAgBMB2JZACdACHheb40vYJl+sdF4AD+6nwg/3w0sTvMdD8dZyjtWqt/OrbJO3amTiOZTSAAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/luksus-1400.webp"
-  },
-  "assets/apartments/liberta-i/salon-aneks-1.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905069151.1572,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADwAwCdASoUAA0APu1mqk4ppaOiMAgBMB2JQBOmUABwDQ2qyvFT3LgAAPelTK/05/N0OLfFhw/gTQL/ailo37x5FfkmjwfG7YAAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/salon-aneks-1-1400.webp"
-  },
-  "assets/apartments/liberta-i/salon-aneks-2.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905069528.5537,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADQAwCdASoUAA0APu1iqU2ppaOiMAgBMB2JYwCdACFq3hBhJebRMQAA/pTcLj15RJop4941Ygcx/sLSIL53FNTk91Awmbls21gAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/salon-aneks-2-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-i/kuchnia-1448.webp"
   },
   "assets/apartments/liberta-i/salon-parter.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905068728.7864,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAACwAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JYwCdABc1hv9WE46HUAD7jVRJ9DlDsNgd5TzOx1lAwrS3i1MuEGbx/KPIxujkw0NLMTP8DkbTZsnoAAA=",
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792417998246,
+    "lqip": "data:image/webp;base64,UklGRpQAAABXRUJQVlA4IIgAAAAQBQCdASoUABsAPulep02pJSOiN/VYASAdCWgAnTKEdNAMbdS/U8HnNgIKnCiyZ04AAKt+1APSH0BSmEBkrDVYT68wQ8j1FPrOJtgcG+pfs02AW5skn12C/o2BBbrlrubxdEs29YSaNqhwNgWJToplGjAsmS9rxl3SlKtrS6ZfJF6L/JAbZAAA",
     "widths": [
       480,
       768,
-      1100,
-      1400
+      1086
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/salon-parter-1400.webp"
-  },
-  "assets/apartments/liberta-i/sypialnia-parter.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905070282.5554,
-    "lqip": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAAAQBACdASoUAA0APu1iqk2ppaQiMAgBMB2JQBOmUI7gBK5NYnASaHDc+AD+7WF343A5/XmYnN2OTqIC2ize9gRYd2+2pgA/3mDntgrZsD5YAAAA",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/sypialnia-parter-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-i/salon-parter-1086.webp"
   },
   "assets/apartments/liberta-i/sypialnia-pietro-1.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905072358.5908,
-    "lqip": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADQAwCdASoUAA0APu1iqk4ppaQiMAgBMB2JQBOgA2hR+QL1KvorAAAA+KK7TixQVAMxxirNzzRvZe/UEYaM7J39e3rfOSbuIC70TIAA",
+    "width": 1448,
+    "height": 1086,
+    "mtimeMs": 1792417998815,
+    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAABQBACdASoUAA8APu1kqU2ppaQiMAgBMB2JaACdMoRwACmeW6wcEZIor2bAAP6vDBjynLNFWd5BI5rOPLWwBWQC0SsiVQgh0HmwolJu7siEGYQRAAA=",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1448
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/sypialnia-pietro-1-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-i/sypialnia-pietro-1-1448.webp"
   },
   "assets/apartments/liberta-i/sypialnia-pietro-2.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905072782.5896,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAACQAwCdASoUAA0APu1kqk4ppaQiMAgBMB2JQBWAAs6dlInn9JIAAP6Xa6Wx3JAimYANsZW3AR4m7nKAGFcZ/CaRdPqhbmlbWSHskGL4AAA=",
+    "width": 1448,
+    "height": 1086,
+    "mtimeMs": 1792417999125,
+    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAACQAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JagCw7CB8G9YOIfxwAP7IN/jkMEXCmgqNgdFcvvXy+VDcq4DAlBcWcCgdQLjSqpk57yJFbStqkJQIcAA=",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1448
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/sypialnia-pietro-2-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-i/sypialnia-pietro-2-1448.webp"
   },
   "assets/apartments/liberta-i/sypialnia-pietro-3.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905073343.1062,
-    "lqip": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAAAQBACdASoUAA0APu1iqk2ppaQiMAgBMB2JQBOmUGSxic/VWIBL3HexgAD+aebpDk2v1qd2dJmG3LLJ1B7KrqKvT9wsLS9VK7oAp4JHeS7+0YmXuHoYAA==",
+    "width": 1448,
+    "height": 1086,
+    "mtimeMs": 1792417999440,
+    "lqip": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JbACdMoRwACmq8VlytUBkAP3OcAZ/RdoBBdkET+rR/MiwZTfyWIoR9k21EO02X3xo6hfdCb7bfpLUYnUSNOgA",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1448
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/sypialnia-pietro-3-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-i/sypialnia-pietro-3-1448.webp"
   },
   "assets/apartments/liberta-i/sypialnia-pietro-4.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905073853.6697,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAABwBACdASoUAA0APu1kqk4ppaQiMAgBMB2JYgCdMoRwACofwNxXiZ1lXXAEIAD854Cp4ozfU2nsUgGAzERISoXczkrKfAIOreOmuBjMcqDKnewAAAA=",
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792417999773,
+    "lqip": "data:image/webp;base64,UklGRpYAAABXRUJQVlA4IIoAAAAwBQCdASoUABsAPu1oqk+ppiOiKA1RMB2JZgCsIQazGAHLLv3WFhXEx/ajq5UAn0iqsAD3B+OOLUFDxM5UOteucS1PA+PvsZLJ9Rch1/cJigl7aaINCqImfb/3pEU+aIcBpLJFFmmDkKxESgtnHkm2OrcJtc0CXZh/T3Jm2pKJC4Ans8UD0y4AAAA=",
     "widths": [
       480,
       768,
-      1100,
-      1400
+      1086
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/sypialnia-pietro-4-1400.webp"
-  },
-  "assets/apartments/liberta-i/taras.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905075101.8943,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAADQAwCdASoUAA0APu1orU2ppqSiMAgBMB2JZwAAXe+kmwntexBVMgAA/uej3BjbM3mYYTFgfT7ZYbxnVrC4CS5rUYPFnlltWE/XiEjtcJXTsQWjAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-i/taras-1400.webp"
-  },
-  "assets/apartments/liberta-ii/bania-goralska.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905083464.7412,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQBACdASoUAA0APu1iqk2ppaQiMAgBMB2JYwC06B08pAXtABqhWZ8mAAD+521KRc2EQcT4plNofZ9DiCARsUWloHBJImcyJT+eO8AAAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/bania-goralska-1400.webp"
-  },
-  "assets/apartments/liberta-ii/exterior-dzien.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905085419.1802,
-    "lqip": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAACQAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JaAC06CFjxtNGLbYAAP6zry60xEXJMQLRkLAYrqa6eeIt6JjIUM75L/iqYaU18NzDnUAA",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/exterior-dzien-1400.webp"
-  },
-  "assets/apartments/liberta-ii/exterior-noc.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905085839.7327,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAwCdASoUAA0APu1kq04ppaQiMAgBMB2JYgCdACGWifO0H9wJGIjQAP7xTOoudpNU5i3/+251zs33qehuldXWGktWGOeoktVeaIAAAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/exterior-noc-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-i/sypialnia-pietro-4-1086.webp"
   },
   "assets/apartments/liberta-ii/kuchnia.jpg": {
-    "width": 1400,
-    "height": 998,
-    "mtimeMs": 1788905078686.2432,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAADwAwCdASoUAA4APu1iqU2ppaOiMAgBMB2JYwDCgBbumiwxYShNuCYAAP6MD2JNJBpXcUjsraJyCH8lUaexPOLtWJ1lPKLCbK1LY8g+Byt9ajEAAAA=",
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792418001353,
+    "lqip": "data:image/webp;base64,UklGRogAAABXRUJQVlA4IHwAAADwBACdASoUABsAPu1usFIppiSiqAgBMB2JQBYj42bzgsrAf8rpcc7tGSKF8SFBz/AA/j7mhlBXJLzpt6+AfvCZOfnBrP6+2qW/vkclRI7N0toYzFAKc0SQbUnJrshlSYvWzxpf6JQHpBNAEcxp9aZc2a0EIlJ1eLYcgAAA",
     "widths": [
       480,
       768,
-      1100,
-      1400
+      1086
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/kuchnia-1400.webp"
-  },
-  "assets/apartments/liberta-ii/lazienka-parter-1.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905079795.1035,
-    "lqip": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAABQAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JZwC7AAeoZ2qyYAD+04goxwAfaS5mEfqXaauVCOuorbCX2wiG44wAAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/lazienka-parter-1-1400.webp"
-  },
-  "assets/apartments/liberta-ii/lazienka-parter-2.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905080115.5764,
-    "lqip": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAACQAwCdASoUAA0APu1iqk2ppaQiMAgBMB2JZwDE2CDT8ZRl0sCgAP4ETRQDumv5E6arAtszSbxS/9FLRaAAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/lazienka-parter-2-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-ii/kuchnia-1086.webp"
   },
   "assets/apartments/liberta-ii/lazienka.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905080361.85,
-    "lqip": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAACQAwCdASoUAA0APu1mq04ppaQiMAgBMB2JZwDCgB5shdjeUTwgANtVlF/7enQDyCj0en7xCozX48HzbAYHwMt+D5wAAA==",
+    "width": 1600,
+    "height": 1200,
+    "mtimeMs": 1792418001632,
+    "lqip": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAABQAwCdASoUAA8APu1kq04ppaQiMAgBMB2JZwDG9AagQh4QAAD+x+w2Nf+o2my9nqN5+56LkAdNnkTWPQ2/qzorqKAAAA==",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1600
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/lazienka-1400.webp"
-  },
-  "assets/apartments/liberta-ii/lozko-detal.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905082593.8572,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAwCdASoUAA8APu1orU6ppiSiMAgBMB2JQBOmUABp2n9WgXBqfIs4AP7H2FWu/c7efFaFTEr4kqSS7LQbqdk3DBa/Vsspu7pSDotEAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/lozko-detal-1400.webp"
-  },
-  "assets/apartments/liberta-ii/luksus.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905079473.9849,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASoUAA8APu1iqU2ppaOiMAgBMB2JZACdACHheb40vYJl+sdF4AD+6nwg/3w0sTvMdD8dZyjtWqt/OrbJO3amTiOZTSAAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/luksus-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-ii/lazienka-1600.webp"
   },
   "assets/apartments/liberta-ii/salon-aneks-1.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905077831.3596,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADwAwCdASoUAA0APu1mqk4ppaOiMAgBMB2JQBOmUABwDQ2qyvFT3LgAAPelTK/05/N0OLfFhw/gTQL/ailo37x5FfkmjwfG7YAAAA==",
+    "width": 1200,
+    "height": 1600,
+    "mtimeMs": 1792418000982,
+    "lqip": "data:image/webp;base64,UklGRpgAAABXRUJQVlA4IIwAAACwBQCdASoUABsAPu1kq06ppaQiKA1RMB2JZgCxDCg7+AMAAHzAqjfn31euZY+GdlGxJxNmFwAA+ozItmZVJcV8N2IEbahdYOLgPm7/y2sdCrb8CR+xKmW2QZciOQP9Mf9ilLfbRyFT6nhmFfPAPynwYlvI6XVIvVMUTQEnECscaY1GE3KUwZmcn/yAAA==",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1200
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/salon-aneks-1-1400.webp"
-  },
-  "assets/apartments/liberta-ii/salon-aneks-2.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905078221.4976,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADQAwCdASoUAA0APu1iqU2ppaOiMAgBMB2JYwCdACFq3hBhJebRMQAA/pTcLj15RJop4941Ygcx/sLSIL53FNTk91Awmbls21gAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/salon-aneks-2-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-ii/salon-aneks-1-1200.webp"
   },
   "assets/apartments/liberta-ii/salon-parter.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905077379.4116,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAACwAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JYwCdABc1hv9WE46HUAD7jVRJ9DlDsNgd5TzOx1lAwrS3i1MuEGbx/KPIxujkw0NLMTP8DkbTZsnoAAA=",
+    "width": 1448,
+    "height": 1086,
+    "mtimeMs": 1792418000673,
+    "lqip": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADQAwCdASoUAA8APu1iqU2ppaQiMAgBMB2JaACdMoAB62UiI+iNWCAA/UXQ4KDReF1UuLqZLQAl9Lh7hfRdr2bw/dnKuYZStKSbNejQuFJxfU+sHJVCwAAA",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1448
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/salon-parter-1400.webp"
-  },
-  "assets/apartments/liberta-ii/sypialnia-parter.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905079046.4204,
-    "lqip": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAAAQBACdASoUAA0APu1iqk2ppaQiMAgBMB2JQBOmUI7gBK5NYnASaHDc+AD+7WF343A5/XmYnN2OTqIC2ize9gRYd2+2pgA/3mDntgrZsD5YAAAA",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/sypialnia-parter-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-ii/salon-parter-1448.webp"
   },
   "assets/apartments/liberta-ii/sypialnia-pietro-1.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905080847.1184,
-    "lqip": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADQAwCdASoUAA0APu1iqk4ppaQiMAgBMB2JQBOgA2hR+QL1KvorAAAA+KK7TixQVAMxxirNzzRvZe/UEYaM7J39e3rfOSbuIC70TIAA",
+    "width": 1200,
+    "height": 1600,
+    "mtimeMs": 1792418001900,
+    "lqip": "data:image/webp;base64,UklGRoQAAABXRUJQVlA4IHgAAABwBQCdASoUABsAPu1sqlEppaOiqAqpMB2JZACdMtDBfcQpN6iYXrFVgH84o8XCFbcM7SUYAM4TfcNSlA/W/at5W5+cWdR0pBEh7Lh/yxMOR5M78nhCda4OjdO6lQcIydbDp3djTMipRVO0ARYvsTVwnRtra6oeQAA=",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1200
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/sypialnia-pietro-1-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-ii/sypialnia-pietro-1-1200.webp"
   },
   "assets/apartments/liberta-ii/sypialnia-pietro-2.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905081216.002,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAACQAwCdASoUAA0APu1kqk4ppaQiMAgBMB2JQBWAAs6dlInn9JIAAP6Xa6Wx3JAimYANsZW3AR4m7nKAGFcZ/CaRdPqhbmlbWSHskGL4AAA=",
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792418002233,
+    "lqip": "data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAABwBQCdASoUABsAPu1qqFAppiOiqA1RMB2JYgCsKIHO6A+RE0vfRKdf9aBhAbGqcy6aVaAAAMz1t7HWVZ98HRc98EouUjIkL5uyaz5w76Fmn7s7VF6PPpfTdUwkMih45gVK4u2Oib/HQs09MFdwpTtp21Bhee5Tb5McWDVeF/+ACcAA",
     "widths": [
       480,
       768,
-      1100,
-      1400
+      1086
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/sypialnia-pietro-2-1400.webp"
-  },
-  "assets/apartments/liberta-ii/sypialnia-pietro-3.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905081647.8281,
-    "lqip": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAAAQBACdASoUAA0APu1iqk2ppaQiMAgBMB2JQBOmUGSxic/VWIBL3HexgAD+aebpDk2v1qd2dJmG3LLJ1B7KrqKvT9wsLS9VK7oAp4JHeS7+0YmXuHoYAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/sypialnia-pietro-3-1400.webp"
-  },
-  "assets/apartments/liberta-ii/sypialnia-pietro-4.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905082035.0996,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAABwBACdASoUAA0APu1kqk4ppaQiMAgBMB2JYgCdMoRwACofwNxXiZ1lXXAEIAD854Cp4ozfU2nsUgGAzERISoXczkrKfAIOreOmuBjMcqDKnewAAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/sypialnia-pietro-4-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-ii/sypialnia-pietro-2-1086.webp"
   },
   "assets/apartments/liberta-ii/taras.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905084155.4888,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAADQAwCdASoUAA0APu1orU2ppqSiMAgBMB2JZwAAXe+kmwntexBVMgAA/uej3BjbM3mYYTFgfT7ZYbxnVrC4CS5rUYPFnlltWE/XiEjtcJXTsQWjAAA=",
+    "width": 1448,
+    "height": 1086,
+    "mtimeMs": 1792418000123,
+    "lqip": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAAAQBACdASoUAA8APu1iqk2ppaQiMAgBMB2JagCdICXCcPn4lmexubK7wAD9GV0aSTZ7SBoaR3YDs+RBWOTqNXdEvOpft+zzxU4Xh29LxzABqABeCmAAAA==",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1448
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-ii/taras-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-ii/taras-1448.webp"
   },
   "assets/apartments/liberta-iii/bania-goralska.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905092560.8474,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQBACdASoUAA0APu1iqk2ppaQiMAgBMB2JYwC06B08pAXtABqhWZ8mAAD+521KRc2EQcT4plNofZ9DiCARsUWloHBJImcyJT+eO8AAAAA=",
+    "width": 1448,
+    "height": 1086,
+    "mtimeMs": 1792418003273,
+    "lqip": "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAACQAwCdASoUAA8APu1kq04ppaQiMAgBMB2JQBOj+AA3n6veNS7AAN5hxIWZtN9xUFSdAGCpWss0rgFjlyfNLre2FPCj1SOoJUVtcp+5jPsUCBE0QEoxUqON7hgmZ6gAAAA=",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1448
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/bania-goralska-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-iii/bania-goralska-1448.webp"
   },
   "assets/apartments/liberta-iii/exterior-dzien.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905093894.9253,
-    "lqip": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAACQAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JaAC06CFjxtNGLbYAAP6zry60xEXJMQLRkLAYrqa6eeIt6JjIUM75L/iqYaU18NzDnUAA",
+    "width": 1154,
+    "height": 1363,
+    "mtimeMs": 1792418002848,
+    "lqip": "data:image/webp;base64,UklGRoQAAABXRUJQVlA4IHgAAADQBACdASoUABgAPu1krE+ppSQiMBgIATAdiWoAnTkAAA1dV696XPUIxk1BgJ9MIADdUaxjCZcr63pOKHjcZjzTR5y7sh9H8ky3qwTsEM7MRumHMuAT1LtYflFidzZiwfGWJPkbIchgqPxQCGayLLLnPWf6S9b8AAA=",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1154
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/exterior-dzien-1400.webp"
-  },
-  "assets/apartments/liberta-iii/exterior-noc.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905094373.135,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAwCdASoUAA0APu1kq04ppaQiMAgBMB2JYgCdACGWifO0H9wJGIjQAP7xTOoudpNU5i3/+251zs33qehuldXWGktWGOeoktVeaIAAAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/exterior-noc-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-iii/exterior-dzien-1154.webp"
   },
   "assets/apartments/liberta-iii/kuchnia.jpg": {
-    "width": 1400,
-    "height": 998,
-    "mtimeMs": 1788905087581.964,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAADwAwCdASoUAA4APu1iqU2ppaOiMAgBMB2JYwDCgBbumiwxYShNuCYAAP6MD2JNJBpXcUjsraJyCH8lUaexPOLtWJ1lPKLCbK1LY8g+Byt9ajEAAAA=",
+    "width": 1448,
+    "height": 1086,
+    "mtimeMs": 1792418003941,
+    "lqip": "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAABwBACdASoUAA8APu1iqU2ppaOiMAgBMB2JZgCdMoC9AEaZHTEz9i2mDQm14AD+9VLMg82FS2bK6qNYzoUDHKsydz0FTR36m6WWfxA4Dnpy6HaVxvI1dZDS9kmglq7/b+7wXDSL+IFsAAAA",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1448
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/kuchnia-1400.webp"
-  },
-  "assets/apartments/liberta-iii/lazienka-parter-1.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905088816.2373,
-    "lqip": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAABQAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JZwC7AAeoZ2qyYAD+04goxwAfaS5mEfqXaauVCOuorbCX2wiG44wAAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/lazienka-parter-1-1400.webp"
-  },
-  "assets/apartments/liberta-iii/lazienka-parter-2.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905089238.8318,
-    "lqip": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAACQAwCdASoUAA0APu1iqk2ppaQiMAgBMB2JZwDE2CDT8ZRl0sCgAP4ETRQDumv5E6arAtszSbxS/9FLRaAAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/lazienka-parter-2-1400.webp"
-  },
-  "assets/apartments/liberta-iii/lazienka.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905089492.6465,
-    "lqip": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAACQAwCdASoUAA0APu1mq04ppaQiMAgBMB2JZwDCgB5shdjeUTwgANtVlF/7enQDyCj0en7xCozX48HzbAYHwMt+D5wAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/lazienka-1400.webp"
-  },
-  "assets/apartments/liberta-iii/lozko-detal.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905092061.9858,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAwCdASoUAA8APu1orU6ppiSiMAgBMB2JQBOmUABp2n9WgXBqfIs4AP7H2FWu/c7efFaFTEr4kqSS7LQbqdk3DBa/Vsspu7pSDotEAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/lozko-detal-1400.webp"
-  },
-  "assets/apartments/liberta-iii/luksus.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905088379.109,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASoUAA8APu1iqU2ppaOiMAgBMB2JZACdACHheb40vYJl+sdF4AD+6nwg/3w0sTvMdD8dZyjtWqt/OrbJO3amTiOZTSAAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/luksus-1400.webp"
-  },
-  "assets/apartments/liberta-iii/salon-aneks-1.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905086701.0884,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADwAwCdASoUAA0APu1mqk4ppaOiMAgBMB2JQBOmUABwDQ2qyvFT3LgAAPelTK/05/N0OLfFhw/gTQL/ailo37x5FfkmjwfG7YAAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/salon-aneks-1-1400.webp"
-  },
-  "assets/apartments/liberta-iii/salon-aneks-2.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905087112.6526,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADQAwCdASoUAA0APu1iqU2ppaOiMAgBMB2JYwCdACFq3hBhJebRMQAA/pTcLj15RJop4941Ygcx/sLSIL53FNTk91Awmbls21gAAA==",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/salon-aneks-2-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-iii/kuchnia-1448.webp"
   },
   "assets/apartments/liberta-iii/salon-parter.jpg": {
-    "width": 1400,
-    "height": 1050,
-    "mtimeMs": 1788905086275.1348,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAACwAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JYwCdABc1hv9WE46HUAD7jVRJ9DlDsNgd5TzOx1lAwrS3i1MuEGbx/KPIxujkw0NLMTP8DkbTZsnoAAA=",
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792418003638,
+    "lqip": "data:image/webp;base64,UklGRpQAAABXRUJQVlA4IIgAAAAQBQCdASoUABsAPulep02pJSOiN/VYASAdCWgAnTKEdNAMbdS/U8HnNgIKnCiyZ04AAKt+1APSH0BSmEBkrDVYT68wQ8j1FPrOJtgcG+pfs02AW5skn12C/o2BBbrlrubxdEs29YSaNqhwNgWJToplGjAsmS9rxl3SlKtrS6ZfJF6L/JAbZAAA",
     "widths": [
       480,
       768,
-      1100,
-      1400
+      1086
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/salon-parter-1400.webp"
-  },
-  "assets/apartments/liberta-iii/sypialnia-parter.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905087985.0627,
-    "lqip": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAAAQBACdASoUAA0APu1iqk2ppaQiMAgBMB2JQBOmUI7gBK5NYnASaHDc+AD+7WF343A5/XmYnN2OTqIC2ize9gRYd2+2pgA/3mDntgrZsD5YAAAA",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/sypialnia-parter-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-iii/salon-parter-1086.webp"
   },
   "assets/apartments/liberta-iii/sypialnia-pietro-1.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905090218.0566,
-    "lqip": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADQAwCdASoUAA0APu1iqk4ppaQiMAgBMB2JQBOgA2hR+QL1KvorAAAA+KK7TixQVAMxxirNzzRvZe/UEYaM7J39e3rfOSbuIC70TIAA",
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792418004509,
+    "lqip": "data:image/webp;base64,UklGRpYAAABXRUJQVlA4IIoAAABwBACdASoUABsAPu1qrFCppaQiqAqpMB2JZgCdMoAAyXtuO5HEknEXuHRdQAD8ge1CoAgr98l0U9I8xCxyLA7JxSDsW7d6QU6P/vlHUyb3ievhbI2XBgxXL4Y8So5louw4wG01rkH9cLuaV7wqiF7JMMKFJAkgHPLiMwLusMHiYeTTjiCAaDdYAAA=",
     "widths": [
       480,
       768,
-      1100,
-      1400
+      1086
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/sypialnia-pietro-1-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-iii/sypialnia-pietro-1-1086.webp"
   },
   "assets/apartments/liberta-iii/sypialnia-pietro-2.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905090707.4263,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAACQAwCdASoUAA0APu1kqk4ppaQiMAgBMB2JQBWAAs6dlInn9JIAAP6Xa6Wx3JAimYANsZW3AR4m7nKAGFcZ/CaRdPqhbmlbWSHskGL4AAA=",
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792418004901,
+    "lqip": "data:image/webp;base64,UklGRpIAAABXRUJQVlA4IIYAAACQBQCdASoUABsAPu1qq08ppiOiMBgIATAdiWoAnTMl9GAMhxf26vyQxSoDCaogDJEPPFEiYAD+jF3eMnUxYzI5OURM0HZM3+496X7UW3l19uJkotxUZcyKhfZODIvXhVU1mZMqtFhv9569FIc7yXmRKUmlSmVvwfStsEu0da/nFdX6iAAAAA==",
     "widths": [
       480,
       768,
-      1100,
-      1400
+      1086
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/sypialnia-pietro-2-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-iii/sypialnia-pietro-2-1086.webp"
   },
   "assets/apartments/liberta-iii/sypialnia-pietro-3.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905091201.0415,
-    "lqip": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAAAQBACdASoUAA0APu1iqk2ppaQiMAgBMB2JQBOmUGSxic/VWIBL3HexgAD+aebpDk2v1qd2dJmG3LLJ1B7KrqKvT9wsLS9VK7oAp4JHeS7+0YmXuHoYAA==",
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792418005235,
+    "lqip": "data:image/webp;base64,UklGRoYAAABXRUJQVlA4IHoAAABQBQCdASoUABsAPt1ao02opSMiN/qoARAbiWYAnTNMQ1geDVIgxxfs/pWtypXwEN3eVgAA/sSsYPgPUFxa1C9wMa3RB+SMHLkWuK0gtXOsYOOC9eXp2Zb9OgDsFDLDdCALvKWJ3qlLBrVyWv27sDpm8epkhCXel9QAAA==",
     "widths": [
       480,
       768,
-      1100,
-      1400
+      1086
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/sypialnia-pietro-3-1400.webp"
-  },
-  "assets/apartments/liberta-iii/sypialnia-pietro-4.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905091594.8972,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAABwBACdASoUAA0APu1kqk4ppaQiMAgBMB2JYgCdMoRwACofwNxXiZ1lXXAEIAD854Cp4ozfU2nsUgGAzERISoXczkrKfAIOreOmuBjMcqDKnewAAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/sypialnia-pietro-4-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-iii/sypialnia-pietro-3-1086.webp"
   },
   "assets/apartments/liberta-iii/taras.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905093027.1145,
-    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAADQAwCdASoUAA0APu1orU2ppqSiMAgBMB2JZwAAXe+kmwntexBVMgAA/uej3BjbM3mYYTFgfT7ZYbxnVrC4CS5rUYPFnlltWE/XiEjtcJXTsQWjAAA=",
+    "width": 1448,
+    "height": 1086,
+    "mtimeMs": 1792418002517,
+    "lqip": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAADwAwCdASoUAA8APu1mqk4ppaOiMAgBMB2JaACdMoRwAA1K43iCj2IAAP5xYH0/ze91SZLjOdpuqzZQXtq6pSg6fBmyF7Dctr11+WA0pVMG5yeqZDrllxg4hDHamIAA",
     "widths": [
       480,
       768,
       1100,
-      1400
+      1400,
+      1448
     ],
-    "fallback": "/assets/responsive/assets/apartments/liberta-iii/taras-1400.webp"
+    "fallback": "/assets/responsive/assets/apartments/liberta-iii/taras-1448.webp"
   },
   "assets/apartments/liberta-iv/bania-goralska.jpg": {
     "width": 1400,
@@ -1077,18 +677,6 @@
     ],
     "fallback": "/assets/responsive/assets/events/festiwal-sup-2026-1414.webp"
   },
-  "assets/attractions/bunkry-stare-jablonski.webp": {
-    "width": 1000,
-    "height": 667,
-    "mtimeMs": 1790022760656,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADQAwCdASoUAA0APu1kqU2ppaOiMAgBMB2JQBWGUABHif7K736cUgAA/m+7iLydZPovvgTKO5Z798gReuv054XXsioziSOGUlUAAA==",
-    "widths": [
-      480,
-      768,
-      1000
-    ],
-    "fallback": "/assets/responsive/assets/attractions/bunkry-stare-jablonski-1000.webp"
-  },
   "assets/attractions/jezioro-szelag.webp": {
     "width": 1360,
     "height": 1017,
@@ -1218,17 +806,18 @@
     "fallback": "/assets/responsive/assets/facilities/lazienka-1200.webp"
   },
   "assets/facilities/miejsce-na-ognisko.webp": {
-    "width": 1200,
-    "height": 1604,
-    "mtimeMs": 1790025858104,
-    "lqip": "data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAAAQBQCdASoUABsAPuFeqU2opSQiMAwBEBwJYgCdMyS21w+x0CYUoP1dPaf4v6ujm82AAPpuUOV+TmzFxvl1cpIjdsM7hE43cmMQQ9Xi6EAQhoNQZK0Wbei/0G+3q6cus+S1ygez2m3sZowak66jqRcA0KyZGoAA",
+    "width": 1451,
+    "height": 1084,
+    "mtimeMs": 1792418005780,
+    "lqip": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAwBACdASoUAA8APu1oqk6ppiQiMAgBMB2JYwCdMoMkp8AAXkR7ZS+g8AAAzYaabB92NHiYJDHmPlICyfK3TIJWpDcT8kqNRZVENt0rpGAAAA==",
     "widths": [
       480,
       768,
       1100,
-      1200
+      1400,
+      1451
     ],
-    "fallback": "/assets/responsive/assets/facilities/miejsce-na-ognisko-1200.webp"
+    "fallback": "/assets/responsive/assets/facilities/miejsce-na-ognisko-1451.webp"
   },
   "assets/facilities/plac-zabaw.webp": {
     "width": 1080,
@@ -1258,8 +847,8 @@
   "assets/facilities/sauna.webp": {
     "width": 1086,
     "height": 1448,
-    "mtimeMs": 1790025857643,
-    "lqip": "data:image/webp;base64,UklGRoQAAABXRUJQVlA4IHgAAABwBQCdASoUABsAPulep02pJSOiN/VYASAdCWIAnTNodGATEeJceRVv8uiT9Ibpd8L/JUAAANcz7+biVkgP0KKmbry8WxR+lnpQzsMeBQMggB+7j9nklNgzOiRTiLkGHWBVXQa15LGrFoDuw+Q0SJkqOwE/mEYoAAA=",
+    "mtimeMs": 1792418005557,
+    "lqip": "data:image/webp;base64,UklGRoQAAABXRUJQVlA4IHgAAAAQBQCdASoUABsAPt1WpU2opKOiN/qoARAbiWYAnTN2xQBzioPoV1wg0z+dfXj/5SUAAOQvkdUMLm3yYd4MMRFH/c3ZGNv/bHIr+rtiq0L3BHQ5srzLqPNEGK1qxuRvKvlxVW9mxpG7HWgJZECe0pVr3bkoiGeMAAA=",
     "widths": [
       480,
       768,
@@ -1493,5 +1082,54 @@
       1532
     ],
     "fallback": "/assets/responsive/assets/facilities/play-1532.webp"
+  },
+  "assets/apartments/liberta-ii/taras-widok.jpg": {
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792418000395,
+    "lqip": "data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAABwBACdASoUABsAPtlco02oJaMiN/qoAQAbCWgAnTLaQtdJlc7OJXbMpuEPOAD3HuT3UolOBoviLH5W5d8GrAPsp6u8gvayJF65IbP3rTt0kFfKzDEcmeSYigD+Ma+5Nq8g/buQA7NHpMY0EYReaQK288MVjeh88JzFRHC4IG8OTsgA",
+    "widths": [
+      480,
+      768,
+      1086
+    ],
+    "fallback": "/assets/responsive/assets/apartments/liberta-ii/taras-widok-1086.webp"
+  },
+  "assets/apartments/liberta-iii/kominek.jpg": {
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792418004218,
+    "lqip": "data:image/webp;base64,UklGRpoAAABXRUJQVlA4II4AAAAwBQCdASoUABsAPu1oqk+ppiOiMBgIATAdiWQAnTKEdUAQ2c2zF4DJtkgGvLSaEzi1DAD+nvT/nusOZYK43aTYLjT7WDuqsp126zv3VMaEu6+pS8LRk1Wu1r4Ja82ygai8EYt6+zae49ZaxbpWiQsdnShOPwybdhNL1jAeJjBGvmT3EBqQ9Lm2dSbgyAAA",
+    "widths": [
+      480,
+      768,
+      1086
+    ],
+    "fallback": "/assets/responsive/assets/apartments/liberta-iii/kominek-1086.webp"
+  },
+  "assets/editorial/apartamenty-noc.jpg": {
+    "width": 1400,
+    "height": 933,
+    "mtimeMs": 1792435688991,
+    "lqip": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAADwAwCdASoUAA0APu1iqU2ppaOiMAgBMB2JQBOgBDL1j/2zW94jRuuAAP7xTOoudpNU5i/qXSCtzrnVw1FdDdkhbmrggZxGDZ7zFVdBXpc8AAAA",
+    "widths": [
+      480,
+      768,
+      1100,
+      1400
+    ],
+    "fallback": "/assets/responsive/assets/editorial/apartamenty-noc-1400.webp"
+  },
+  "assets/attractions/bunkry-stare-jablonki.webp": {
+    "width": 1000,
+    "height": 667,
+    "mtimeMs": 1790022760656,
+    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADQAwCdASoUAA0APu1kqU2ppaOiMAgBMB2JQBWGUABHif7K736cUgAA/m+7iLydZPovvgTKO5Z798gReuv054XXsioziSOGUlUAAA==",
+    "widths": [
+      480,
+      768,
+      1000
+    ],
+    "fallback": "/assets/responsive/assets/attractions/bunkry-stare-jablonki-1000.webp"
   }
 }

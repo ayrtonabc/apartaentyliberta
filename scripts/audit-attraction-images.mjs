@@ -15,10 +15,22 @@ const DIR_IMG = resolve(RAIZ, "public/assets/attractions");
 
 const fuente = await readFile(DATO, "utf8");
 
-/** Todos los slug del tipo, en orden de aparición. */
-const slugs = [...fuente.matchAll(/slug:\s*"([^"]+)"/g)].map((m) => m[1]);
+/**
+ * Todos los slug del tipo, en orden de aparición.
+ *
+ * El bloque de cada atracción se corta en el siguiente `slug:`. Antes se usaba
+ * un regex perezoso (`slug…image:`) que se comía la entrada siguiente cuando
+ * una atracción no tenía imagen: `krainy-jezior` (sin foto) absorbía el
+ * `image:` de `festiwal-sup` y el informe decía que el festival no tenía foto
+ * cuando sí la tiene. Con bloques, cada entrada se evalúa por separado.
+ */
+const bloques = [...fuente.matchAll(/slug:\s*"([^"]+)"([\s\S]*?)(?=slug:\s*"|export const|$)/g)].map((m) => ({
+  slug: m[1],
+  cuerpo: m[2],
+}));
+const slugs = bloques.map((b) => b.slug);
 /** Los que además declaran `image:` */
-const conCampoImagen = [...fuente.matchAll(/slug:\s*"([^"]+)"[\s\S]*?image:\s*"([^"]+)"/g)].map((m) => m[1]);
+const conCampoImagen = bloques.filter((b) => /image:\s*"/.test(b.cuerpo)).map((b) => b.slug);
 
 const archivos = (await readdir(DIR_IMG)).filter((f) => f.endsWith(".webp")).map((f) => f.replace(".webp", ""));
 

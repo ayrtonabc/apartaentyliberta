@@ -26,7 +26,16 @@ const BookingSchema = z.object({
   notes: z.string().max(500).optional().default(""),
   locale: z.enum(["pl", "en", "de"]).optional().default("pl"),
   consent: z.literal("on"),
-  honeypot: z.string().max(0).optional().default(""),
+  /*
+   * Honeypot: el campo va oculto en el formulario y una persona nunca lo rellena.
+   *
+   * NO se valida con `max(0)`. Antes era así y el bot recibía un 400
+   * «Validation failed / honeypot: String must contain at most 0 character(s)»:
+   * además de delatar la trampa, el 200 silencioso que el código pretende
+   * devolver nunca se ejecutaba porque la validación cortaba antes. Se acepta
+   * cualquier valor y se descarta más abajo.
+   */
+  honeypot: z.string().max(500).optional().default(""),
 });
 
 /** Límite simple en memoria por IP (en producción conviene Redis/Upstash). */
@@ -267,7 +276,24 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   `;
 
   try {
-    const resendApiKey = import.meta.env.RESEND_API_KEY;
+    /*
+     * IMPORTANTE — de dónde salen las credenciales.
+     *
+     * Antes era `import.meta.env.RESEND_API_KEY`, y eso se INICIA EN EL BUILD:
+     * el bundle quedaba con `const resendApiKey = undefined` y la rama de envío
+     * se eliminaba por tree-shaking. Un sitio compilado sin la clave —lo normal:
+     * se compila en local o en CI, los secretos viven en el servidor— no podía
+     * enviar correos NUNCA, ni poniendo RESEND_API_KEY en producción. Y no
+     * fallaba: se degradaba en silencio a "libro de reservas en el log".
+     *
+     * `process.env` se lee en cada petición, así que la clave se configura al
+     * arrancar el servidor (`server.mjs` carga .env) o con las variables del
+     * contenedor.
+     */
+    const resendApiKey = (process.env.RESEND_API_KEY ?? "").trim();
+    const ownerEmail = (process.env.OWNER_EMAIL ?? "").trim() || site.email;
+    const fromEmail =
+      (process.env.BOOKING_FROM_EMAIL ?? "").trim() || "noreply@apartamentyliberta.pl";
 
     if (resendApiKey) {
       const { Resend } = await import("resend");
@@ -275,14 +301,14 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
       const results = await Promise.allSettled([
         resend.emails.send({
-          from: `${site.name} <noreply@apartamentyliberta.pl>`,
-          to: site.email,
+          from: `${site.name} <${fromEmail}>`,
+          to: ownerEmail,
           replyTo: booking.email,
           subject: tx.ownerSubject(booking.name, apartmentLabel),
           html: emailShell(tx.ownerTitle, ownerBody),
         }),
         resend.emails.send({
-          from: `${site.name} <noreply@apartamentyliberta.pl>`,
+          from: `${site.name} <${fromEmail}>`,
           to: booking.email,
           subject: tx.clientSubject,
           html: emailShell(tx.clientTitle, clientBody),

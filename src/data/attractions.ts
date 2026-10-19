@@ -124,7 +124,7 @@ export const attractions: Attraction[] = [
       en: "Historical fortifications from World War II. A place of memory and fascinating for military history lovers.",
       de: "Historische Befestigungsanlagen aus dem Zweiten Weltkrieg. Ein Ort der Erinnerung und faszinierend für Militärgeschichtsliebhaber.",
     },
-    image: "/assets/attractions/bunkry-stare-jablonski.webp",
+    image: "/assets/attractions/bunkry-stare-jablonki.webp",
     imageAlt: {
       pl: "Bunkry z okresu II wojny światowej w Starych Jabłonkach",
       en: "Second World War bunkers in Stare Jabłonki",

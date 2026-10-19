@@ -69,7 +69,12 @@ const refPath = canonicalPathProp ?? canonicalPath(Astro.url);
 const fullTitle = buildTitle(title);
 const canonical = buildCanonical(refPath, locale);
 const hreflangs = buildHreflangLinks(refPath, locale);
-const ogTags = buildOgTags({ title: fullTitle, description, ogImage, ogType }, locale, canonical);
+const ogTags = buildOgTags(
+  { title: fullTitle, description, ogImage, ogType },
+  locale,
+  canonical,
+  refPath,
+);
 
 const baseSchemas: object[] = [
   buildOrganizationSchema(locale),

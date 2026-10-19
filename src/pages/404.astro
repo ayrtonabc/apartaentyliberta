@@ -6,7 +6,6 @@
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
-import { apartments } from "~/data/apartments";
 import Icon from "~/components/ui/Icon.astro";
 import SmartImage from "~/components/ui/SmartImage.astro";
 
@@ -69,8 +68,16 @@ const suggestions = [
       </div>
 
       <figure class="nf__figure" data-reveal style="--reveal-delay:100ms">
+        <!--
+          Imagen editorial propia, NO una foto de un apartamento.
+
+          Antes apuntaba a `apartments[1].id + "/exterior-noc.jpg"`; al
+          sustituir las fotos de Liberta II ese archivo desapareció y el 404 se
+          quedó con un hueco roto. La foto vive ahora en `editorial/`, que no se
+          toca al importar fotos de las unidades.
+        -->
         <SmartImage
-          src={`/assets/apartments/${apartments[1].id}/exterior-noc.jpg`}
+          src="/assets/editorial/apartamenty-noc.jpg"
           alt={
             locale === "pl"
               ? "Apartamenty Liberta wieczorem nad Jeziorem Szeląg"

@@ -12,7 +12,14 @@
  *     navegación con flechas.
  *   - Enlaza a la MISMA página en el otro idioma (no a la home).
  */
-import { type Locale, locales, localeMeta, localeLink, canonicalPath } from "~/lib/i18n";
+import {
+  type Locale,
+  locales,
+  localeMeta,
+  localeLink,
+  canonicalPath,
+  hasTranslation,
+} from "~/lib/i18n";
 import Flag from "~/components/ui/Flag.astro";
 
 interface Props {
@@ -32,12 +39,23 @@ const current: Locale = Astro.url.pathname.startsWith("/en/")
 /** Ruta canónica polaca de la página actual: base para los tres idiomas. */
 const basePath = canonicalPath(Astro.url);
 
+/*
+ * Páginas que solo existen en polaco (reglamento, privacidad, festival SUP,
+ * pueblos de la comarca): su versión inglesa y alemana nunca se publicó.
+ *
+ * Antes el selector enlazaba a esas URLs inexistentes y el visitante comía un
+ * 404. Ahora, si la página no está traducida, el enlace lleva a la home de ese
+ * idioma: el visitante SÍ cambia de idioma y no pierde el sitio. Se mantiene la
+ * opción visible para no dejarle sin salida hacia el resto del contenido.
+ */
 const options = locales.map((code) => {
   const meta = localeMeta[code];
+  const translated = hasTranslation(basePath, code);
   return {
     code,
     meta,
-    href: localeLink(code, basePath),
+    href: translated ? localeLink(code, basePath) : localeLink(code, "/"),
+    translated,
     current: code === current,
   };
 });
@@ -57,6 +75,7 @@ const groupLabel = label ?? (current === "pl" ? "Język" : current === "de" ? "S
           hreflang={opt.meta.hreflang}
           lang={opt.code}
           aria-current={opt.current ? "true" : undefined}
+          data-lang-fallback={opt.translated ? undefined : "home"}
         >
           <Flag code={opt.meta.region} size={22} />
           <span class="lang__option-name">{opt.meta.nativeName}</span>
@@ -100,6 +119,7 @@ const groupLabel = label ?? (current === "pl" ? "Język" : current === "de" ? "S
                 role="menuitem"
                 aria-current={opt.current ? "true" : undefined}
                 data-lang-item
+                data-lang-fallback={opt.translated ? undefined : "home"}
               >
                 <Flag code={opt.meta.region} size={20} />
                 <span class="lang__item-text">

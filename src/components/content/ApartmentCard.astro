@@ -78,6 +78,26 @@ const imageAlt: Record<string, Record<string, string>> = {
     en: "The apartment at night with its lit terrace",
     de: "Die Ferienwohnung am Abend mit beleuchteter Terrasse",
   },
+  "bania-goralska": {
+    pl: "Prywatna balia góralska w ogrodzie o zachodzie słońca",
+    en: "Private wood-fired hot tub in the garden at sunset",
+    de: "Privater Holz-Hot-Tub im Garten bei Sonnenuntergang",
+  },
+  taras: {
+    pl: "Zadaszony taras z leżakami i widokiem na jezioro",
+    en: "Covered terrace with loungers and lake view",
+    de: "Überdachte Terrasse mit Liegestühlen und Seeblick",
+  },
+  "taras-widok": {
+    pl: "Widok na jezioro i pomosty z tarasu apartamentu",
+    en: "Lake and piers seen from the apartment terrace",
+    de: "See und Stege von der Terrasse der Wohnung",
+  },
+  "salon-parter": {
+    pl: "Salon na parterze z kominkiem i wyjściem do ogrodu",
+    en: "Ground-floor living room with fireplace and garden access",
+    de: "Wohnzimmer im Erdgeschoss mit Kamin und Gartenzugang",
+  },
 };
 
 const heroBase = apartment.photos.hero.replace(/\.(jpe?g|png|webp)$/i, "");
@@ -99,7 +119,11 @@ const specs: Array<{ icon: IconName; value: string; label: string }> = [
     label: tr.apartment.sleeps,
   },
   { icon: "bed", value: `${apartment.specs.bedrooms}`, label: tr.apartment.bedrooms },
-  { icon: "bath", value: `${apartment.specs.bathrooms}`, label: tr.apartment.bathrooms },
+  {
+    icon: "bath",
+    value: `${apartment.specs.bathrooms}`,
+    label: apartment.specs.bathrooms === 1 ? tr.apartment.bathroomsOne : tr.apartment.bathrooms,
+  },
 ];
 ---
 

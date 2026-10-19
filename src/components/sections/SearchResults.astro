@@ -59,6 +59,16 @@ const busquedaValida = noches > 0;
 
 const { ranges, source } = await loadBookedRanges();
 
+/**
+ * Sin calendario no se puede afirmar NADA sobre la disponibilidad.
+ *
+ * `source === "empty"` no significa "todo libre": significa que no hay dato.
+ * La entradilla ya lo decía, pero el título, los sellos de las tarjetas y la
+ * tira de 60 días seguían pintando todo en verde. Eso es una promesa que el
+ * dato no sostiene, así que los tres pasan a un estado neutro.
+ */
+const sinDatos = source === "empty";
+
 const resultado = busquedaValida ? checkAvailability(ranges, checkIn, checkOut) : { available: false, conflicts: [] };
 const disponibles = busquedaValida
   ? availabilityByApartment(apartments, ranges, checkIn, checkOut)
@@ -80,7 +90,16 @@ const copy = {
     searching: "Szukamy wolnych terminów…",
     searchingNote: "Sprawdzamy kalendarz apartamentów",
     foundTitle: "Dostępne w wybranych terminach",
+    /* Sin calendario no se puede afirmar que el término esté libre. */
+    foundTitleUnverified: "Nie możemy potwierdzić terminu",
     foundLead: "Te daty są wolne. Wybierz apartament i wyślij zapytanie — potwierdzamy w kilka godzin.",
+    /*
+     * Cuando `source` es "empty" no hay calendario que consultar: los cuatro
+     * aparecen libres porque NO SABEMOS nada, no porque estén libres. La
+     * entradilla no puede afirmar disponibilidad en ese caso.
+     */
+    foundLeadUnverified:
+      "Nie udało się sprawdzić kalendarza, ale wybrane daty nie są zablokowane. Wyślij zapytanie — potwierdzimy dostępność telefonicznie lub mailem.",
     busyTitle: "Termin zajęty",
     busyLead: "W wybranych datach nie mamy wolnego apartamentu. Poniżej najbliższe wolne terminy.",
     invalidTitle: "Uzupełnij daty",
@@ -94,6 +113,8 @@ const copy = {
     evening: "Wieczór",
     occupied: "Zajęte",
     free: "Wolne",
+    onRequest: "Zapytaj",
+    unknown: "Brak danych",
     blockedBy: "Zajęte od",
     to: "do",
     nearestBefore: "Najbliższy wolny termin przed",
@@ -114,7 +135,10 @@ const copy = {
     searching: "Searching for available dates…",
     searchingNote: "Checking the apartment calendar",
     foundTitle: "Available on your dates",
+    foundTitleUnverified: "We cannot confirm these dates",
     foundLead: "These dates are free. Pick an apartment and send your enquiry — we confirm within hours.",
+    foundLeadUnverified:
+      "We could not read the calendar, but your dates are not blocked. Send your enquiry and we will confirm availability by phone or email.",
     busyTitle: "Those dates are taken",
     busyLead: "We have no apartment free on the dates you chose. Here are the nearest available stays.",
     invalidTitle: "Add your dates",
@@ -128,6 +152,8 @@ const copy = {
     evening: "Evening",
     occupied: "Taken",
     free: "Free",
+    onRequest: "Enquire",
+    unknown: "No data",
     blockedBy: "Booked from",
     to: "to",
     nearestBefore: "Nearest free dates before",
@@ -148,7 +174,10 @@ const copy = {
     searching: "Wir suchen freie Termine…",
     searchingNote: "Kalender der Ferienwohnungen wird geprüft",
     foundTitle: "Für Ihre Daten verfügbar",
+    foundTitleUnverified: "Dieser Termin ist nicht bestätigt",
     foundLead: "Diese Daten sind frei. Wählen Sie eine Wohnung und senden Sie die Anfrage — wir bestätigen innerhalb weniger Stunden.",
+    foundLeadUnverified:
+      "Der Kalender war nicht abrufbar, Ihre Daten sind aber nicht blockiert. Senden Sie die Anfrage — wir bestätigen die Verfügbarkeit per Telefon oder E-Mail.",
     busyTitle: "Dieser Termin ist belegt",
     busyLead: "Für Ihre Daten ist keine Wohnung frei. Hier die nächstgelegenen freien Termine.",
     invalidTitle: "Daten ergänzen",
@@ -162,6 +191,8 @@ const copy = {
     evening: "Abend",
     occupied: "Belegt",
     free: "Frei",
+    onRequest: "Anfragen",
+    unknown: "Keine Daten",
     blockedBy: "Belegt ab",
     to: "bis",
     nearestBefore: "Nächster freier Termin davor",
@@ -221,18 +252,36 @@ const dias = Array.from({ length: horizonte }, (_, i) => {
   };
 });
 
-const origenDatos =
-  source === "cache"
-    ? locale === "pl"
-      ? "Kalendarz Booking.com"
-      : locale === "de"
-        ? "Booking.com-Kalender"
-        : "Booking.com calendar"
-    : locale === "pl"
-      ? "Dane przykładowe"
-      : locale === "de"
-        ? "Beispieldaten"
-        : "Sample data";
+/** Estado real de un día para el título accesible y la clase CSS. */
+const estadoDia = (libre: boolean) => (sinDatos ? "unknown" : libre ? "free" : "busy");
+
+/**
+ * Qué calendario se está usando, en el idioma de la página.
+ *
+ * `empty` es un estado propio, no un sinónimo de `sample`: en producción indica
+ * que no hay calendario conectado y que la disponibilidad la confirma el
+ * propietario. Decir "datos de ejemplo" ahí sería engañoso.
+ */
+const origenDatos = {
+  cache: {
+    pl: "Kalendarz Booking.com",
+    en: "Booking.com calendar",
+    de: "Booking.com-Kalender",
+  },
+  sample: {
+    pl: "Dane przykładowe (tylko wersja lokalna)",
+    en: "Sample data (local only)",
+    de: "Beispieldaten (nur lokal)",
+  },
+  empty: {
+    pl: "Kalendarz niedostępny — dostępność potwierdzamy telefonicznie lub mailem",
+    en: "Calendar unavailable — we confirm availability by phone or email",
+    de: "Kalender nicht verfügbar — Bestätigung per Telefon oder E-Mail",
+  },
+}[source][locale];
+
+/** La entradilla no afirma disponibilidad si no se pudo comprobar el calendario. */
+const leadDisponible = source === "empty" ? copy.foundLeadUnverified : copy.foundLead;
 ---
 
 <BaseLayout
@@ -279,14 +328,14 @@ const origenDatos =
 
         {busquedaValida ? (
           <h1 class="srch__title" data-srch-title>
-            {hayDisponibles ? copy.foundTitle : copy.busyTitle}
+            {hayDisponibles ? (sinDatos ? copy.foundTitleUnverified : copy.foundTitle) : copy.busyTitle}
           </h1>
         ) : (
           <h1 class="srch__title">{copy.invalidTitle}</h1>
         )}
 
         <p class="srch__lead" data-srch-lead>
-          {busquedaValida ? (hayDisponibles ? copy.foundLead : copy.busyLead) : copy.invalidLead}
+          {busquedaValida ? (hayDisponibles ? leadDisponible : copy.busyLead) : copy.invalidLead}
         </p>
 
         <!-- Resumen de la búsqueda: qué se pidió, en una línea -->
@@ -328,10 +377,12 @@ const origenDatos =
       <!-- ===================================================== APARTAMENTOS -->
       {busquedaValida && (
         <section class="srch__results" aria-live="polite">
-          <p class="srch__note">
-            <Icon name="info" size={15} />
-            {copy.sameCalendar}
-          </p>
+          {!sinDatos && (
+            <p class="srch__note">
+              <Icon name="info" size={15} />
+              {copy.sameCalendar}
+            </p>
+          )}
 
           <ul class="srch__list" role="list">
             {apartments.map((apartment, index) => {
@@ -343,14 +394,26 @@ const origenDatos =
                   style={`--reveal-delay:${index * 60}ms`}
                 >
                   <figure class="srch__media">
+                    <!--
+                      El hero del dato, no un nombre de archivo fijo.
+                      `exterior-dzien.jpg` solo existe en las unidades que
+                      conservan las fotos antiguas: en Liberta II la tarjeta
+                      salía con la imagen rota en cuanto había fechas.
+                    -->
                     <SmartImage
-                      src={`/assets/apartments/${apartment.id}/exterior-dzien.jpg`}
+                      src={`/assets/apartments/${apartment.id}/${apartment.photos.hero}`}
                       alt={apartment.names[locale]}
                       sizes="(min-width: 900px) 30vw, 100vw"
                     />
-                    <span class:list={["srch__badge", estado?.available && "srch__badge--free"]}>
-                      <Icon name={estado?.available ? "check" : "info"} size={13} />
-                      {estado?.available ? copy.free : copy.occupied}
+                    <span
+                      class:list={[
+                        "srch__badge",
+                        estado?.available && !sinDatos && "srch__badge--free",
+                        sinDatos && "srch__badge--unknown",
+                      ]}
+                    >
+                      <Icon name={estado?.available && !sinDatos ? "check" : "info"} size={13} />
+                      {estado?.available ? (sinDatos ? copy.onRequest : copy.free) : copy.occupied}
                     </span>
                   </figure>
 
@@ -449,8 +512,8 @@ const origenDatos =
         <ul class="srch__cal-strip" role="list">
           {dias.map((d) => (
             <li
-              class:list={["srch__day", d.libre ? "is-free" : "is-busy", d.primerDiaDelMes && "is-first"]}
-              title={`${d.iso} · ${d.libre ? copy.free : copy.occupied}`}
+              class:list={[`srch__day`, `is-${estadoDia(d.libre)}`, d.primerDiaDelMes && "is-first"]}
+              title={`${d.iso} · ${sinDatos ? copy.unknown : d.libre ? copy.free : copy.occupied}`}
             >
               {d.primerDiaDelMes && <span class="srch__day-month">{d.mes}</span>}
               <span class="srch__day-num">{d.dia}</span>
@@ -459,8 +522,14 @@ const origenDatos =
         </ul>
 
         <p class="srch__legend">
-          <span class="srch__legend-item"><i class="is-free"></i>{copy.free}</span>
-          <span class="srch__legend-item"><i class="is-busy"></i>{copy.occupied}</span>
+          {sinDatos ? (
+            <span class="srch__legend-item"><i class="is-unknown"></i>{copy.unknown}</span>
+          ) : (
+            <>
+              <span class="srch__legend-item"><i class="is-free"></i>{copy.free}</span>
+              <span class="srch__legend-item"><i class="is-busy"></i>{copy.occupied}</span>
+            </>
+          )}
         </p>
       </section>
 
@@ -793,6 +862,12 @@ const origenDatos =
     color: var(--color-text-on-accent);
   }
 
+  /* Estado "no lo sabemos": ni verde de libre ni gris de ocupado. */
+  .srch__badge--unknown {
+    background: rgba(6, 14, 11, 0.72);
+    color: #fff;
+  }
+
   .srch__body {
     display: flex;
     flex-direction: column;
@@ -975,6 +1050,12 @@ const origenDatos =
     color: var(--color-text-subtle);
   }
 
+  .srch__day.is-unknown {
+    background: var(--color-bg-muted);
+    color: var(--color-text-subtle);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
   .srch__day.is-first {
     margin-left: var(--space-3);
   }
@@ -1018,6 +1099,11 @@ const origenDatos =
 
   .srch__legend-item i.is-busy {
     background: var(--color-line);
+  }
+
+  .srch__legend-item i.is-unknown {
+    background: var(--color-bg-muted);
+    box-shadow: inset 0 0 0 1px var(--color-line);
   }
 
   .srch__back {

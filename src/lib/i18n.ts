@@ -14,11 +14,20 @@ import {
   defaultLocale,
   localeMeta,
   translatePath,
+  hasTranslation,
   localeFromPath,
   normalizePath,
 } from "~/data/locales";
 
-export { type Locale, locales, defaultLocale, localeMeta, translatePath, normalizePath };
+export {
+  type Locale,
+  locales,
+  defaultLocale,
+  localeMeta,
+  translatePath,
+  hasTranslation,
+  normalizePath,
+};
 export type { LocaleMeta } from "~/data/locales";
 
 /** El diccionario polaco define la forma canónica de las traducciones. */
@@ -78,15 +87,22 @@ export function canonicalUrl(
   return localizedUrl(locale, path, baseUrl);
 }
 
-/** Enlaces alternativos para hreflang, incluido x-default. */
+/** Enlaces alternativos para hreflang, incluido x-default.
+ *
+ *  Solo se incluyen los idiomas que tienen página propia: si el reglamento
+ *  existe únicamente en polaco, anunciar un `hreflang="en-GB"` que devuelve
+ *  404 es peor que no anunciarlo.
+ */
 export function alternateLinks(
   path: string,
   baseUrl = "https://apartamentyliberta.pl",
 ): Array<{ hreflang: string; href: string }> {
-  const links = locales.map((locale) => ({
-    hreflang: localeMeta[locale].hreflang,
-    href: localizedUrl(locale, path, baseUrl),
-  }));
+  const links = locales
+    .filter((locale) => hasTranslation(path, locale))
+    .map((locale) => ({
+      hreflang: localeMeta[locale].hreflang,
+      href: localizedUrl(locale, path, baseUrl),
+    }));
 
   links.push({ hreflang: "x-default", href: localizedUrl(defaultLocale, path, baseUrl) });
 
@@ -94,6 +110,6 @@ export function alternateLinks(
 }
 
 /** ¿La ruta existe como página real en ese idioma? (usado por el selector) */
-export function isLocalizedPath(path: string): boolean {
-  return Boolean(path);
+export function isLocalizedPath(path: string, locale: Locale): boolean {
+  return hasTranslation(path, locale);
 }

@@ -110,6 +110,17 @@ export default {
     reason4Text:
       "Rejs motorówką, masaż w apartamencie, wyjazd na strzelnicę — wszystko zorganizujemy.",
 
+    /*
+     * Sección "Liberta I–IV" de la portada.
+     *
+     * Estas dos claves faltaban en los tres idiomas: la sección se publicaba
+     * con el eyebrow "Liberta I–IV" y un <h2> y una entradilla VACÍOS. Se
+     * detectó con `astro check` (TS2339) y leyendo el HTML generado.
+     */
+    apartmentsTitle: "Cztery apartamenty, jeden standard",
+    apartmentsLead:
+      "Wszystkie mają 80 m² na dwóch piętrach, trzy sypialnie, dwie łazienki i prywatną balię góralską. Różni je położenie w kompleksie: widok na jezioro, na plażę z pomostem, na zachód słońca albo na najcichszą część ogrodu.",
+
     amenitiesEyebrow: "Wyposażenie",
     amenitiesTitle: "Wszystko, czego potrzebujesz — i kilka rzeczy, których się nie spodziewasz",
     amenitiesLead:
@@ -191,6 +202,12 @@ export default {
     sleeps: "Goście",
     bedrooms: "Sypialnie",
     bathrooms: "Łazienki",
+    /*
+     * Plural de verdad, no "1 Łazienki". En polaco el singular es Łazienka y el
+     * plural Łazienki: con una sola unidad la etiqueta de la tarjeta quedaba en
+     * "1 ŁAZIENKI", que es un error de idioma a la vista en la portada.
+     */
+    bathroomsOne: "Łazienka",
     floor: "Piętro",
     ground: "Parter",
     perNight: "/ noc",

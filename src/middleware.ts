@@ -26,6 +26,25 @@ const SECURITY_HEADERS = {
   "X-Frame-Options": "SAMEORIGIN",
   "Permissions-Policy": "geolocation=(self), camera=(), microphone=()",
   "Cross-Origin-Opener-Policy": "same-origin",
+  /**
+   * Misma CSP que `server.mjs`. Aquí cubre las respuestas que genera Astro en
+   * caliente (la API); el HTML prerenderizado lo sirve `server.mjs`, que pone la
+   * suya. Si se cambia una, hay que cambiar la otra.
+   */
+  "Content-Security-Policy": [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'self'",
+    "form-action 'self'",
+    "img-src 'self' data:",
+    "font-src 'self' data:",
+    "style-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline'",
+    "connect-src 'self'",
+    // youtube-nocookie: reproductores de la sección "Nagrano w Liberta"
+    "frame-src https://www.google.com https://maps.google.com https://consent.google.com https://www.youtube-nocookie.com",
+  ].join("; "),
 };
 
 function cacheControlFor(pathname: string): string {
@@ -42,12 +61,29 @@ function cacheControlFor(pathname: string): string {
 }
 
 export const onRequest: MiddlewareHandler = async (context, next) => {
+  /*
+   * Las páginas prerenderizadas NO pasan por aquí en producción: `server.mjs`
+   * las sirve directamente desde dist/client con sus propias cabeceras y su
+   * Brotli precomprimido.
+   *
+   * Durante el build, en cambio, Astro sí ejecuta el middleware con una petición
+   * sintética para cada ruta prerenderizada. Leer sus headers lanzaba 43 avisos
+   * («Astro.request.headers... is not available on prerendered pages») y el
+   * middleware comprimía el HTML para nada, porque ese resultado no se guarda.
+   * Salir aquí es lo que hace que el build deje de mentir.
+   */
+  if (context.isPrerendered) return next();
+
   const response = await next();
   const url = new URL(context.request.url);
   const headers = new Headers(response.headers);
 
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     if (!headers.has(key)) headers.set(key, value);
+  }
+
+  if (url.protocol === "https:") {
+    headers.set("Strict-Transport-Security", "max-age=31536000");
   }
 
   if (context.request.method === "GET") {

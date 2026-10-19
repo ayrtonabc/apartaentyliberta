@@ -41,11 +41,25 @@ const pkg = readJSON("package.json");
 ["dev", "build", "preview", "start", "test:structure", "test:syntax", "typecheck"].forEach((s) =>
   check(Boolean(pkg.scripts?.[s]), `script "${s}" definido`),
 );
-check(Boolean(pkg.dependencies?.["@astrojs/sitemap"]), "@astrojs/sitemap instalado");
-check(Boolean(pkg.dependencies?.["@astrojs/node"]), "@astrojs/node instalado");
-check(Boolean(pkg.dependencies?.zod), "zod instalado");
-check(Boolean(pkg.dependencies?.resend), "resend instalado");
-check(Boolean(pkg.dependencies?.sharp), "sharp instalado");
+/*
+ * Las dependencias se comprueban en dependencies Y devDependencies.
+ *
+ * El 2026-08 se movieron los adapters (@astrojs/node, @astrojs/vercel) a
+ * devDependencies porque solo hacen falta en build, y esta comprobación se
+ * quedó mirando solo `dependencies`: el test fallaba con un error que no era
+ * cierto y tapaba los dos errores reales que sí había.
+ */
+const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+check(Boolean(allDeps["@astrojs/sitemap"]), "@astrojs/sitemap instalado");
+check(Boolean(allDeps["@astrojs/node"]), "@astrojs/node instalado");
+check(Boolean(allDeps.astro), "astro instalado");
+check(Boolean(allDeps.zod), "zod instalado");
+check(Boolean(allDeps.resend), "resend instalado");
+check(Boolean(allDeps.sharp), "sharp instalado");
+check(
+  /^>=\s*22\./.test(pkg.engines?.node ?? ""),
+  "engines.node declara Node >= 22 (requisito de Astro 6)",
+);
 
 /* -------------------------------------------------------------- Estructura */
 console.log("\n📂 Estructura:");
@@ -127,7 +141,11 @@ console.log("\n🧩 Componentes:");
   "src/components/ui/SectionHeading.astro",
   "src/components/content/ApartmentCard.astro",
   "src/components/content/BookingForm.astro",
-  "src/components/content/ContactBlock.astro",
+  "src/components/content/BookingSearch.astro",
+  /* ContactBlock.astro ya no existe: su contenido se reparte entre MapEmbed
+     (mapa) y SocialLinks (redes). Se comprueban esos dos en su lugar. */
+  "src/components/content/MapEmbed.astro",
+  "src/components/ui/SocialLinks.astro",
   "src/components/content/Gallery.astro",
   "src/components/content/FaqSection.astro",
   "src/components/content/Testimonials.astro",

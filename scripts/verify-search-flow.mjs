@@ -29,9 +29,18 @@ const chromePath = [
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/*
+ * Fechas del calendario de EJEMPLO. El caso "ocupado" usa el rango
+ * 2026-11-01 → 2026-11-08 de `availability-sample.ics`; antes usaba una fecha
+ * ya pasada (2026-09-28), que solo funcionaba por casualidad.
+ *
+ * El servidor tiene que arrancarse con el calendario de muestra:
+ *   AVAILABILITY_ALLOW_SAMPLE=1 node ./server.mjs
+ * En producción el `.ics` de muestra está desactivado a propósito.
+ */
 const CASOS = [
   { nombre: "fechas libres", q: "?checkIn=2026-11-10&checkOut=2026-11-14&guests=6", libre: true },
-  { nombre: "fechas ocupadas", q: "?checkIn=2026-09-28&checkOut=2026-10-01&guests=6", libre: false },
+  { nombre: "fechas ocupadas", q: "?checkIn=2026-11-02&checkOut=2026-11-06&guests=6", libre: false },
   { nombre: "sin fechas", q: "", libre: null },
 ];
 
@@ -56,6 +65,8 @@ const PROBE = `JSON.stringify((() => {
     alt,
     diasTotales: dias.length,
     diasLibres: dias.filter((d) => d.classList.contains('is-free')).length,
+    diasSinDatos: dias.filter((d) => d.classList.contains('is-unknown')).length,
+    fuente: document.querySelector('.srch__cal-source')?.textContent?.trim() ?? '',
     formAccion: document.querySelector('.srch__form')?.getAttribute('action'),
   };
 })())`;
@@ -160,7 +171,18 @@ async function main() {
       }
       if (caso.libre !== null) {
         const esperado = caso.libre ? 4 : 0;
-        console.log(`  ${libres === esperado ? "CORRECTO" : `INCORRECTO (esperaba ${esperado} libres)`}`);
+        /*
+         * Sin calendario no se puede verificar el caso "ocupado": la página
+         * responde "no lo sé" y las tarjetas salen como "Zapytaj", no como
+         * libres. Eso es correcto, pero no demuestra que el calendario funcione.
+         */
+        const sinDatos = d.diasSinDatos > 0 || /niedostępny|unavailable|nicht verfügbar/i.test(d.fuente);
+        if (sinDatos && caso.libre === false) {
+          console.log("  OMITIDO: sin calendario conectado no hay fechas ocupadas que comprobar.");
+          console.log("  Arranca el servidor con AVAILABILITY_ALLOW_SAMPLE=1 para probar este caso.");
+        } else {
+          console.log(`  ${libres === esperado ? "CORRECTO" : `INCORRECTO (esperaba ${esperado} libres)`}`);
+        }
       }
     }
 

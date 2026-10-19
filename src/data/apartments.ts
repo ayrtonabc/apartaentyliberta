@@ -67,15 +67,23 @@ export const apartments: Apartment[] = [
     id: "liberta-i",
     number: 1,
     photos: {
-      hero: "exterior-dzien.jpg",
+      /*
+       * Fotos propias del propietario (domku A), importadas con
+       * scripts/import-new-photos.mjs.
+       *
+       * `hero` es horizontal a propósito: la tarjeta y el hero de la ficha son
+       * formatos anchos y una vertical se recorta por el centro.
+       */
+      hero: "bania-goralska.jpg",
       layout: "salon-parter.jpg",
       gallery: [
-        "sypialnia-parter.jpg",
-        "sypialnia-pietro-1.jpg",
+        "exterior-dzien.jpg",
+        "salon-parter.jpg",
         "kuchnia.jpg",
-        "lazienka.jpg",
-        "bania-goralska.jpg",
-        "taras.jpg",
+        "sypialnia-pietro-1.jpg",
+        "sypialnia-pietro-2.jpg",
+        "sypialnia-pietro-3.jpg",
+        "sypialnia-pietro-4.jpg",
       ],
     },
     names: {
@@ -151,16 +159,17 @@ export const apartments: Apartment[] = [
     id: "liberta-ii",
     number: 2,
     photos: {
+      /** Fotos propias del propietario (domek b). Hero: terraza con el lago. */
       hero: "taras.jpg",
-      layout: "luksus.jpg",
+      layout: "salon-parter.jpg",
       gallery: [
+        "taras-widok.jpg",
+        "salon-parter.jpg",
         "salon-aneks-1.jpg",
+        "kuchnia.jpg",
+        "lazienka.jpg",
         "sypialnia-pietro-1.jpg",
-        "salon-aneks-2.jpg",
-        "lazienka-parter-1.jpg",
-        "exterior-dzien.jpg",
         "sypialnia-pietro-2.jpg",
-        "exterior-noc.jpg",
       ],
     },
     names: {
@@ -236,15 +245,17 @@ export const apartments: Apartment[] = [
     id: "liberta-iii",
     number: 3,
     photos: {
-      hero: "salon-parter.jpg",
-      layout: "salon-aneks-2.jpg",
+      /** Fotos propias del propietario (domek C). Hero: terraza al atardecer. */
+      hero: "taras.jpg",
+      layout: "kominek.jpg",
       gallery: [
+        "exterior-dzien.jpg",
+        "kominek.jpg",
+        "kuchnia.jpg",
+        "salon-parter.jpg",
+        "sypialnia-pietro-1.jpg",
         "sypialnia-pietro-2.jpg",
         "sypialnia-pietro-3.jpg",
-        "sypialnia-pietro-4.jpg",
-        "lazienka-parter-2.jpg",
-        "luksus.jpg",
-        "lozko-detal.jpg",
       ],
     },
     names: {

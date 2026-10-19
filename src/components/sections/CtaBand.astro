@@ -18,7 +18,12 @@ const {
   title,
   text,
   note,
-  image = "/assets/apartments/liberta-iv/exterior-noc.jpg",
+  /*
+   * Imagen editorial, no una foto de apartamento: la banda se usa en muchas
+   * páginas y las galerías de las unidades se sustituyen cuando llegan fotos
+   * nuevas (fue justo lo que rompió el 404 al cambiar las de Liberta II).
+   */
+  image = "/assets/editorial/apartamenty-noc.jpg",
 } = Astro.props;
 
 const locale: Locale = getLocaleFromUrl(Astro.url);

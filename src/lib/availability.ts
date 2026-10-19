@@ -46,8 +46,39 @@ const ROOT = process.env.PUBLIC_DATA_DIR
   ? resolve(process.env.PUBLIC_DATA_DIR)
   : process.cwd();
 
-const JSON_PATH = join(ROOT, "src", "data", "availability.json");
+/**
+ * Ruta del JSON de disponibilidad.
+ *
+ * `AVAILABILITY_FILE` (ruta absoluta o relativa al cwd) manda. Es lo que se usa
+ * en el VPS: un volumen con el calendario que actualiza un cron, fuera del
+ * código desplegado.
+ *
+ *   AVAILABILITY_FILE=/srv/liberta-data/availability.json
+ *
+ * Sin esa variable se mantiene el comportamiento histórico (raíz del proyecto).
+ */
+const JSON_PATH = process.env.AVAILABILITY_FILE
+  ? resolve(process.env.AVAILABILITY_FILE)
+  : join(ROOT, "src", "data", "availability.json");
 const SAMPLE_PATH = join(ROOT, "src", "data", "availability-sample.ics");
+
+/**
+ * ¿Se puede usar el calendario de EJEMPLO?
+ *
+ * Solo en desarrollo, y solo si no se desactiva expresamente. En producción
+ * esta condición es falsa siempre: el `.ics` de muestra contiene reservas
+ * inventadas (2026-11-01 → 2026-11-08, entre otras) y, al no haber calendario
+ * real, se colaba como fuente y RECHAZABA fechas que estaban libres. Una
+ * reserva perdida por datos de prueba es peor que no comprobar nada.
+ *
+ * Para probar el flujo en local con el servidor de producción:
+ *   AVAILABILITY_ALLOW_SAMPLE=1 node ./server.mjs
+ */
+const ALLOW_SAMPLE =
+  process.env.AVAILABILITY_ALLOW_SAMPLE === "1" || process.env.NODE_ENV === "development";
+
+/** Un calendario de hace semanas ya no sirve: se avisa, no se bloquea. */
+const STALE_AFTER_DAYS = 7;
 
 export type BookedRange = {
   /** YYYY-MM-DD (inclusivo, huesped llega en la tarde) */
@@ -230,6 +261,10 @@ export function availabilityByApartment(
   }));
 }
 
+/** Evita repetir el aviso en cada petición (el SSR lo ejecutaría en cada visita). */
+let noDataWarned = false;
+let staleWarned = false;
+
 export async function loadBookedRanges(): Promise<LoadedAvailability> {
   // 1) Cache JSON (producción)
   if (existsSync(JSON_PATH)) {
@@ -237,6 +272,7 @@ export async function loadBookedRanges(): Promise<LoadedAvailability> {
       const raw = await readFile(JSON_PATH, "utf-8");
       const data = JSON.parse(raw);
       if (Array.isArray(data.ranges) && data.ranges.length > 0) {
+        warnIfStale(data.cachedAt);
         return {
           ranges: data.ranges,
           source: "cache",
@@ -249,8 +285,8 @@ export async function loadBookedRanges(): Promise<LoadedAvailability> {
     }
   }
 
-  // 2) iCal de muestra (dev/testing)
-  if (existsSync(SAMPLE_PATH)) {
+  // 2) iCal de muestra — SOLO en desarrollo
+  if (ALLOW_SAMPLE && existsSync(SAMPLE_PATH)) {
     try {
       const ics = await readFile(SAMPLE_PATH, "utf-8");
       const ranges = parseICal(ics);
@@ -265,7 +301,7 @@ export async function loadBookedRanges(): Promise<LoadedAvailability> {
     }
   }
 
-  // 3) Empty
+  // 3) Sin datos
   /*
    * ESTE CAMINO NO PUEDE SER SILENCIOSO.
    *
@@ -274,13 +310,39 @@ export async function loadBookedRanges(): Promise<LoadedAvailability> {
    * fechas que quizá estén ocupadas y el propietario tiene que decirle que no
    * después. Esto llegó a pasar en producción por un error de ruta (ver el
    * comentario de ROOT), sin que nada lo avisara.
+   *
+   * El resultado lleva `source: "empty"` para que la página de resultados pueda
+   * decir "no hemos podido comprobar el calendario" en lugar de fingir que el
+   * dato es de Booking.
    */
-  console.error(
-    "[availability] SIN DATOS DE CALENDARIO: se está respondiendo que todo está libre.\n" +
-      `  Rutas comprobadas:\n    ${JSON_PATH}\n    ${SAMPLE_PATH}\n` +
-      "  Actualiza el calendario (`npm run availability:update`) o revisa PUBLIC_DATA_DIR.\n" +
-      "  Si es intencionado (aún no hay calendario conectado), ignora este aviso.",
-  );
+  if (!noDataWarned) {
+    noDataWarned = true;
+    console.error(
+      "[availability] SIN DATOS DE CALENDARIO: se responde que todo está libre.\n" +
+        `  Rutas comprobadas:\n    ${JSON_PATH}\n    ${ALLOW_SAMPLE ? SAMPLE_PATH : "(muestra desactivada: NODE_ENV=production)"}\n` +
+        "  Actualiza el calendario (`npm run availability:update`) o define AVAILABILITY_FILE.\n" +
+        "  Si es intencionado (aún no hay calendario conectado), ignora este aviso.",
+    );
+  }
 
   return { ranges: [], source: "empty" };
+}
+
+/**
+ * Avisa si el calendario lleva demasiado tiempo sin actualizarse.
+ *
+ * Un JSON de hace tres semanas no es «disponibilidad»: es una foto vieja. Con
+ * el calendario congelado se rechazan fechas que ya se liberaron, así que el
+ * aviso tiene que estar en el log del servidor, junto al cron que lo actualiza.
+ */
+function warnIfStale(cachedAt?: string): void {
+  if (!cachedAt || staleWarned) return;
+  const age = Date.now() - Date.parse(cachedAt);
+  if (!Number.isFinite(age) || age < STALE_AFTER_DAYS * 24 * 60 * 60 * 1000) return;
+  staleWarned = true;
+  const days = Math.floor(age / (24 * 60 * 60 * 1000));
+  console.warn(
+    `[availability] El calendario tiene ${days} días (cachedAt=${cachedAt}). ` +
+      "Actualízalo con `npm run availability:update` desde el cron.",
+  );
 }

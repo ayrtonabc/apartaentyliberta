@@ -101,8 +101,16 @@
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
 
-  /* Escala fluida */
-  --text-2xs: clamp(0.625rem, 0.61rem + 0.08vw, 0.6875rem);
+  /*
+   * Escala fluida.
+   *
+   * `--text-2xs` era clamp(10px … 11px), y la usan 60+ elementos: títulos de
+   * columna del pie, etiquetas de precio de las tarjetas, contadores, insignias
+   * de reseña, subtítulos del selector de idioma. A 10,9 px en escritorio se
+   * leían mal y es el mínimo que fija cualquier guía de legibilidad de interfaz.
+   * Ahora arranca en 11 px y llega a 12 px.
+   */
+  --text-2xs: clamp(0.6875rem, 0.66rem + 0.12vw, 0.75rem);
   --text-xs: clamp(0.75rem, 0.73rem + 0.1vw, 0.8125rem);
   --text-sm: clamp(0.875rem, 0.85rem + 0.12vw, 0.9375rem);
   --text-base: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);

@@ -87,10 +87,31 @@ photos.forEach((p, i) => originalIndex.set(p.src, i));
  * foto por foto.
  */
 const cerrarEnMovil = visiblePhotos.length % 2 === 1;
+
+/**
+ * Cierre de la retícula de escritorio (4 columnas).
+ *
+ * La foto destacada ocupa 2×2 = 4 celdas, así que el total de celdas es
+ * `visibles + 3`. Si al dividir entre 4 sobran 2, la última fila queda con dos
+ * huecos vacíos: es lo que pasaba con las 7 fotos de cada apartamento y se veía
+ * como un mosaico sin terminar. Con este modificador las dos últimas fotos
+ * pasan a doble ancho y la fila cierra exacta.
+ *
+ * No se aplica a la galería del complejo (`hiddenFromGrid`), que tiene su
+ * composición explícita de 12 columnas.
+ */
+const cerrarEnEscritorio = hiddenFromGrid.length === 0 && (visiblePhotos.length + 3) % 4 === 2;
 ---
 
 <div class="gal" data-gallery>
-  <ul class:list={["gal__mosaic", cerrarEnMovil && "gal__mosaic--cierra-impar"]} role="list">
+  <ul
+    class:list={[
+      "gal__mosaic",
+      cerrarEnMovil && "gal__mosaic--cierra-impar",
+      cerrarEnEscritorio && "gal__mosaic--cierra-dos",
+    ]}
+    role="list"
+  >
     {visiblePhotos.map((photo) => (
       <li class:list={["gal__tile", photo.span && `gal__tile--${photo.span}`]} data-reveal>
         <button
@@ -145,7 +166,13 @@ const cerrarEnMovil = visiblePhotos.length % 2 === 1;
 
   <dialog class="gal__dialog" data-gal-dialog aria-label={label}>
     <div class="gal__stage">
-      <img class="gal__large" data-gal-large src="" alt="" />
+      <!--
+        Sin `src` a propósito: el JS lo rellena al abrir cada foto y lo quita al
+        cerrar. Con `src=""` el navegador resolvía la URL del documento y pedía
+        la propia página como si fuera una imagen (petición inútil y, en algunos
+        navegadores, icono de imagen rota).
+      -->
+      <img class="gal__large" data-gal-large alt="" />
 
       <button class="gal__ctl gal__ctl--close" type="button" data-gal-close aria-label={closeLabel}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -222,6 +249,17 @@ const cerrarEnMovil = visiblePhotos.length % 2 === 1;
   .gal__mosaic--cierra-impar > .gal__tile:last-child {
     grid-column: span 2;
     aspect-ratio: 16 / 9;
+  }
+
+  /*
+   * Cierre de la retícula de escritorio. Ver el comentario de
+   * `cerrarEnEscritorio` en la cabecera: con 7 fotos en 4 columnas sobraban dos
+   * huecos en la última fila.
+   */
+  @media (min-width: 768px) {
+    .gal__mosaic--cierra-dos > .gal__tile:nth-last-child(-n + 2) {
+      grid-column: span 2;
+    }
   }
 
   @media (min-width: 768px) {

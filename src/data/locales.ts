@@ -70,8 +70,19 @@ export const localeMeta: Record<Locale, LocaleMeta> = {
 /**
  * Equivalencias de rutas estáticas entre idiomas.
  * La clave es la ruta en polaco (idioma canónico del contenido).
+ *
+ * IMPORTANTE — solo se declara un idioma si la página EXISTE de verdad.
+ *
+ * Antes había entradas para `/regulamin/`, `/polityka-prywatnosci/`,
+ * `/festiwal-sup/` y `/okolica/*` en inglés y alemán, pero esas páginas nunca
+ * se escribieron: el sitio enlazaba a 58 URLs que devolvían 404 (el selector de
+ * idioma y los hreflang las anunciaban como si existieran). Mientras no haya
+ * traducción real, la ruta se declara solo en polaco y `translatePath()` hace
+ * que el selector lleve a la versión polaca en lugar de a un 404.
  */
-export const routeMap: Record<string, Record<Locale, string>> = {
+export type RouteTranslations = Partial<Record<Locale, string>>;
+
+export const routeMap: Record<string, RouteTranslations> = {
   "/": { pl: "/", en: "/en/", de: "/de/" },
   "/apartamenty/": {
     pl: "/apartamenty/",
@@ -93,49 +104,34 @@ export const routeMap: Record<string, Record<Locale, string>> = {
   },
   "/opinie/": { pl: "/opinie/", en: "/en/reviews/", de: "/de/bewertungen/" },
   "/faq/": { pl: "/faq/", en: "/en/faq/", de: "/de/faq/" },
-  "/galeria/": { pl: "/galeria/", en: "/en/gallery/", de: "/de/galerie/" },
-  "/regulamin/": { pl: "/regulamin/", en: "/en/terms/", de: "/de/agb/" },
-  "/polityka-prywatnosci/": {
-    pl: "/polityka-prywatnosci/",
-    en: "/en/privacy/",
-    de: "/de/datenschutz/",
-  },
-  "/festiwal-sup/": {
-    pl: "/festiwal-sup/",
-    en: "/en/sup-festival/",
-    de: "/de/sup-festival/",
-  },
-  "/okolica/olsztyn/": {
-    pl: "/okolica/olsztyn/",
-    en: "/en/area/olsztyn/",
-    de: "/de/umgebung/olsztyn/",
-  },
-  "/okolica/ostroda/": {
-    pl: "/okolica/ostroda/",
-    en: "/en/area/ostroda/",
-    de: "/de/umgebung/ostroda/",
-  },
-  "/okolica/olsztynek/": {
-    pl: "/okolica/olsztynek/",
-    en: "/en/area/olsztynek/",
-    de: "/de/umgebung/olsztynek/",
-  },
-  "/okolica/katno/": {
-    pl: "/okolica/katno/",
-    en: "/en/area/katno/",
-    de: "/de/umgebung/katno/",
-  },
+
+  /*
+   * Sin traducción publicada todavía.
+   *
+   * Estas páginas existen solo en polaco. Se declaran con su clave canónica
+   * para que `translatePath()` las reconozca (y no las trate como una ruta
+   * desconocida a la que hay que anteponer un prefijo), pero sin `en`/`de`:
+   * así el selector de idioma lleva a la versión polaca y los hreflang no
+   * anuncian traducciones que no existen.
+   */
+  "/regulamin/": { pl: "/regulamin/" },
+  "/polityka-prywatnosci/": { pl: "/polityka-prywatnosci/" },
+  "/festiwal-sup/": { pl: "/festiwal-sup/" },
+  "/okolica/olsztyn/": { pl: "/okolica/olsztyn/" },
+  "/okolica/ostroda/": { pl: "/okolica/ostroda/" },
+  "/okolica/olsztynek/": { pl: "/okolica/olsztynek/" },
+  "/okolica/katno/": { pl: "/okolica/katno/" },
 };
 
-/** Prefijos de sección por idioma: /apartamenty/liberta-i/ ↔ /en/apartments/liberta-i/ */
-const sectionPrefixes: Array<{ key: string; sections: Record<Locale, string> }> = [
+/**
+ * Prefijos de sección con páginas de detalle en los tres idiomas:
+ * /apartamenty/liberta-i/ ↔ /en/apartments/liberta-i/ ↔ /de/ferienwohnungen/liberta-i/
+ *
+ * El slug del apartamento se conserva; solo cambia el prefijo de la sección.
+ */
+const sectionPrefixes: Array<{ sections: Record<Locale, string> }> = [
   {
-    key: "/apartamenty/",
     sections: { pl: "/apartamenty/", en: "/en/apartments/", de: "/de/ferienwohnungen/" },
-  },
-  {
-    key: "/okolica/",
-    sections: { pl: "/okolica/", en: "/en/area/", de: "/de/umgebung/" },
   },
 ];
 
@@ -149,37 +145,97 @@ export function normalizePath(path: string): string {
 }
 
 /**
- * Traduce una ruta de un idioma a otro.
- * - Rutas conocidas → equivalencia exacta
- * - Rutas de detalle (/apartamenty/liberta-i/) → se conserva el slug
- * - Desconocidas → se antepone el prefijo del idioma destino
+ * Índice inverso: CUALQUIER URL publicada (en cualquiera de los tres idiomas)
+ * → su clave canónica en polaco.
+ *
+ * Sin esto, `translatePath()` solo entendía rutas en polaco. Al cambiar de
+ * idioma desde /en/apartments/ o /de/preise/ no encontraba la equivalencia y
+ * devolvía /apartments/ o /de/prices/: 404. El idioma de origen no puede ser
+ * una suposición; se resuelve por la URL.
  */
-export function translatePath(path: string, target: Locale): string {
+const canonicalIndex: Record<string, string> = (() => {
+  const index: Record<string, string> = {};
+  for (const [key, translations] of Object.entries(routeMap)) {
+    index[normalizePath(key)] = key;
+    for (const localized of Object.values(translations)) {
+      if (localized) index[normalizePath(localized)] = key;
+    }
+  }
+  return index;
+})();
+
+type ResolvedRoute =
+  /** Página estática declarada en routeMap (traducida o solo en polaco). */
+  | { kind: "static"; canonical: string; translations: RouteTranslations }
+  /** Página de detalle: solo cambia el prefijo de la sección. */
+  | { kind: "section"; sections: Record<Locale, string>; rest: string }
+  /** Ruta no declarada (404, utilidades, rutas futuras). */
+  | { kind: "unknown"; canonical: string };
+
+/** Resuelve una URL (en cualquier idioma) a su forma canónica. */
+export function resolveRoute(path: string): ResolvedRoute {
   const p = normalizePath(path);
 
-  const exact = routeMap[p];
-  if (exact) return exact[target];
+  const canonical = canonicalIndex[p];
+  if (canonical) {
+    return { kind: "static", canonical, translations: routeMap[canonical] };
+  }
 
-  for (const { key, sections } of sectionPrefixes) {
-    if (p.startsWith(key)) {
-      const rest = p.slice(key.length);
-      return `${sections[target]}${rest}`;
+  for (const { sections } of sectionPrefixes) {
+    for (const locale of locales) {
+      const prefix = sections[locale];
+      if (p.startsWith(prefix)) {
+        return { kind: "section", sections, rest: p.slice(prefix.length) };
+      }
     }
+  }
+
+  return { kind: "unknown", canonical: p };
+}
+
+/**
+ * Traduce una ruta de un idioma a otro.
+ * - Ruta conocida con traducción → su equivalente exacto
+ * - Ruta conocida sin traducción → la versión en polaco (nunca un 404)
+ * - Detalle de apartamento → se conserva el slug y cambia el prefijo
+ * - Desconocida → se antepone el prefijo del idioma destino
+ */
+export function translatePath(path: string, target: Locale): string {
+  const resolved = resolveRoute(path);
+
+  if (resolved.kind === "static") {
+    return (
+      resolved.translations[target] ??
+      resolved.translations[defaultLocale] ??
+      resolved.canonical
+    );
+  }
+
+  if (resolved.kind === "section") {
+    return `${resolved.sections[target]}${resolved.rest}`;
   }
 
   // Si la ruta ya viene con prefijo de idioma, se quita antes de re-prefijar
-  const stripped = p.replace(/^\/(en|de)\//, "/");
-  const strippedExact = routeMap[stripped];
-  if (strippedExact) return strippedExact[target];
+  const stripped = resolved.canonical.replace(/^\/(en|de)\//, "/");
+  if (stripped !== resolved.canonical) return translatePath(stripped, target);
 
-  for (const { key, sections } of sectionPrefixes) {
-    if (stripped.startsWith(key)) {
-      const rest = stripped.slice(key.length);
-      return `${sections[target]}${rest}`;
-    }
-  }
+  return target === defaultLocale
+    ? resolved.canonical
+    : `${localeMeta[target].prefix}${resolved.canonical}`;
+}
 
-  return target === defaultLocale ? stripped : `${localeMeta[target].prefix}${stripped}`;
+/**
+ * ¿Esta ruta tiene página propia en ese idioma?
+ *
+ * Se usa para no anunciar hreflang de traducciones que no existen: Google
+ * penaliza alternates que apuntan a 404, y el selector de idioma tampoco debe
+ * fingir que hay versión inglesa de, por ejemplo, el reglamento.
+ */
+export function hasTranslation(path: string, locale: Locale): boolean {
+  const resolved = resolveRoute(path);
+  if (resolved.kind === "static") return Boolean(resolved.translations[locale]);
+  if (resolved.kind === "section") return Boolean(resolved.sections[locale]);
+  return false;
 }
 
 /** Detecta el idioma a partir del pathname. */

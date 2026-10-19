@@ -269,7 +269,24 @@ async function main() {
 
   ws.close();
   chrome.kill();
-  await rm(PROFILE, { recursive: true, force: true });
+
+  /*
+   * Chrome tarda un instante en soltar `CrashpadMetrics-active.pma`. Antes se
+   * borraba el perfil una sola vez y el script terminaba con EBUSY y código 1
+   * aunque las capturas se hubieran hecho bien. Se reintenta sin convertir un
+   * fallo de limpieza en un fallo de la auditoría.
+   */
+  for (let i = 0; i < 12; i++) {
+    try {
+      await rm(PROFILE, { recursive: true, force: true });
+      break;
+    } catch {
+      await sleep(250);
+    }
+  }
+  if (existsSync(PROFILE)) {
+    console.warn(`\n⚠ El perfil temporal sigue bloqueado: ${PROFILE}\n  Bórralo a mano antes de repetir.`);
+  }
   console.log(`\n${count} capturas en ${OUT}`);
 }
 

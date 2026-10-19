@@ -101,6 +101,11 @@ const de: typeof pl = {
     reason4Title: "Der Eigentümer kümmert sich",
     reason4Text: "Motorbootausflug, Massage in der Wohnung, Besuch am Schießstand — wir organisieren alles.",
 
+    /* Startseite, Abschnitt "Liberta I–IV": Titel und Einleitung fehlten. */
+    apartmentsTitle: "Vier Wohnungen, ein Standard",
+    apartmentsLead:
+      "Alle haben 80 m² auf zwei Etagen, drei Schlafzimmer, zwei Bäder und einen privaten Hot Tub. Unterschiedlich ist nur die Lage in der Anlage: Blick auf den See, auf Strand und Steg, auf den Sonnenuntergang oder auf die ruhigste Ecke des Gartens.",
+
     amenitiesEyebrow: "Ausstattung",
     amenitiesTitle: "Alles, was Sie brauchen — und einiges, das Sie nicht erwarten",
     amenitiesLead:
@@ -181,6 +186,7 @@ const de: typeof pl = {
     sleeps: "Gäste",
     bedrooms: "Schlafzimmer",
     bathrooms: "Bäder",
+    bathroomsOne: "Badezimmer",
     floor: "Obergeschoss",
     ground: "Erdgeschoss",
     perNight: "/ Nacht",

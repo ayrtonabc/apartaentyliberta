@@ -35,43 +35,70 @@ const layout = apartment.layout[locale];
 
 const heroSrc = `/assets/apartments/${apartment.id}/${apartment.photos.hero}`;
 
-/** Mosaico: hero + galería propia del apartamento. */
+/**
+ * Alt de cada foto, por nombre de archivo.
+ *
+ * Se indexa por el nombre SIN extensión porque `photos.gallery` guarda nombres
+ * semánticos: así el texto alternativo sigue siendo correcto al sustituir las
+ * fotos por las nuevas del propietario.
+ */
+const photoLabels: Record<string, Record<Locale, string>> = {
+  "salon-aneks-1": { pl: "Salon z aneksem kuchennym", en: "Living room with kitchenette", de: "Wohnzimmer mit Küchenzeile" },
+  "salon-aneks-2": { pl: "Salon z widokiem na jezioro", en: "Living room with lake view", de: "Wohnzimmer mit Seeblick" },
+  "salon-parter": { pl: "Salon na parterze", en: "Ground-floor living room", de: "Wohnzimmer im Erdgeschoss" },
+  kuchnia: { pl: "W pełni wyposażona kuchnia", en: "Fully equipped kitchen", de: "Voll ausgestattete Küche" },
+  kominek: { pl: "Kominek na drewno i Netflix", en: "Wood stove and Netflix", de: "Holzofen und Netflix" },
+  "sypialnia-parter": { pl: "Sypialnia na parterze", en: "Ground-floor bedroom", de: "Schlafzimmer im Erdgeschoss" },
+  "sypialnia-pietro-1": { pl: "Sypialnia na piętrze", en: "Upstairs bedroom", de: "Schlafzimmer im Obergeschoss" },
+  "sypialnia-pietro-2": { pl: "Sypialnia z widokiem", en: "Bedroom with a view", de: "Schlafzimmer mit Aussicht" },
+  "sypialnia-pietro-3": { pl: "Sypialnia dwuosobowa", en: "Double bedroom", de: "Doppelzimmer" },
+  "sypialnia-pietro-4": { pl: "Sypialnia dla dzieci", en: "Children's bedroom", de: "Kinderzimmer" },
+  lazienka: { pl: "Łazienka z prysznicem", en: "Bathroom with shower", de: "Badezimmer mit Dusche" },
+  "lazienka-parter-1": { pl: "Łazienka na parterze", en: "Ground-floor bathroom", de: "Badezimmer im Erdgeschoss" },
+  "lazienka-parter-2": { pl: "Druga łazienka", en: "Second bathroom", de: "Zweites Badezimmer" },
+  "lozko-detal": { pl: "Detal sypialni", en: "Bedroom detail", de: "Schlafzimmer-Detail" },
+  luksus: { pl: "Wnętrze o podwyższonym standardzie", en: "Premium interior finish", de: "Hochwertige Innenausstattung" },
+  "bania-goralska": { pl: "Prywatna balia góralska", en: "Private wood-fired hot tub", de: "Privater Holz-Hot-Tub" },
+  taras: { pl: "Zadaszony taras z widokiem na jezioro", en: "Covered terrace with lake view", de: "Überdachte Terrasse mit Seeblick" },
+  "taras-widok": { pl: "Widok na jezioro z tarasu", en: "Lake view from the terrace", de: "Seeblick von der Terrasse" },
+  "exterior-dzien": { pl: "Apartament z zewnątrz", en: "The apartment from outside", de: "Die Wohnung von außen" },
+  "exterior-noc": { pl: "Apartament wieczorem", en: "The apartment at night", de: "Die Wohnung am Abend" },
+};
+
+const baseOf = (file: string) => file.replace(/\.(jpe?g|png|webp)$/i, "");
+const isInteriorPhoto = (base: string) =>
+  /salon|kuchnia|sypialnia|lazienka|lozko|luksus|kominek/.test(base);
+
+/**
+ * Mosaico de la ficha.
+ *
+ * La pieza grande es la foto `layout`, NO el hero: antes se repetía la misma
+ * imagen del encabezado justo debajo, y el visitante veía dos veces la misma
+ * foto antes de llegar a cualquier otra estancia. `layout` existía en los datos
+ * y no se usaba en ninguna parte.
+ *
+ * Hero y layout se excluyen del resto de la galería para no duplicar.
+ */
+const layoutFile = apartment.photos.layout;
+const layoutBase = baseOf(layoutFile);
 const galleryPhotos: GalleryPhoto[] = [
   {
-    src: heroSrc,
-    alt: `${name} — ${tr.apartment.view}`,
-    category: "exterior",
+    src: `/assets/apartments/${apartment.id}/${layoutFile}`,
+    alt: photoLabels[layoutBase]?.[locale] ?? `${name} — ${tr.apartment.layout}`,
+    category: isInteriorPhoto(layoutBase) ? "interior" : "exterior",
     span: "big",
   },
-  ...apartment.photos.gallery.map((file, index) => {
-    const base = file.replace(/\.(jpe?g|png|webp)$/i, "");
-    const isInterior = /salon|kuchnia|sypialnia|lazienka|lozko|luksus/.test(base);
-    const labels: Record<string, Record<Locale, string>> = {
-      "salon-aneks-1": { pl: "Salon z aneksem kuchennym", en: "Living room with kitchenette", de: "Wohnzimmer mit Küchenzeile" },
-      "salon-aneks-2": { pl: "Salon z widokiem na jezioro", en: "Living room with lake view", de: "Wohnzimmer mit Seeblick" },
-      "salon-parter": { pl: "Salon na parterze", en: "Ground-floor living room", de: "Wohnzimmer im Erdgeschoss" },
-      kuchnia: { pl: "W pełni wyposażona kuchnia", en: "Fully equipped kitchen", de: "Voll ausgestattete Küche" },
-      "sypialnia-parter": { pl: "Sypialnia na parterze", en: "Ground-floor bedroom", de: "Schlafzimmer im Erdgeschoss" },
-      "sypialnia-pietro-1": { pl: "Sypialnia na piętrze", en: "Upstairs bedroom", de: "Schlafzimmer im Obergeschoss" },
-      "sypialnia-pietro-2": { pl: "Sypialnia z widokiem", en: "Bedroom with a view", de: "Schlafzimmer mit Aussicht" },
-      "sypialnia-pietro-3": { pl: "Sypialnia dwuosobowa", en: "Double bedroom", de: "Doppelzimmer" },
-      "sypialnia-pietro-4": { pl: "Sypialnia dla dzieci", en: "Children's bedroom", de: "Kinderzimmer" },
-      lazienka: { pl: "Łazienka z prysznicem", en: "Bathroom with shower", de: "Badezimmer mit Dusche" },
-      "lazienka-parter-1": { pl: "Łazienka na parterze", en: "Ground-floor bathroom", de: "Badezimmer im Erdgeschoss" },
-      "lazienka-parter-2": { pl: "Druga łazienka", en: "Second bathroom", de: "Zweites Badezimmer" },
-      "lozko-detal": { pl: "Detal sypialni", en: "Bedroom detail", de: "Schlafzimmer-Detail" },
-      luksus: { pl: "Wnętrze o podwyższonym standardzie", en: "Premium interior finish", de: "Hochwertige Innenausstattung" },
-      "bania-goralska": { pl: "Prywatna balia góralska", en: "Private wood-fired hot tub", de: "Privater Holz-Hot-Tub" },
-      taras: { pl: "Zadaszony taras z meblami", en: "Covered terrace with furniture", de: "Überdachte Terrasse mit Möbeln" },
-      "exterior-dzien": { pl: "Apartament z zewnątrz", en: "The apartment from outside", de: "Die Wohnung von außen" },
-      "exterior-noc": { pl: "Apartament wieczorem", en: "The apartment at night", de: "Die Wohnung am Abend" },
-    };
-    return {
-      src: `/assets/apartments/${apartment.id}/${file}`,
-      alt: labels[base]?.[locale] ?? `${name} — ${index + 1}`,
-      category: (isInterior ? "interior" : "exterior") as GalleryPhoto["category"],
-    };
-  }),
+  ...apartment.photos.gallery
+    .filter((file) => file !== layoutFile && file !== apartment.photos.hero)
+    .map((file, index) => {
+      const base = baseOf(file);
+      const label = photoLabels[base]?.[locale];
+      return {
+        src: `/assets/apartments/${apartment.id}/${file}`,
+        alt: label ?? `${name} — ${index + 1}`,
+        category: (isInteriorPhoto(base) ? "interior" : "exterior") as GalleryPhoto["category"],
+      };
+    }),
 ];
 
 const amenities = getAmenities(apartment.amenitiesKeys);
@@ -84,7 +111,11 @@ const specs = [
     label: tr.apartment.sleeps,
   },
   { icon: "bed" as const, value: `${apartment.specs.bedrooms}`, label: tr.apartment.bedrooms },
-  { icon: "bath" as const, value: `${apartment.specs.bathrooms}`, label: tr.apartment.bathrooms },
+  {
+    icon: "bath" as const,
+    value: `${apartment.specs.bathrooms}`,
+    label: apartment.specs.bathrooms === 1 ? tr.apartment.bathroomsOne : tr.apartment.bathrooms,
+  },
   {
     icon: "waves" as const,
     value: `${apartment.specs.distanceToLakeM} m`,
@@ -262,9 +293,14 @@ const otherApartments = apartments.filter((a) => a.id !== apartment.id);
 
       <BookingForm apartmentId={apartment.id} compact />
 
+      <!--
+        Solo la insignia de opiniones verificadas.
+        Antes había aquí otra línea con `tr.form.fastReply`, pero BookingForm ya
+        la pinta bajo el botón de envío: en la ficha se leía dos veces seguidas
+        "Odpowiadamy zwykle w kilka godzin".
+      -->
       <div class="abook__trust">
         <span><Icon name="shield" size={15} /> {tr.trust.verified}</span>
-        <span><Icon name="clock" size={15} /> {tr.form.fastReply}</span>
       </div>
     </div>
   </aside>

@@ -430,9 +430,21 @@ const tomorrowISO = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
     });
 
     function update(): void {
-      const checkInStr = (form.querySelector("[name=checkIn]") as HTMLInputElement).value;
-      const checkOutStr = (form.querySelector("[name=checkOut]") as HTMLInputElement).value;
-      const guestsStr = (form.querySelector("[name=guests]") as HTMLSelectElement).value;
+      /*
+       * Los tres campos se vuelven a resolver aquí en lugar de usar el `form`
+       * de fuera: TypeScript no conserva el estrechamiento de nulos dentro de
+       * una función declarada (puede ejecutarse antes del `if (!form) return`),
+       * y `astro check` fallaba con «'form' is possibly 'null'».
+       */
+      if (!form) return;
+      const checkInInput = form.querySelector<HTMLInputElement>("[name=checkIn]");
+      const checkOutInput = form.querySelector<HTMLInputElement>("[name=checkOut]");
+      const guestsSelect = form.querySelector<HTMLSelectElement>("[name=guests]");
+      if (!checkInInput || !checkOutInput || !guestsSelect) return;
+
+      const checkInStr = checkInInput.value;
+      const checkOutStr = checkOutInput.value;
+      const guestsStr = guestsSelect.value;
       if (!checkInStr || !checkOutStr) {
         hint!.hidden = false;
         results!.hidden = true;
@@ -471,7 +483,8 @@ const tomorrowISO = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
         const total = pricePerNight * nights;
         const totalEl = card.querySelector("[data-bsearch-total]");
         const perEl = card.querySelector("[data-bsearch-per]");
-        const statusEl = card.querySelector("[data-bsearch-status]");
+        // `HTMLElement` y no `Element`: se escribe en `.dataset`, que Element no tiene.
+        const statusEl = card.querySelector<HTMLElement>("[data-bsearch-status]");
         const ctaEl = card.querySelector<HTMLAnchorElement>("[data-bsearch-cta]");
         if (totalEl) totalEl.textContent = `${formatPLN(total)} ${TEXTS.total}`;
         if (perEl) perEl.textContent = `${formatPLN(pricePerNight)} ${TEXTS.perNight}`;
@@ -510,24 +523,29 @@ const tomorrowISO = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
   }
 </script>
 
-<script type="application/json" data-bsearch-texts>
-  {JSON.stringify({
-    available: c.available,
-    notAvailable: c.notAvailable,
-    nights: c.nights,
-    night: c.night,
-    perNight: c.perNight,
-    total: c.total,
-    selectDates: c.selectDates,
-    guestsUnit: c.guestsUnit,
-    capacity: c.capacity,
-    reserve: c.reserve,
-  })}
-</script>
+<!--
+  Textos y disponibilidad para el JS del buscador.
 
-<script type="application/json" data-bsearch-blocked>
-  {JSON.stringify(blockedRanges)}
-</script>
+  `set:html` NO es opcional aquí. Dentro de un <script>, Astro solo interpreta
+  `{...}` cuando el script es de JavaScript; con `type="application/json"` el
+  contenido se emite LITERAL, así que `{JSON.stringify(...)}` llegaba al HTML
+  tal cual y `JSON.parse` lanzaba «SyntaxError: Expected property name or '}'».
+  El resultado: el buscador de la página de reserva no arrancaba.
+-->
+<script type="application/json" data-bsearch-texts set:html={JSON.stringify({
+  available: c.available,
+  notAvailable: c.notAvailable,
+  nights: c.nights,
+  night: c.night,
+  perNight: c.perNight,
+  total: c.total,
+  selectDates: c.selectDates,
+  guestsUnit: c.guestsUnit,
+  capacity: c.capacity,
+  reserve: c.reserve,
+})} />
+
+<script type="application/json" data-bsearch-blocked set:html={JSON.stringify(blockedRanges)} />
 
 <style>
   .bsearch__head {

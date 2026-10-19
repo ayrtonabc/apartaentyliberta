@@ -406,6 +406,17 @@ const extras = [
 
   /* Tarifas */
   .rates {
+    /*
+     * La tarjeta se ajusta al ancho de la tabla y se centra.
+     *
+     * Antes ocupaba todo el contenedor (1232 px) mientras la tabla se limitaba
+     * a 46rem: quedaba un panel blanco vacío a la derecha de la tabla, que se
+     * leía como un componente roto. `fit-content` hace que la tarjeta termine
+     * donde termina la tabla.
+     */
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
     background: var(--color-bg-elevated);
     border: 1px solid var(--color-line);
     border-radius: var(--radius-xl);

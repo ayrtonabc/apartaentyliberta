@@ -336,7 +336,13 @@ const categories = Array.from(
     right: clamp(0.5rem, 2vw, 2rem);
   }
 
-  .gal__flip {
+  /*
+   * `:global` obligatorio: la clase se le pasa a <Icon>, que pinta el <svg> en
+   * su propio componente. El estilo con scope de Gallery añade un
+   * `data-astro-cid` que ese <svg> no tiene, así que la flecha "anterior" se
+   * quedaba sin girar y apuntaba hacia delante.
+   */
+  :global(.gal__flip) {
     transform: rotate(180deg);
   }
 

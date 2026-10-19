@@ -26,7 +26,18 @@ const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
 const result = spawnSync(npmCmd, ["run", "build"], {
   stdio: "inherit",
   env: process.env,
-  shell: false,
+  /*
+   * En Windows `npm` es `npm.cmd`, y `spawnSync` con `shell: false` no puede
+   * ejecutar un `.cmd`: el proceso fallaba antes de arrancar y el wrapper
+   * devolvía 1 SIN imprimir nada. Con `shell: true` funciona en Windows; en
+   * Linux/Mac el shell también resuelve el binario sin problema.
+   */
+  shell: process.platform === "win32",
 });
+
+if (result.error) {
+  console.error("No se pudo lanzar el build:", result.error.message);
+  process.exit(1);
+}
 
 process.exit(result.status ?? 1);

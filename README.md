@@ -215,6 +215,7 @@ src/
 |---|---|
 | `npm run dev` | Servidor de desarrollo (con predev de assets) |
 | `npm run build` | Build de producción + precompresión Brotli + limpieza del deploy |
+| `npm run build:vercel` | Igual, forzando `VERCEL=1` para el adapter de Vercel |
 | `npm start` | Servidor de producción en `PORT` (por defecto 8080) |
 | `npm test` | Los cuatro tests: estructura, sintaxis, rutas e imágenes |
 | `npm run check` | `astro check` (tipos + plantillas). Es el que detecta los errores reales |
@@ -840,6 +841,21 @@ arrancar (sin pisar lo que venga del entorno del contenedor).
 
 Requisitos: **Node ≥ 22.18** (Astro 6 exige ≥ 22.12; el test de rutas necesita
 eliminación de tipos nativa, 22.18). Está declarado en `engines` y `.nvmrc`.
+
+### Vercel
+
+`astro.config.mjs` elige adapter según `process.env.VERCEL`: con `VERCEL=1`
+usa `@astrojs/vercel` y genera `.vercel/output`; sin él usa `@astrojs/node`
+para `npm start`. En Vercel CI la variable la pone la plataforma sola; para
+probarlo en local:
+
+```bash
+npm run build:vercel
+```
+
+`postbuild` limpia `import-original/` de **las dos** salidas (`dist/client` y
+`.vercel/output/static`). Antes solo miraba `dist/client`, así que el despliegue
+de Vercel se llevaba los 19,5 MB de originales de cámara.
 
 ```bash
 npm ci

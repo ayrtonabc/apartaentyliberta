@@ -87,6 +87,16 @@ for (const attraction of attractions) {
 }
 
 // ---------------------------------------------------------------------------
+// 3.5) Miniaturas de los vídeos
+// ---------------------------------------------------------------------------
+
+const { videos } = await loadTs("src/data/videos.ts");
+
+for (const video of videos) {
+  check(video.poster, `videos.ts → ${video.slug}`);
+}
+
+// ---------------------------------------------------------------------------
 // 4) Rutas literales en el código
 // ---------------------------------------------------------------------------
 
@@ -132,4 +142,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`✓ ${checks.length} referencias de imagen verificadas (${apartments.length} apartamentos, ${facilities.length} instalaciones, ${attractions.length} atracciones).`);
+console.log(`✓ ${checks.length} referencias de imagen verificadas (${apartments.length} apartamentos, ${facilities.length} instalaciones, ${attractions.length} atracciones, ${videos.length} vídeos).`);

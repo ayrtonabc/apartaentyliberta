@@ -1,0 +1,514 @@
+---
+/**
+ * VideoWallSection — telediscos y películas grabadas en Liberta.
+ *
+ * El propietario quiere enseñar los vídeos que se han grabado en el complejo.
+ * No todos son telediscos: también hay una boda y una presentación del resort,
+ * así que cada tarjeta lleva su categoría en lugar de mezclarlo todo.
+ *
+ * Rendimiento y privacidad: la portada es una imagen local (WebP + srcset) y el
+ * iframe de YouTube se crea SOLO al pulsar play, dentro de un <dialog>. Si el
+ * JS falla, el enlace abre YouTube en una pestaña nueva.
+ */
+import { type Locale, getLocaleFromUrl, localeLink } from "~/lib/i18n";
+import { videos } from "~/data/videos";
+import Icon from "~/components/ui/Icon.astro";
+import VideoCard from "~/components/content/VideoCard.astro";
+
+const locale: Locale = getLocaleFromUrl(Astro.url);
+
+const copy = {
+  pl: {
+    eyebrow: "Nagrano u nas",
+    title: "Muzyka, która brzmiała nad Szelągiem",
+    lead: "W Apartamentach Liberta powstały teledyski Fishera, Explozji, Leny z Zespołem i Daniela Dąbrowskiego. Obok nich filmy o weselach i o samym kompleksie.",
+    music: "Teledysk",
+    wedding: "Wesele",
+    resort: "Film o kompleksie",
+    play: "Odtwórz",
+    altSuffix: "kadr z filmu nagranego w Apartamentach Liberta",
+    stats: [
+      { value: String(videos.length), label: "filmów" },
+      { value: String(videos.filter((v) => v.category === "music").length), label: "teledysków" },
+      { value: String(videos.filter((v) => v.category !== "music").length), label: "filmów o Libercie" },
+    ],
+    ctaEyebrow: "Sesje i eventy",
+    ctaTitle: "Planujesz tu teledysk albo sesję?",
+    ctaText: "Napisz — pokażemy Ci kadry, światło i miejsca, które najlepiej wyglądają na ekranie.",
+    ctaLink: "Zapytaj o sesję",
+    ctaHref: "mailto:kontakt@apartamentyliberta.pl?subject=Sesja%20w%20Apartamentach%20Liberta",
+    note: "Wideo ładuje się z YouTube dopiero po kliknięciu. Dzięki temu nie wysyłamy Twoich danych przed odtworzeniem.",
+    close: "Zamknij",
+    watch: "Otwórz na YouTube",
+  },
+  en: {
+    eyebrow: "Filmed here",
+    title: "The music that played over Lake Szeląg",
+    lead: "Music videos by Fisher, Explozja, Lena z Zespołem and Daniel Dąbrowski were shot at Apartamenty Liberta, alongside films about weddings and the resort itself.",
+    music: "Music video",
+    wedding: "Wedding",
+    resort: "Resort film",
+    play: "Play",
+    altSuffix: "a still from a film shot at Apartamenty Liberta",
+    stats: [
+      { value: String(videos.length), label: "films" },
+      { value: String(videos.filter((v) => v.category === "music").length), label: "music videos" },
+      { value: String(videos.filter((v) => v.category !== "music").length), label: "resort films" },
+    ],
+    ctaEyebrow: "Shoots and events",
+    ctaTitle: "Planning a video or a shoot here?",
+    ctaText: "Write to us — we will show you the frames, the light and the spots that look best on screen.",
+    ctaLink: "Ask about a shoot",
+    ctaHref: "mailto:kontakt@apartamentyliberta.pl?subject=Shoot%20at%20Apartamenty%20Liberta",
+    note: "The video loads from YouTube only after you click. No data is sent before you press play.",
+    close: "Close",
+    watch: "Open on YouTube",
+  },
+  de: {
+    eyebrow: "Bei uns gedreht",
+    title: "Die Musik, die über dem Szeląg-See klang",
+    lead: "Bei Apartamenty Liberta entstanden Musikvideos von Fisher, Explozja, Lena z Zespołem und Daniel Dąbrowski — dazu Filme über Hochzeiten und die Anlage selbst.",
+    music: "Musikvideo",
+    wedding: "Hochzeit",
+    resort: "Film über die Anlage",
+    play: "Abspielen",
+    altSuffix: "ein Standbild aus einem bei Apartamenty Liberta gedrehten Film",
+    stats: [
+      { value: String(videos.length), label: "Filme" },
+      { value: String(videos.filter((v) => v.category === "music").length), label: "Musikvideos" },
+      { value: String(videos.filter((v) => v.category !== "music").length), label: "Filme über Liberta" },
+    ],
+    ctaEyebrow: "Drehs und Events",
+    ctaTitle: "Planst du ein Video oder einen Dreh hier?",
+    ctaText: "Schreib uns — wir zeigen dir die Bilder, das Licht und die Orte, die auf dem Bildschirm am besten wirken.",
+    ctaLink: "Dreh anfragen",
+    ctaHref: "mailto:kontakt@apartamentyliberta.pl?subject=Dreh%20bei%20Apartamenty%20Liberta",
+    note: "Das Video lädt erst nach dem Klick von YouTube. Vorher werden keine Daten gesendet.",
+    close: "Schließen",
+    watch: "Auf YouTube öffnen",
+  },
+}[locale];
+
+const labels = {
+  music: copy.music,
+  wedding: copy.wedding,
+  resort: copy.resort,
+};
+
+const featured = videos.find((video) => video.featured) ?? videos[0];
+const rest = videos.filter((video) => video !== featured);
+---
+
+<section class="videos" id="nagrano-u-nas" aria-labelledby="videos-title">
+  <div class="container">
+    <header class="videos__head">
+      <div class="videos__intro" data-reveal>
+        <span class="eyebrow eyebrow--inverse">{copy.eyebrow}</span>
+        <h2 class="videos__title" id="videos-title">{copy.title}</h2>
+        <p class="videos__lead">{copy.lead}</p>
+      </div>
+
+      <ul class="videos__stats" role="list" data-reveal style="--reveal-delay:80ms">
+        {copy.stats.map((stat) => (
+          <li>
+            <strong>{stat.value}</strong>
+            <span>{stat.label}</span>
+          </li>
+        ))}
+      </ul>
+    </header>
+
+    <div class="videos__grid">
+      {featured && (
+        <VideoCard
+          video={featured}
+          categoryLabel={labels[featured.category]}
+          playLabel={copy.play}
+          altSuffix={copy.altSuffix}
+          featured
+        />
+      )}
+
+      {rest.map((video) => (
+        <VideoCard
+          video={video}
+          categoryLabel={labels[video.category]}
+          playLabel={copy.play}
+          altSuffix={copy.altSuffix}
+        />
+      ))}
+
+      <a class="videos__cta" href={copy.ctaHref}>
+        <span class="videos__cta-eyebrow">{copy.ctaEyebrow}</span>
+        <strong class="videos__cta-title">{copy.ctaTitle}</strong>
+        <span class="videos__cta-text">{copy.ctaText}</span>
+        <span class="videos__cta-link">
+          {copy.ctaLink}
+          <Icon name="arrow-right" size={14} />
+        </span>
+      </a>
+    </div>
+
+    <p class="videos__note" data-reveal>
+      <Icon name="info" size={14} />
+      {copy.note}
+    </p>
+  </div>
+
+  <dialog class="videos__dialog" data-video-dialog aria-labelledby="video-dialog-title">
+    <div class="videos__dialog-bar">
+      <p class="videos__dialog-title" id="video-dialog-title" data-video-dialog-title></p>
+      <button class="videos__dialog-close" type="button" data-video-close aria-label={copy.close}>
+        <Icon name="close" size={18} />
+      </button>
+    </div>
+
+    <div class="videos__player" data-video-player></div>
+
+    <a class="videos__dialog-link" href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" data-video-link>
+      {copy.watch}
+      <Icon name="arrow-right" size={14} />
+    </a>
+  </dialog>
+</section>
+
+<style>
+  .videos {
+    position: relative;
+    padding-block: var(--section-y);
+    background:
+      radial-gradient(100% 80% at 100% 0%, rgba(176, 141, 74, 0.14), transparent 55%),
+      var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+    overflow: hidden;
+  }
+
+  .videos__head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    align-items: end;
+  }
+
+  @media (min-width: 1024px) {
+    .videos__head {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-12);
+    }
+  }
+
+  .videos__intro {
+    max-width: 52rem;
+  }
+
+  .videos__title {
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: clamp(2.3rem, 5vw, 4.6rem);
+    line-height: 1.03;
+    letter-spacing: var(--tracking-tighter);
+    color: var(--color-text-inverse);
+    text-wrap: balance;
+  }
+
+  .videos__lead {
+    max-width: 60ch;
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--on-dark-text-muted);
+    text-wrap: pretty;
+  }
+
+  .videos__stats {
+    display: flex;
+    gap: var(--space-6);
+    flex-wrap: wrap;
+  }
+
+  .videos__stats li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 6rem;
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--on-dark-border);
+  }
+
+  .videos__stats strong {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    line-height: 0.9;
+    letter-spacing: var(--tracking-tighter);
+    color: var(--color-brass-light);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .videos__stats span {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--on-dark-text-muted);
+  }
+
+  .videos__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-10);
+  }
+
+  @media (min-width: 640px) {
+    .videos__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .videos__grid :global(.vcard--featured) {
+      grid-column: span 2;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .videos__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    /* La tarjeta destacada ocupa 2×2 en escritorio. */
+    .videos__grid :global(.vcard--featured) {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+  }
+
+  .videos__cta {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: 14rem;
+    padding: var(--space-6);
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .videos__cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 24px 46px -28px rgba(0, 0, 0, 0.7);
+  }
+
+  .videos__cta-eyebrow {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .videos__cta-title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .videos__cta-text {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+  }
+
+  .videos__cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: auto;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .videos__note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-top: var(--space-8);
+    max-width: 64ch;
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    color: var(--on-dark-text-muted);
+  }
+
+  .videos__note :global(.icon) {
+    flex-shrink: 0;
+    margin-top: 0.15em;
+    color: var(--color-brass-light);
+  }
+
+  /* --------------------------------------------------------------- Diálogo */
+
+  .videos__dialog {
+    width: min(1100px, calc(100vw - 2rem));
+    max-width: none;
+    padding: 0;
+    color: var(--color-text-inverse);
+    background: var(--color-bg-inverse);
+    border: 1px solid var(--on-dark-border);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.8);
+  }
+
+  .videos__dialog::backdrop {
+    background: rgba(6, 14, 11, 0.82);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .videos__dialog[open] {
+    display: grid;
+    gap: 0;
+  }
+
+  .videos__dialog-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--on-dark-border);
+  }
+
+  .videos__dialog-title {
+    max-width: none;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--on-dark-text-muted);
+  }
+
+  .videos__dialog-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    flex-shrink: 0;
+    color: var(--color-text-inverse);
+    border: 1px solid var(--on-dark-border);
+    border-radius: var(--radius-full);
+    transition: background-color var(--transition-base), border-color var(--transition-base);
+  }
+
+  .videos__dialog-close:hover {
+    background: var(--on-dark-bg-hover);
+    border-color: var(--on-dark-border-strong);
+  }
+
+  .videos__player {
+    aspect-ratio: 16 / 9;
+    background: #000;
+  }
+
+  .videos__player iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .videos__dialog-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    justify-self: end;
+    padding: var(--space-4) var(--space-5);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-brass-light);
+  }
+
+  .videos__dialog-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 767px) {
+    .videos__dialog-bar {
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .videos__dialog-title {
+      font-size: var(--text-2xs);
+    }
+  }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>("[data-video-dialog]");
+
+  if (dialog) {
+    const player = dialog.querySelector<HTMLElement>("[data-video-player]");
+    const titleEl = dialog.querySelector<HTMLElement>("[data-video-dialog-title]");
+    const link = dialog.querySelector<HTMLAnchorElement>("[data-video-link]");
+    const close = dialog.querySelector<HTMLButtonElement>("[data-video-close]");
+    let trigger: HTMLElement | null = null;
+
+    const closeDialog = () => {
+      /*
+       * Se vacía antes de cerrar: si el iframe sigue montado, el vídeo puede
+       * seguir sonando un instante mientras el diálogo se desvanece.
+       */
+      player?.replaceChildren();
+      if (dialog.open) dialog.close();
+    };
+
+    document.querySelectorAll<HTMLAnchorElement>("[data-video-id]").forEach((card) => {
+      card.addEventListener("click", (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (!card.dataset.videoEmbed) return;
+        event.preventDefault();
+
+        trigger = card;
+        const artist = card.dataset.videoArtist ?? "";
+        const title = card.dataset.videoTitle ?? "";
+        if (titleEl) titleEl.textContent = artist ? `${artist} — ${title}` : title;
+        if (link) link.href = card.href;
+        if (player) {
+          const iframe = document.createElement("iframe");
+          iframe.src = `${card.dataset.videoEmbed}?autoplay=1&rel=0&modestbranding=1`;
+          iframe.title = artist ? `${artist} — ${title}` : title;
+          iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+          iframe.allowFullscreen = true;
+          iframe.referrerPolicy = "strict-origin-when-cross-origin";
+          player.replaceChildren(iframe);
+        }
+
+        dialog.showModal();
+        close?.focus();
+      });
+    });
+
+    close?.addEventListener("click", closeDialog);
+
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) closeDialog();
+    });
+
+    dialog.addEventListener("close", () => {
+      player?.replaceChildren();
+      trigger?.focus();
+      trigger = null;
+    });
+  }
+</script>

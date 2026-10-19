@@ -1131,5 +1131,109 @@
       1200
     ],
     "fallback": "/assets/responsive/assets/facilities/taras-1200.webp"
+  },
+  "assets/videos/daniel-dabrowski-byle-bylo-tak.webp": {
+    "width": 1280,
+    "height": 720,
+    "mtimeMs": 1792450589957,
+    "lqip": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASoUAAsAPu1iqk2ppaQiMAgBMB2JQBbZBDtS5sR15/d3YAD+o2rJgr66ivYv4YRk5xfMWzFcZYctD2j3Go257DVpRoCPh9oWCPeKyoAA",
+    "widths": [
+      480,
+      768,
+      1100,
+      1280
+    ],
+    "fallback": "/assets/responsive/assets/videos/daniel-dabrowski-byle-bylo-tak-1280.webp"
+  },
+  "assets/videos/explozja-nowy-sprzet.webp": {
+    "width": 1280,
+    "height": 720,
+    "mtimeMs": 1792450589339,
+    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAQBACdASoUAAsAPu1kqU2ppaOiMAgBMB2JZACdMoACIKOZQQdkkZ74AAD2AWguUb+9GAp2VNE61M1z0cNgcQfu+ZV3FsKYhPP4QpTS/3SVC9qNkAA=",
+    "widths": [
+      480,
+      768,
+      1100,
+      1280
+    ],
+    "fallback": "/assets/responsive/assets/videos/explozja-nowy-sprzet-1280.webp"
+  },
+  "assets/videos/fisher-bez-szans.webp": {
+    "width": 1280,
+    "height": 720,
+    "mtimeMs": 1792450589056,
+    "lqip": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAABwAwCdASoUAAsAPu1iqk2ppaQiMAgBMB2JZwAAW+ifUf0/veAA/urSn3oTomHiCHK3phFjzoVK6RwA",
+    "widths": [
+      480,
+      768,
+      1100,
+      1280
+    ],
+    "fallback": "/assets/responsive/assets/videos/fisher-bez-szans-1280.webp"
+  },
+  "assets/videos/fisher-nie-moge-ci-wiele-dac.webp": {
+    "width": 1280,
+    "height": 720,
+    "mtimeMs": 1792450588830,
+    "lqip": "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAADQAwCdASoUAAsAPu1iqU2ppaOiMAgBMB2JZQCdACFqfnDf18iNFkAA/qbBeWjppUJY3vrUuOVqRrxFk6DjwluxBvnDdO4wAAA=",
+    "widths": [
+      480,
+      768,
+      1100,
+      1280
+    ],
+    "fallback": "/assets/responsive/assets/videos/fisher-nie-moge-ci-wiele-dac-1280.webp"
+  },
+  "assets/videos/fisher-tylko-dla-ciebie.webp": {
+    "width": 1280,
+    "height": 720,
+    "mtimeMs": 1792450589751,
+    "lqip": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAACQAwCdASoUAAsAPu1iqU2ppaOiMAgBMB2JYwAASclYG+lsMdoAAP7eoEE6RjaLnPmDIbqC7ZiNHofpseLO+4SR1J7UjZQI0tyKLhaA9wAAAA==",
+    "widths": [
+      480,
+      768,
+      1100,
+      1280
+    ],
+    "fallback": "/assets/responsive/assets/videos/fisher-tylko-dla-ciebie-1280.webp"
+  },
+  "assets/videos/lena-tancz-ze-mna-tancz.webp": {
+    "width": 1280,
+    "height": 720,
+    "mtimeMs": 1792450589560,
+    "lqip": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAADwAwCdASoUAAsAPu1kqk4ppaQiMAgBMB2JYgCdACGuMSxNxZn6a12AAP55MiVfP3yX26Xt9FkdjqxUjI1MTISwbOQI2iwE+eXiBLNo/Fa3VW+7v5F2YrTAgAA=",
+    "widths": [
+      480,
+      768,
+      1100,
+      1280
+    ],
+    "fallback": "/assets/responsive/assets/videos/lena-tancz-ze-mna-tancz-1280.webp"
+  },
+  "assets/videos/liberta-luksus-na-mazurach.webp": {
+    "width": 1280,
+    "height": 720,
+    "mtimeMs": 1792450590862,
+    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAwCdASoUAAsAPu1iqk2ppaQiMAgBMB2JZgCdIMgBs5c9J+scN6AA/hhvgNGHqEFK1RWazUbcOt8NxnlE5O3+11IVA10UetBo1QYgAAA=",
+    "widths": [
+      480,
+      768,
+      1100,
+      1280
+    ],
+    "fallback": "/assets/responsive/assets/videos/liberta-luksus-na-mazurach-1280.webp"
+  },
+  "assets/videos/wesele-w-liberta.webp": {
+    "width": 1280,
+    "height": 720,
+    "mtimeMs": 1792450590339,
+    "lqip": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAACwAwCdASoUAAsAPu1iqU2ppaOiMAgBMB2JQBOgBDrtbBWp7Y/cAAD941grDVtPLGkeKUIo9i/9Mp3tYxyFq1Z9PEcdJs/qQ66ZvUAA",
+    "widths": [
+      480,
+      768,
+      1100,
+      1280
+    ],
+    "fallback": "/assets/responsive/assets/videos/wesele-w-liberta-1280.webp"
   }
 }

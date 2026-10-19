@@ -11,6 +11,7 @@
 
 import { site } from "~/data/site";
 import { aggregateRatings } from "~/data/reviews";
+import { videos } from "~/data/videos";
 import {
   type Locale,
   localeMeta,
@@ -287,6 +288,35 @@ export function buildFaqSchema(items: Array<{ question: string; answer: string }
         "@type": "Answer",
         text: item.answer,
       },
+    })),
+  };
+}
+
+/**
+ * ItemList de los vídeos grabados en Liberta.
+ *
+ * No se emite `VideoObject` individual: Google exige `uploadDate` para los
+ * rich results de vídeo y ese dato no viene en `oembed`. Un `ItemList` con
+ * nombre y URL sí es correcto y ayuda a que los motores de respuesta relacionen
+ * la marca con los telediscos sin inventar fechas.
+ */
+export function buildVideoListSchema(locale: Locale = defaultLocale) {
+  const names: Record<Locale, string> = {
+    pl: "Filmy i teledyski nagrane w Apartamentach Liberta",
+    en: "Films and music videos shot at Apartamenty Liberta",
+    de: "Filme und Musikvideos bei Apartamenty Liberta",
+  };
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: names[locale],
+    numberOfItems: videos.length,
+    itemListElement: videos.map((video, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: video.href,
+      name: `${video.artist} — ${video.title}`,
     })),
   };
 }

@@ -23,6 +23,7 @@
     "images:download:ps": "powershell -ExecutionPolicy Bypass -File scripts/download-images.ps1",
     "images:responsive": "node scripts/responsive-images.mjs",
     "images:import": "node scripts/import-new-photos.mjs",
+    "images:posters": "node scripts/import-video-posters.mjs",
     "availability:update": "node scripts/update-availability.mjs",
     "rename:hero": "node scripts/rename-hero-images.mjs",
     "compress": "node scripts/compress-dist.mjs",

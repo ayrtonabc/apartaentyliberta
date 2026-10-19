@@ -7,22 +7,23 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import HomeContent from "~/components/sections/HomeContent.astro";
 import { getLocaleFromUrl } from "~/lib/i18n";
-import { buildFaqSchema } from "~/lib/seo";
+import { buildFaqSchema, buildVideoListSchema } from "~/lib/seo";
 import { getFaq } from "~/data/faq";
 
 const locale = getLocaleFromUrl(Astro.url);
 const faqSchema = buildFaqSchema(getFaq(locale));
+const videoSchema = buildVideoListSchema(locale);
 
 export const prerender = true;
 ---
 
 <BaseLayout
   title="Apartamenty z balią i widokiem na Jezioro Szeląg"
-  description="Cztery luksusowe apartamenty 80 m² z prywatną balią góralską, 105 m od Jeziora Szeląg Wielki w Starych Jabłonkach na Mazurach. Klimatyzacja, taras, Netflix. Od 700 zł za noc."
+  description="Cztery apartamenty 80 m² z prywatną balią góralską, 105 m od Jeziora Szeląg Wielki w Starych Jabłonkach na Mazurach. Klimatyzacja, taras, Netflix i teledyski nagrane w Libercie. Od 700 zł za noc."
   canonicalPath="/"
   ogImage="/og-default.jpg"
   preloadImage="/assets/hero/hero-1.webp"
-  schema={faqSchema}
+  schema={[faqSchema, videoSchema]}
 >
   <HomeContent locale={locale} />
 </BaseLayout>

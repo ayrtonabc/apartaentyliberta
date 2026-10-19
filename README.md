@@ -148,12 +148,12 @@ Resultados medidos sobre el build de producción (`curl` contra `npm start`,
 
 | Página | HTML sin comprimir | Brotli | Ahorro |
 |---|---|---|---|
-| Home | 352 KB | **35 KB** | 90 % |
+| Home | 379 KB | **38 KB** | 90 % |
 | Ficha de apartamento | 168 KB | **25 KB** | 85 % |
 | Cennik | 112 KB | **18 KB** | 84 % |
 | FAQ | 103 KB | **16 KB** | 84 % |
 
-El peso del despliegue completo es **87 MB** (`dist/client`), casi todo fotos
+El peso del despliegue completo es **86 MB** (`dist/client`), casi todo fotos
 responsive. `public/import-original/` (19,5 MB de originales de cámara) ya no se
 publica: lo saca `scripts/prune-dist.mjs` en `postbuild`.
 
@@ -190,13 +190,15 @@ src/
 │   ├── layout/      Header · Footer · MobileCTA · LanguageSwitcher
 │   ├── ui/          Flag · Icon · SmartImage · PageHero · SectionHeading
 │   ├── content/     ApartmentCard · BookingForm · Gallery · Testimonials
-│   │                TestimonialCard · FaqSection · MapEmbed · SocialLinks
+│   │                TestimonialCard · VideoCard · FaqSection · MapEmbed
+│   │                SocialLinks
 │   └── sections/    Hero · TrustStrip · AmenitiesShowcase · WellnessSection
-│                    PricingShowcase · AttractionsGrid · CtaBand · HomeContent
-│                    ApartmentDetail · ApartmentsIndex · PricingPage
-│                    AttractionsPage · LocationPage · BookingPage · ReviewsPage
+│                    PricingShowcase · VideoWallSection · AttractionsGrid
+│                    CtaBand · HomeContent · ApartmentDetail · ApartmentsIndex
+│                    PricingPage · AttractionsPage · LocationPage
+│                    BookingPage · ReviewsPage
 ├── data/            site · apartments · amenities · attractions · reviews
-│                    faq · locales · icons · translations/{pl,en,de}
+│                    videos · faq · locales · icons · translations/{pl,en,de}
 │                    image-manifest.json (generado)
 ├── layouts/         BaseLayout (SEO, hreflang, JSON-LD, preload)
 ├── lib/             i18n · seo · format · availability
@@ -226,6 +228,7 @@ src/
 | `npm run test:images` | Cada foto declarada en los datos y cada ruta `/assets/` literal existe en disco |
 | `npm run images:responsive` | Regenera variantes WebP + manifiesto LQIP |
 | `npm run images:import` | Importa las fotos nuevas del propietario (normaliza a sRGB/JPEG y limpia las antiguas) |
+| `npm run images:posters` | Descarga las miniaturas de los vídeos de YouTube y las convierte a WebP 16:9 |
 | `npm run availability:update` | Importa el calendario iCal de Booking.com |
 | `npm run compress` | Re-precomprime `dist/client` sin recompilar |
 | `npm run prune` | Saca `public/import-original` del deploy sin recompilar |
@@ -305,6 +308,14 @@ mosaico de instalaciones, pero quedaba como una celda más. Aquí va en grande,
 con la balia y cuatro argumentos concretos (agua caliente diaria, sauna con
 vista, Natura 2000, horarios). La sauna se describe como “na życzenie”, que es
 como funciona: no se vende como incluida si no lo está.
+
+**`VideoWallSection.astro` — “Nagrano u nas”.** Los ocho vídeos grabados en el
+complejo: seis telediscos (Fisher, Explozja, Lena z Zespołem, Daniel Dąbrowski),
+un vídeo de boda y la presentación del resort. Las miniaturas se descargan con
+`npm run images:posters` y se sirven como WebP local; el iframe de YouTube solo
+se crea al pulsar play, dentro de un `<dialog>`, y se destruye al cerrar. Sin JS,
+cada tarjeta es un enlace normal a YouTube. Los títulos y artistas salen de
+`oembed`, no están inventados.
 
 #### Posición del contenido del hero
 

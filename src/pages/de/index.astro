@@ -6,22 +6,23 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import HomeContent from "~/components/sections/HomeContent.astro";
 import { type Locale } from "~/lib/i18n";
-import { buildFaqSchema } from "~/lib/seo";
+import { buildFaqSchema, buildVideoListSchema } from "~/lib/seo";
 import { getFaq } from "~/data/faq";
 
 const locale: Locale = "de";
 const faqSchema = buildFaqSchema(getFaq(locale));
+const videoSchema = buildVideoListSchema(locale);
 
 export const prerender = true;
 ---
 
 <BaseLayout
   title="Ferienwohnungen mit eigenem Hot Tub am Szeląg-See"
-  description="Vier luxuriöse Ferienwohnungen mit 80 m² und privatem Holz-Hot-Tub, 105 m vom Szeląg-See in Stare Jabłonki, Masuren. Klimaanlage, Terrasse, Netflix. Ab 700 PLN pro Nacht."
+  description="Vier Ferienwohnungen mit 80 m² und privatem Holz-Hot-Tub, 105 m vom Szeląg-See in Stare Jabłonki, Masuren. Klimaanlage, Terrasse, Netflix und bei Liberta gedrehte Musikvideos. Ab 700 PLN pro Nacht."
   canonicalPath="/"
   ogImage="/og-default.jpg"
   preloadImage="/assets/hero/hero-1.webp"
-  schema={faqSchema}
+  schema={[faqSchema, videoSchema]}
 >
   <HomeContent locale={locale} />
 </BaseLayout>

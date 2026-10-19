@@ -1,0 +1,186 @@
+---
+/**
+ * VideoCard — tarjeta de un vídeo grabado en Liberta.
+ *
+ * Es un enlace real a YouTube: si el JS no carga, el visitante ve el vídeo en
+ * una pestaña nueva. Con JS, el clic abre el diálogo y el iframe solo se crea
+ * en ese momento (nada de YouTube en la carga inicial).
+ */
+import type { Video } from "~/data/videos";
+import Icon from "~/components/ui/Icon.astro";
+import SmartImage from "~/components/ui/SmartImage.astro";
+
+interface Props {
+  video: Video;
+  categoryLabel: string;
+  playLabel: string;
+  altSuffix: string;
+  featured?: boolean;
+}
+
+const { video, categoryLabel, playLabel, altSuffix, featured = false } = Astro.props;
+const alt = `${video.artist} — ${video.title}. ${altSuffix}`;
+---
+
+<a
+  class:list={["vcard", featured && "vcard--featured"]}
+  href={video.href}
+  target="_blank"
+  rel="noopener noreferrer"
+  data-video-id={video.id}
+  data-video-title={video.title}
+  data-video-artist={video.artist}
+  data-video-embed={video.embed}
+  aria-label={`${playLabel}: ${video.artist} — ${video.title}`}
+>
+  <figure class="vcard__media">
+    <SmartImage
+      src={video.poster}
+      alt={alt}
+      sizes={featured ? "(min-width: 1024px) 46vw, 100vw" : "(min-width: 1024px) 23vw, (min-width: 640px) 45vw, 100vw"}
+    />
+    <span class="vcard__shade" aria-hidden="true"></span>
+    <span class="vcard__badge">{categoryLabel}</span>
+    <span class="vcard__play" aria-hidden="true">
+      <Icon name="play" size={featured ? 22 : 17} />
+    </span>
+  </figure>
+
+  <div class="vcard__body">
+    <span class="vcard__artist">{video.artist}</span>
+    <h3 class="vcard__title">{video.title}</h3>
+  </div>
+</a>
+
+<style>
+  .vcard {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--color-bg-inverse-soft);
+    border: 1px solid var(--on-dark-border);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-inverse);
+    transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .vcard:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-brass);
+    box-shadow: 0 22px 40px -26px rgba(0, 0, 0, 0.65);
+  }
+
+  .vcard__media {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #0a1410;
+  }
+
+  .vcard__media :global(img) {
+    transition: transform var(--duration-slower) var(--ease-out);
+  }
+
+  .vcard:hover .vcard__media :global(img) {
+    transform: scale(1.04);
+  }
+
+  .vcard__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(6, 14, 11, 0.72), transparent 52%);
+    pointer-events: none;
+  }
+
+  .vcard__badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    padding: 0.3rem 0.6rem;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(6, 14, 11, 0.66);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .vcard__play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.1rem;
+    height: 3.1rem;
+    color: #fff;
+    background: rgba(6, 14, 11, 0.46);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: var(--radius-full);
+    transform: translate(-50%, -50%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background-color var(--transition-base), transform var(--transition-base);
+  }
+
+  .vcard__play :global(.icon) {
+    margin-left: 2px;
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .vcard:hover .vcard__play {
+    background: var(--color-brass);
+    border-color: var(--color-brass);
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  .vcard__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: var(--space-4) var(--space-5) var(--space-5);
+  }
+
+  .vcard__artist {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-brass-light);
+  }
+
+  .vcard__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text-inverse);
+    text-wrap: pretty;
+  }
+
+  .vcard--featured .vcard__title {
+    font-size: var(--text-2xl);
+  }
+
+  .vcard--featured .vcard__play {
+    width: 4.2rem;
+    height: 4.2rem;
+  }
+
+  @media (max-width: 639px) {
+    .vcard--featured .vcard__title {
+      font-size: var(--text-xl);
+    }
+  }
+</style>

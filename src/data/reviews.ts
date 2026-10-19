@@ -1,141 +1,53 @@
 /**
  * Reviews — opiniones reales de huéspedes.
  *
- * Fuentes públicas: Booking.com (9,9/10 · 17 opiniones) y Google (4,9/5 · 159
- * opiniones). Google pesa mucho más en volumen, así que se muestran las dos por
- * separado y con el mismo peso visual; ver la nota sobre no combinar las notas
- * más abajo, junto a `aggregateRatings`.
+ * Fuentes públicas: Booking.com (9,9/10 · 18 opiniones) y Google (4,9/5 · 160
+ * opiniones). Los datos de cada tarjeta viven en `reviews-imported.ts`: solo
+ * nombre, puntuación, comentario y plataforma. Sin fechas, país ni tipo de
+ * estancia, a petición del propietario.
  *
- * El texto de cada opinión se guarda en su idioma original y se agrupa por
- * idioma para poder mostrar la versión adecuada en cada mercado: una opinión
- * en alemán en la web alemana vale mucho más que un texto en polaco.
+ * Los textos de Google son la traducción al español que devolvió el navegador
+ * del propietario; los de Booking están en su idioma original. Por eso cada
+ * opinión conserva su `lang` y el `<blockquote>` lo declara: el navegador sabe
+ * qué reglas de lectura aplicar y no se finge que todo está en polaco.
  *
  * `rating` está siempre normalizado sobre la escala indicada en `ratingScale`.
+ * La tarjeta lo convierte a 5 estrellas (Booking 9,0 → 4,5 estrellas).
  */
+
+import { importedReviews, type ImportedReview } from "./reviews-imported";
 
 export type ReviewSource = "booking" | "google";
 
-export type Review = {
+export type Review = ImportedReview & {
   id: string;
-  author: string;
-  /** País de origen del huésped, en su propio idioma de mercado */
-  country: string;
-  /** YYYY-MM */
-  date: string;
-  /** 1-10 para Booking, 1-5 para Google */
-  rating: number;
-  ratingScale: 10 | 5;
-  /** Idioma original de la opinión */
-  lang: "pl" | "en" | "de" | "fr";
-  /** Texto literal del huésped */
-  text: string;
-  source: ReviewSource;
-  /** Tipo de estancia, útil como contexto */
-  stay?: { pl: string; en: string; de: string };
+  /** Sale en el carrusel de la portada */
   highlight?: boolean;
 };
 
-export const reviews: Review[] = [
-  {
-    id: "booking-001",
-    author: "Marzena",
-    country: "Polska",
-    date: "2025-08",
-    rating: 10,
-    ratingScale: 10,
-    lang: "pl",
-    text: "Wspaniały apartament z widokiem na jezioro, bardzo czysto i właściciel, który naprawdę dba o gości. Bania góralska wieczorem to absolutny highlight pobytu. Na pewno wrócimy.",
-    stay: { pl: "Rodzina z dziećmi", en: "Family with children", de: "Familie mit Kindern" },
-    source: "booking",
-    highlight: true,
-  },
-  {
-    id: "booking-002",
-    author: "Thomas",
-    country: "Deutschland",
-    date: "2025-07",
-    rating: 10,
-    ratingScale: 10,
-    lang: "de",
-    text: "Traumhafte Lage direkt am See, sehr modern und blitzsauber. Der Hot Tub im Garten war das Highlight für die Kinder. Äußerst freundlicher Gastgeber, der jeden Wunsch organisiert.",
-    stay: { pl: "Rodzina z dziećmi", en: "Family with children", de: "Familie mit Kindern" },
-    source: "booking",
-    highlight: true,
-  },
-  {
-    id: "booking-003",
-    author: "Anna",
-    country: "Polska",
-    date: "2025-07",
-    rating: 9,
-    ratingScale: 10,
-    lang: "pl",
-    text: "Piękne miejsce na Mazurach. Apartament duży i wygodny, świetnie wyposażona kuchnia, plaża dosłownie sto metrów od domu. Wracamy tu trzeci raz.",
-    stay: { pl: "Dwie pary", en: "Two couples", de: "Zwei Paare" },
-    source: "booking",
-  },
-  {
-    id: "booking-004",
-    author: "Marta",
-    country: "Polska",
-    date: "2025-06",
-    rating: 10,
-    ratingScale: 10,
-    lang: "pl",
-    text: "Cudowne miejsce na wypoczynek z rodziną. Komfortowy dom, piękne widoki, jezioro zaraz za płotem. Kontakt z właścicielem wzorowy — wszystko załatwione przed przyjazdem.",
-    stay: { pl: "Rodzina", en: "Family", de: "Familie" },
-    source: "booking",
-  },
-  {
-    id: "booking-005",
-    author: "Karin",
-    country: "Deutschland",
-    date: "2025-09",
-    rating: 10,
-    ratingScale: 10,
-    lang: "de",
-    text: "Sehr ruhige Lage, perfekt zum Abschalten. Die Wohnung ist großzügig und hochwertig ausgestattet, der Steg am See ein Traum. Wir kommen im Herbst wieder.",
-    stay: { pl: "Para", en: "Couple", de: "Paar" },
-    source: "booking",
-  },
-  {
-    id: "google-001",
-    author: "Krzysztof",
-    country: "Polska",
-    date: "2025-05",
-    rating: 5,
-    ratingScale: 5,
-    lang: "pl",
-    text: "Miejsce idealne na spokojny wypoczynek. Apartamenty nowoczesne, czyste, z pełnym wyposażeniem. Widok na jezioro Szeląg o zachodzie — niezapomniany. Polecam serdecznie.",
-    stay: { pl: "Weekend we dwoje", en: "Weekend for two", de: "Wochenende zu zweit" },
-    source: "google",
-    highlight: true,
-  },
-  {
-    id: "google-002",
-    author: "Sophie",
-    country: "France",
-    date: "2025-05",
-    rating: 5,
-    ratingScale: 5,
-    lang: "fr",
-    text: "Un séjour parfait. Appartement spacieux, vue magnifique sur le lac, hôte très accueillant. Le bain nordique extérieur était un vrai plus. Merci !",
-    stay: { pl: "Para", en: "Couple", de: "Paar" },
-    source: "google",
-  },
-  {
-    id: "google-003",
-    author: "Michael",
-    country: "Deutschland",
-    date: "2025-08",
-    rating: 5,
-    ratingScale: 5,
-    lang: "en",
-    text: "Everything was exactly as described — spotless apartment, private hot tub, and the lake a two-minute walk away. The owner's boat trip was the best part of our stay.",
-    stay: { pl: "Przyjaciele", en: "Friends", de: "Freunde" },
-    source: "google",
-  },
-];
+/**
+ * Índices (en el orden de `reviews-imported.ts`) que se destacan en la portada.
+ *
+ * Se eligen a mano, no por nota: la primera tanda de Google incluye una reseña
+ * de 1/5 (Mir Ela) y destacarla automáticamente habría puesto una queja en la
+ * portada. Los tres primeros de Booking son 10/10, 10/10 y 10/10.
+ *
+ * El inicio de Booking se calcula, no se escribe: si mañana se añaden más
+ * opiniones de Google, los índices fijos dejarían de señalar las de Booking.
+ */
+const bookingStart = importedReviews.findIndex((review) => review.source === "booking");
+const HIGHLIGHTS = new Set([
+  0,
+  1,
+  4,
+  ...(bookingStart >= 0 ? [bookingStart, bookingStart + 1, bookingStart + 2] : []),
+]);
+
+export const reviews: Review[] = importedReviews.map((review, index) => ({
+  id: `${review.source}-${String(index + 1).padStart(3, "0")}`,
+  ...review,
+  highlight: HIGHLIGHTS.has(index),
+}));
 
 export type AggregateRating = {
   source: ReviewSource;
@@ -159,7 +71,7 @@ export type AggregateRating = {
  * valoraciones estructuradas se correspondan con reseñas reales y verificables.
  *
  * Por eso cada plataforma se muestra con SU nota y SU número de opiniones, sin
- * mezclarlas, y el total solo se usa como recuento ("176 opiniones"), nunca
+ * mezclarlas, y el total solo se usa como recuento ("178 opiniones"), nunca
  * como nota.
  */
 export const aggregateRatings: AggregateRating[] = [
@@ -168,7 +80,7 @@ export const aggregateRatings: AggregateRating[] = [
     label: "Booking.com",
     score: 9.9,
     scale: 10,
-    count: 17,
+    count: 18,
     /** Enlace corto que compartió el propietario para su ficha */
     url: "https://www.booking.com/Share-mBuVDTc",
   },
@@ -177,7 +89,7 @@ export const aggregateRatings: AggregateRating[] = [
     label: "Google",
     score: 4.9,
     scale: 5,
-    count: 159,
+    count: 160,
     url: "https://share.google/XID2TRgkLQCt73Lkj",
   },
 ];
@@ -185,21 +97,30 @@ export const aggregateRatings: AggregateRating[] = [
 /**
  * Suma de opiniones de todas las plataformas.
  *
- * Es un recuento, no una nota: sirve para decir "176 opiniones" sin inventar
+ * Es un recuento, no una nota: sirve para decir "178 opiniones" sin inventar
  * ningún promedio.
  */
 export function getTotalReviews(): number {
   return aggregateRatings.reduce((total, rating) => total + rating.count, 0);
 }
 
-/** Opiniones ordenadas priorizando el idioma del visitante. */
+/**
+ * Opiniones ordenadas para el idioma del visitante.
+ *
+ * Se mezclan las plataformas a propósito: la portada no debe enseñar seis
+ * tarjetas de Booking seguidas ni seis de Google. Las destacadas pesan más que
+ * el idioma para que el carrusel sea el mismo en los tres mercados.
+ */
 export function reviewsForLocale(locale: "pl" | "en" | "de"): Review[] {
   const score = (review: Review) => {
     let value = 0;
-    if (review.lang === locale) value += 100;
-    else if (locale === "en" && review.lang === "fr") value += 60;
-    if (review.highlight) value += 20;
-    if (review.ratingScale === 10) value += review.rating;
+    if (review.highlight) value += 25;
+    /*
+     * El idioma desempata, no manda: en polaco las tres destacadas de Booking
+     * van primero; en inglés y alemán, las tres de Google. Sin el peso extra de
+     * Booking, las dos plataformas se alternan en los tres mercados.
+     */
+    if (review.lang === locale) value += 10;
     return value;
   };
   return [...reviews].sort((a, b) => score(b) - score(a));

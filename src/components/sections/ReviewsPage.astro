@@ -9,7 +9,8 @@ import { getTotalReviews, reviewsForLocale } from "~/data/reviews";
 import PageHero from "~/components/ui/PageHero.astro";
 import CtaBand from "~/components/sections/CtaBand.astro";
 import RatingSummary from "~/components/ui/RatingSummary.astro";
-import Icon from "~/components/ui/Icon.astro";
+import ReviewStars from "~/components/ui/ReviewStars.astro";
+import ReviewLogo from "~/components/ui/ReviewLogo.astro";
 
 interface Props {
   locale: Locale;
@@ -20,17 +21,6 @@ const tr = t(locale);
 
 const total = getTotalReviews();
 const items = reviewsForLocale(locale);
-
-const months: Record<Locale, string[]> = {
-  pl: ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"],
-  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-  de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
-};
-
-const fmtDate = (value: string) => {
-  const [year, month] = value.split("-");
-  return `${months[locale][Number(month) - 1] ?? month} ${year}`;
-};
 
 const copy: Record<
   Locale,
@@ -50,7 +40,7 @@ const copy: Record<
     title: "Opinie gości Apartamentów Liberta",
     lead: "Nie zbieramy opinii na siłę i nie prosimy o nie przy wymeldowaniu. Wszystkie poniższe pochodzą z publicznych profili Booking.com i Google i można je zweryfikować.",
     allTitle: "Wszystkie opinie",
-    allLead: "Zachowaliśmy oryginalne brzmienie wypowiedzi, wraz z językiem, w którym zostały napisane.",
+    allLead: "Zachowaliśmy brzmienie wypowiedzi w wersji, w której została opublikowana lub nam przekazana.",
     statsTitle: "Liberta w liczbach",
     statReviews: "opinii w serwisach",
     statYears: "lat gościny",
@@ -61,7 +51,7 @@ const copy: Record<
     title: "Guest reviews of Apartamenty Liberta",
     lead: "We do not chase reviews and we never ask for them at check-out. Everything below comes from public Booking.com and Google profiles and can be verified.",
     allTitle: "All reviews",
-    allLead: "Wording is kept exactly as the guest wrote it, in the language they used.",
+    allLead: "Wording is kept as published or as provided to us.",
     statsTitle: "Liberta in numbers",
     statReviews: "reviews across platforms",
     statYears: "years hosting",
@@ -72,7 +62,7 @@ const copy: Record<
     title: "Gästebewertungen von Apartamenty Liberta",
     lead: "Wir sammeln keine Bewertungen um jeden Preis und fragen beim Check-out nie danach. Alle folgenden stammen aus öffentlichen Booking.com- und Google-Profilen und sind überprüfbar.",
     allTitle: "Alle Bewertungen",
-    allLead: "Der Wortlaut bleibt genau so, wie ihn der Gast geschrieben hat — in seiner Sprache.",
+    allLead: "Der Wortlaut bleibt so, wie er veröffentlicht oder uns übermittelt wurde.",
     statsTitle: "Liberta in Zahlen",
     statReviews: "Bewertungen auf Plattformen",
     statYears: "Jahre Gastgeber",
@@ -136,30 +126,16 @@ const stats = [
         <li class="rev-item" data-reveal style={`--reveal-delay:${Math.min(index * 45, 250)}ms`}>
           <article>
             <div class="rev-item__head">
-              <span class="rev-item__avatar" aria-hidden="true">{review.author.slice(0, 1)}</span>
               <div class="rev-item__who">
                 <strong>{review.author}</strong>
-                <span>
-                  {review.country}
-                  {review.stay ? ` · ${review.stay[locale]}` : ""}
-                </span>
+                <ReviewStars rating={review.rating} scale={review.ratingScale} size={13} />
               </div>
-              <div class="rev-item__score">
-                {(review.rating / review.ratingScale * 10).toFixed(1).replace(".", ",")}
-                <em>/10</em>
-              </div>
+              <ReviewLogo source={review.source} />
             </div>
 
             <blockquote class="rev-item__text" lang={review.lang}>
               {review.text}
             </blockquote>
-
-            <footer class="rev-item__foot">
-              <span class:list={["rev-item__source", `rev-item__source--${review.source}`]}>
-                {review.source === "booking" ? tr.reviews.sourceBooking : tr.reviews.sourceGoogle}
-              </span>
-              <time datetime={review.date}>{fmtDate(review.date)}</time>
-            </footer>
           </article>
         </li>
       ))}
@@ -294,18 +270,9 @@ const stats = [
     gap: var(--space-3);
   }
 
-  .rev-item__avatar {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    flex-shrink: 0;
-    border-radius: var(--radius-full);
-    background: var(--color-accent-faded);
-    color: var(--color-accent);
-    font-family: var(--font-display);
-    font-size: var(--text-lg);
+  /* El logotipo de la plataforma, a la derecha de nombre y estrellas. */
+  .rev-item__head :global(.rlogo) {
+    margin-left: auto;
   }
 
   .rev-item__who {
@@ -325,17 +292,8 @@ const stats = [
     color: var(--color-text-muted);
   }
 
-  .rev-item__score {
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    color: var(--color-accent);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .rev-item__score em {
-    font-style: normal;
-    font-size: 0.6em;
-    color: var(--color-text-subtle);
+  .rev-item__who :global(.rstars) {
+    margin-top: 2px;
   }
 
   .rev-item__text {
@@ -347,34 +305,4 @@ const stats = [
     text-wrap: pretty;
   }
 
-  .rev-item__foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    margin-top: auto;
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-line);
-  }
-
-  .rev-item__source {
-    font-family: var(--font-grotesk);
-    font-size: var(--text-2xs);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wide);
-    padding: 3px 9px;
-    border-radius: var(--radius-full);
-    background: var(--color-bg-muted);
-    color: var(--color-text-muted);
-  }
-
-  .rev-item__source--booking {
-    background: #e8f0fa;
-    color: #1b4f8f;
-  }
-
-  .rev-item__foot time {
-    font-size: var(--text-xs);
-    color: var(--color-text-subtle);
-  }
 </style>

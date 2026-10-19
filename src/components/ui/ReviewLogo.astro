@@ -1,0 +1,56 @@
+---
+/**
+ * ReviewLogo — logotipo de la plataforma en la tarjeta de una opinión.
+ *
+ * Se usa el logotipo REAL de cada plataforma (no una pastilla con el nombre en
+ * texto): el "G" de Google y el wordmark de Booking.com. Los SVG viven en
+ * `public/assets/brand/` y son los mismos que usa RatingSource.
+ *
+ * Las proporciones son muy distintas (1:1 y ~5,9:1), así que cada uno se
+ * dimensiona por altura para que los dos pesen lo mismo en la tarjeta.
+ */
+interface Props {
+  source: "google" | "booking";
+}
+
+const { source } = Astro.props;
+
+const logos = {
+  google: { src: "/assets/brand/google-g.svg", alt: "Google", ratio: 1, height: 18 },
+  booking: { src: "/assets/brand/booking.svg", alt: "Booking.com", ratio: 5.9, height: 14 },
+} as const;
+
+const logo = logos[source];
+const width = Math.round(logo.ratio * logo.height);
+---
+
+<img
+  class:list={["rlogo", `rlogo--${source}`]}
+  src={logo.src}
+  alt={logo.alt}
+  width={width}
+  height={logo.height}
+  loading="lazy"
+  decoding="async"
+/>
+
+<style>
+  .rlogo {
+    display: block;
+    width: auto;
+    height: auto;
+    max-height: none;
+    background: none;
+    flex-shrink: 0;
+  }
+
+  .rlogo--google {
+    width: 18px;
+    height: 18px;
+  }
+
+  .rlogo--booking {
+    width: 83px;
+    height: 14px;
+  }
+</style>

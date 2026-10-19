@@ -178,7 +178,7 @@ export function buildLodgingBusinessSchema(locale: Locale = defaultLocale) {
      *
      * Se declaran las dos plataformas por separado, con su nota, su escala y su
      * número de opiniones reales. Antes había un único AggregateRating con
-     * 9,9/17 que correspondía solo a Booking: ocultaba las 159 opiniones de
+     * 9,9/17 que correspondía solo a Booking: ocultaba las 160 opiniones de
      * Google y no representaba el conjunto.
      *
      * NO se emite una nota combinada. Google exige que `ratingValue` y

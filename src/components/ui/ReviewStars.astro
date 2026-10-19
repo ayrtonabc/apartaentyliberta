@@ -1,0 +1,84 @@
+---
+/**
+ * ReviewStars — cinco estrellas con relleno proporcional.
+ *
+ * Las dos plataformas usan escalas distintas (Google 5, Booking 10), así que
+ * la nota se normaliza a 5 estrellas. Booking solo tiene 9 y 10, es decir 4,5
+ * y 5 estrellas: con estrellas enteras, un 9,0 se pintaba igual que un 10 y se
+ * perdía la diferencia. El relleno se hace con una segunda fila recortada por
+ * ancho, de modo que 4,5 se ve como cuatro estrellas y media.
+ *
+ * Props:
+ *   rating — nota en su escala original
+ *   scale  — 5 (Google) o 10 (Booking)
+ *   size   — lado de cada estrella en px
+ */
+interface Props {
+  rating: number;
+  scale: 5 | 10;
+  size?: number;
+}
+
+const { rating, scale, size = 14 } = Astro.props;
+
+const normalized = Math.max(0, Math.min(5, (rating / scale) * 5));
+const fill = (normalized / 5) * 100;
+
+/** La nota que se anuncia: 4,5 en vez de 4.5, como el resto del sitio. */
+const label = normalized.toFixed(1).replace(".", ",");
+---
+
+<span
+  class="rstars"
+  role="img"
+  aria-label={`${label} / 5`}
+  style={`--rstars-size:${size}px;--rstars-fill:${fill}%`}
+>
+  <span class="rstars__row rstars__row--base" aria-hidden="true">
+    {Array.from({ length: 5 }).map(() => (
+      <svg viewBox="0 0 24 24"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.2-5.9 3.2 1.2-6.5L2.5 9.5l6.6-.9z"></path></svg>
+    ))}
+  </span>
+  <span class="rstars__row rstars__row--fill" aria-hidden="true">
+    {Array.from({ length: 5 }).map(() => (
+      <svg viewBox="0 0 24 24"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.2-5.9 3.2 1.2-6.5L2.5 9.5l6.6-.9z"></path></svg>
+    ))}
+  </span>
+</span>
+
+<style>
+  .rstars {
+    position: relative;
+    display: inline-flex;
+    line-height: 0;
+    vertical-align: middle;
+  }
+
+  .rstars__row {
+    display: inline-flex;
+    gap: 2px;
+  }
+
+  /* La fila dorada se recorta por ancho: 90% = 4,5 estrellas. */
+  .rstars__row--fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--rstars-fill);
+    overflow: hidden;
+  }
+
+  .rstars svg {
+    width: var(--rstars-size);
+    height: var(--rstars-size);
+    flex: 0 0 auto;
+    stroke: none;
+  }
+
+  .rstars__row--base svg {
+    fill: var(--color-line-strong);
+  }
+
+  .rstars__row--fill svg {
+    fill: var(--color-brass);
+  }
+</style>

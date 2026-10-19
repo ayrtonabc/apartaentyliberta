@@ -545,11 +545,27 @@ desincronizarse.
 datos reales daba 9,6, una puntuación que no existe en ninguna plataforma y que
 además era peor que la de Booking (9,9). Cada plataforma se muestra con su nota,
 su escala y su número de opiniones, y el total se comunica como cantidad
-("176 opiniones"), nunca como nota.
+("178 opiniones": 160 de Google y 18 de Booking), nunca como nota.
 
 Lo mismo en el JSON-LD: se emiten dos `AggregateRating`, uno por plataforma, y
 ninguno calculado por nosotros. Google exige que `ratingValue` y `reviewCount`
 correspondan a reseñas reales y verificables.
+
+**Las tarjetas de `/opinie/` muestran solo nombre, estrellas, comentario y el
+logotipo de la plataforma.** Sin fecha, país ni tipo de estancia, a petición del
+propietario. Los datos viven en `src/data/reviews-imported.ts` y se normalizan
+en `src/data/reviews.ts`; para añadir una opinión solo se toca el primero. El
+logotipo (Google o Booking.com) lo pinta `ReviewLogo.astro` y las estrellas
+`ReviewStars.astro`, que convierte 9,0/10 en 4,5 estrellas.
+
+Los textos de Google están en español porque es la versión que devolvió el
+navegador del propietario; los de Booking conservan el polaco o neerlandés
+original. Cada `<blockquote>` declara su `lang`. Si se quieren en polaco, hay
+que sustituir el texto, no la puntuación.
+
+De las **160** opiniones de Google se han importado las **103** que aparecen en
+el perfil; faltan 57 por pegar. Booking está completo: **18 de 18**. La página
+muestra 121 tarjetas aunque el recuento agregado siga siendo 178.
 
 `node scripts/capture-ratings.mjs 8080` comprueba en el navegador que las dos
 plataformas salen con sus cifras correctas y que el total no es un promedio.

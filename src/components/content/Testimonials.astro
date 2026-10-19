@@ -11,6 +11,8 @@ import { reviewsForLocale } from "~/data/reviews";
 import Icon from "~/components/ui/Icon.astro";
 import SectionHeading from "~/components/ui/SectionHeading.astro";
 import RatingSummary from "~/components/ui/RatingSummary.astro";
+import ReviewStars from "~/components/ui/ReviewStars.astro";
+import ReviewLogo from "~/components/ui/ReviewLogo.astro";
 
 interface Props {
   limit?: number;
@@ -22,21 +24,6 @@ const locale: Locale = getLocaleFromUrl(Astro.url);
 const tr = t(locale);
 
 const items = reviewsForLocale(locale).slice(0, limit);
-
-/** Etiqueta del mes en el idioma de la página. */
-const months: Record<Locale, string[]> = {
-  pl: ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"],
-  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-  de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
-};
-
-const fmtDate = (value: string) => {
-  const [year, month] = value.split("-");
-  const index = Number(month) - 1;
-  return `${months[locale][index] ?? month} ${year}`;
-};
-
-const toTen = (rating: number, scale: number) => (rating / scale) * 10;
 ---
 
 <section class="rev section" id="opinie">
@@ -73,26 +60,13 @@ const toTen = (rating: number, scale: number) => (rating / scale) * 10;
 
               <footer class="rev__footer">
                 <div class="rev__author">
-                  <span class="rev__avatar" aria-hidden="true">{review.author.slice(0, 1)}</span>
                   <span class="rev__author-text">
                     <strong>{review.author}</strong>
-                    <span>
-                      {review.country}
-                      {review.stay ? ` · ${review.stay[locale]}` : ""}
-                    </span>
+                    <ReviewStars rating={review.rating} scale={review.ratingScale} size={13} />
                   </span>
                 </div>
 
-                <div class="rev__meta">
-                  <span class:list={["rev__badge", `rev__badge--${review.source}`]}>
-                    {review.source === "booking" ? tr.reviews.sourceBooking : tr.reviews.sourceGoogle}
-                  </span>
-                  <span class="rev__date">{fmtDate(review.date)}</span>
-                  <span class="rev__score">
-                    {toTen(review.rating, review.ratingScale).toFixed(1).replace(".", ",")}
-                    <em>/10</em>
-                  </span>
-                </div>
+                <ReviewLogo source={review.source} />
               </footer>
             </div>
           </article>
@@ -325,19 +299,6 @@ const toTen = (rating: number, scale: number) => (rating / scale) * 10;
     gap: var(--space-3);
   }
 
-  .rev__avatar {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: var(--radius-full);
-    background: var(--color-accent-faded);
-    color: var(--color-accent);
-    font-family: var(--font-display);
-    font-size: var(--text-lg);
-  }
-
   .rev__author-text {
     display: flex;
     flex-direction: column;
@@ -349,49 +310,12 @@ const toTen = (rating: number, scale: number) => (rating / scale) * 10;
     font-weight: var(--weight-semibold);
   }
 
-  .rev__author-text span {
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
+  .rev__author-text :global(.rstars) {
+    margin-top: 2px;
   }
 
-  .rev__meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .rev__badge {
-    font-family: var(--font-grotesk);
-    font-size: var(--text-2xs);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wide);
-    padding: 3px 9px;
-    border-radius: var(--radius-full);
-    background: var(--color-bg-muted);
-    color: var(--color-text-muted);
-  }
-
-  .rev__badge--booking {
-    background: #e8f0fa;
-    color: #1b4f8f;
-  }
-
-  .rev__date {
-    font-size: var(--text-xs);
-    color: var(--color-text-subtle);
-  }
-
-  .rev__score {
-    font-family: var(--font-display);
-    font-size: var(--text-lg);
-    color: var(--color-accent);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .rev__score em {
-    font-style: normal;
-    font-size: 0.62em;
-    color: var(--color-text-subtle);
+  .rev__footer :global(.rlogo) {
+    margin-left: auto;
   }
 
   /* ------------------------------------------------------------ Controles */

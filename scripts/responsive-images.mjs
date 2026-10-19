@@ -36,6 +36,7 @@ const SOURCE_DIRS = [
   "assets/attractions",
   "assets/facilities",
   "assets/videos",
+  "assets/wellness",
 ];
 
 /** Anchos objetivo. Se recortan automáticamente si superan el ancho original. */

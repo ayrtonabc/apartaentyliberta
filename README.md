@@ -229,6 +229,7 @@ src/
 | `npm run images:responsive` | Regenera variantes WebP + manifiesto LQIP |
 | `npm run images:import` | Importa las fotos nuevas del propietario (normaliza a sRGB/JPEG y limpia las antiguas) |
 | `npm run images:posters` | Descarga las miniaturas de los vídeos de YouTube y las convierte a WebP 16:9 |
+| `npm run images:wellness` | Importa las 7 fotos de sauna y ognisko del propietario (sRGB, WebP) |
 | `npm run availability:update` | Importa el calendario iCal de Booking.com |
 | `npm run compress` | Re-precomprime `dist/client` sin recompilar |
 | `npm run prune` | Saca `public/import-original` del deploy sin recompilar |
@@ -303,11 +304,12 @@ tienen “Czytaj więcej”. El resumen mantiene las dos notas separadas (9,9/10
 excepción es la reseña neerlandesa de Jirg. `TestimonialCard.astro` solo pinta
 nombre, estrellas, comentario y plataforma, sin fechas ni países.
 
-**`WellnessSection.astro` — sauna y balia.** La foto de la sauna ya existía en el
-mosaico de instalaciones, pero quedaba como una celda más. Aquí va en grande,
-con la balia y cuatro argumentos concretos (agua caliente diaria, sauna con
-vista, Natura 2000, horarios). La sauna se describe como “na życzenie”, que es
-como funciona: no se vende como incluida si no lo está.
+**`WellnessSection.astro` — sauna, balia y ognisko.** Usa las **siete fotos** que
+entregó el propietario en `zdjecia sauna ogniski` (importadas con
+`npm run images:wellness`), no las del mosaico de instalaciones. El mosaico
+editorial combina interiores de sauna en verano e invierno, la sauna de noche,
+la balia y dos fotos de ognisko; la grande ocupa 2×2. La sauna se describe como
+“na życzenie”, que es como funciona: no se vende como incluida si no lo está.
 
 **`VideoWallSection.astro` — “Nagrano u nas”.** Los ocho vídeos grabados en el
 complejo: seis telediscos (Fisher, Explozja, Lena z Zespołem, Daniel Dąbrowski),

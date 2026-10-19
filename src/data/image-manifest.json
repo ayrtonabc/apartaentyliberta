@@ -1235,5 +1235,93 @@
       1280
     ],
     "fallback": "/assets/responsive/assets/videos/wesele-w-liberta-1280.webp"
+  },
+  "assets/wellness/ognisko-laka.webp": {
+    "width": 1451,
+    "height": 1084,
+    "mtimeMs": 1792451767762,
+    "lqip": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQBACdASoUAA8APu1iqk2ppaQiMAgBMB2JagCdMoLT9AypU3qYnYhpAADr4sRCt4HjYBCKb4JC8EyHQ5vdbr/R9/Uu7l0C+dSY7/7tjiAAAA==",
+    "widths": [
+      480,
+      768,
+      1100,
+      1400,
+      1451
+    ],
+    "fallback": "/assets/responsive/assets/wellness/ognisko-laka-1451.webp"
+  },
+  "assets/wellness/ognisko-zachod.webp": {
+    "width": 1451,
+    "height": 1084,
+    "mtimeMs": 1792451767510,
+    "lqip": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAwBACdASoUAA8APu1oqk6ppiQiMAgBMB2JYwCdMoMlt8AAXkR7ZS+g8AAAzYaabB92NHiYJDHmPlXr0UdqLF63MPoRR07AMwX6Q42FCuAAAA==",
+    "widths": [
+      480,
+      768,
+      1100,
+      1400,
+      1451
+    ],
+    "fallback": "/assets/responsive/assets/wellness/ognisko-zachod-1451.webp"
+  },
+  "assets/wellness/sauna-beczka-zachod.webp": {
+    "width": 1084,
+    "height": 1451,
+    "mtimeMs": 1792451767271,
+    "lqip": "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAADQBACdASoUABsAPuFYpk2opSOiN/qoARAcCWQAnTNVwerg0D8M6TtkuXdAQevwoADrF7SFqR4f5/hjN51WGtRHREEb1XqGDrEgJBdx7kx/ftMzHKwFNXEfujFCFEI6rOHW7JrpeV2OGwAA",
+    "widths": [
+      480,
+      768,
+      1084
+    ],
+    "fallback": "/assets/responsive/assets/wellness/sauna-beczka-zachod-1084.webp"
+  },
+  "assets/wellness/sauna-ogrod-wieczor.webp": {
+    "width": 1084,
+    "height": 1451,
+    "mtimeMs": 1792451767058,
+    "lqip": "data:image/webp;base64,UklGRpYAAABXRUJQVlA4IIoAAACwBQCdASoUABsAPu1orVCppaQiqAqpMB2JYgCdMyGBQnD+vioybbr6seDkD/yQlkdAZd2ti8AA+FsEh4iEW1a2QEIFXDysq1fJDWEleu5BDvHZhGuKAmsVqk6ak+AjthsoM0irgA4wUI+TQ7x5jM3MQuDV5CRuZA+mIvN8CGqsoNgfGiR4Q1FwAAA=",
+    "widths": [
+      480,
+      768,
+      1084
+    ],
+    "fallback": "/assets/responsive/assets/wellness/sauna-ogrod-wieczor-1084.webp"
+  },
+  "assets/wellness/sauna-wnetrze-lato-2.webp": {
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792451766557,
+    "lqip": "data:image/webp;base64,UklGRoYAAABXRUJQVlA4IHoAAAAwBQCdASoUABsAPt1WpU2opKOiN/qoARAbiWYAnTN2xQBzioPueWtwg3FaxgjurmRMAADkL5HVDC4BG0jwYYiKP+5uyMbf+2ORX9XbFVoXuCOhzZXn1TXwfIBZMq4uSVmSKUbmRoC6Qu8HvHBMPp050Xz3kk6qhgAAAA==",
+    "widths": [
+      480,
+      768,
+      1086
+    ],
+    "fallback": "/assets/responsive/assets/wellness/sauna-wnetrze-lato-2-1086.webp"
+  },
+  "assets/wellness/sauna-wnetrze-lato.webp": {
+    "width": 1052,
+    "height": 1494,
+    "mtimeMs": 1792451766309,
+    "lqip": "data:image/webp;base64,UklGRpAAAABXRUJQVlA4IIQAAACwBQCdASoUABwAPu1sq1EppiOiqAqpMB2JYgCdMzQ+J+UBDx9wq25megaVXyJhZNoTRO/B8AAAnqJKGQOx40LZjFQHTedgA/Ngr4PyHt7fFcZLMQaSsgdDkUhm3rZ0w7UMZNkwT/r9OGpvADLMWAOHPxS8GVYD/U+4goliiPpZHPAAAAA=",
+    "widths": [
+      480,
+      768,
+      1052
+    ],
+    "fallback": "/assets/responsive/assets/wellness/sauna-wnetrze-lato-1052.webp"
+  },
+  "assets/wellness/sauna-wnetrze-zima.webp": {
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792451766811,
+    "lqip": "data:image/webp;base64,UklGRoAAAABXRUJQVlA4IHQAAABQBQCdASoUABsAPuFWpU2opKOiN/qoARAcCWgAnTKEdFi0QTZPnybmKFzhVUGP9Qql54AA+bEkKpFbzPXZ4U5Q8MEvWJg3NRlX7FgYFOXUb7p+gJck/2sZEJmUJU8Mg7H111Qgo0wBF3IgESTcyUEK+X3AAA==",
+    "widths": [
+      480,
+      768,
+      1086
+    ],
+    "fallback": "/assets/responsive/assets/wellness/sauna-wnetrze-zima-1086.webp"
   }
 }

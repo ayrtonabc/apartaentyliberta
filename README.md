@@ -316,13 +316,13 @@ editorial combina interiores de sauna en verano e invierno, la sauna de noche,
 la balia y dos fotos de ognisko; la grande ocupa 2×2. La sauna se describe como
 “na życzenie”, que es como funciona: no se vende como incluida si no lo está.
 
-**`WelcomeSection.astro` — “Witaj na Mazurach”.** Mosaico cálido de **seis
-fotos** de `public/assets/facilities` (`balia`, `taras`, `lake`, `sypialnia`,
-`lazienka`, `miejsce-na-ognisko`) sobre una forma de agua azul, texto a la
-derecha y firma transparente de los propietarios. El `eyebrow` es ahora el
-propio “Witaj na Mazurach”; se eliminó el titular grande duplicado. No usa las
-fotos `apartament-z-zewnatrz`, `salon-z-kominkiem`, `kuchnia` ni `jadalnia`.
-Fondo crema-sálvia, degradado latón y texto traducido a EN/DE.
+**`WelcomeSection.astro` — “Witaj na Mazurach”.** Grid 2×4 con **las ocho fotos
+de `public/assets/witaj`** (`balia`, `taras`, `jezioro-szelag`, `lake`, `play`,
+`miejsce-na-ognisko`, `rejs-motorowka`, `plac-zabaw`), texto a la derecha y
+firma transparente centrada. No se mezcla ninguna foto de `facilities` ni de
+otras carpetas. El `eyebrow` usa la misma tipografía que el resto de secciones
+y se eliminó el titular grande duplicado, el pie de firma y el CTA. Las ocho
+fuentes tienen variantes responsive desde `npm run images:responsive`.
 
 **`VideoWallSection.astro` — “Nagrano u nas”.** Los ocho vídeos grabados en el
 complejo: seis telediscos (Fisher, Explozja, Lena z Zespołem, Daniel Dąbrowski),

@@ -1323,5 +1323,110 @@
       1086
     ],
     "fallback": "/assets/responsive/assets/facilities/sypialnia-1086.webp"
+  },
+  "assets/witaj/balia.webp": {
+    "width": 1080,
+    "height": 808,
+    "mtimeMs": 1790025857480,
+    "lqip": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADQAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JZACdACEjrOLlkKvxEmIA/iILDCBBXog0hNW8Z0Rp0XzcENXYgOsZKdvbtUNDCHuxR1vThV54Um3dynOg7AAA",
+    "widths": [
+      480,
+      768,
+      1080
+    ],
+    "fallback": "/assets/responsive/assets/witaj/balia-1080.webp"
+  },
+  "assets/witaj/jezioro-szelag.webp": {
+    "width": 1360,
+    "height": 1017,
+    "mtimeMs": 1790022759330,
+    "lqip": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAADQAwCdASoUAA8APu1kqU2ppaQiMAgBMB2JZQAAWeQQ2iUhdDtRYQAA/c770Y1pWbKPuolknHRpNqgiLvJ/TDvXtKnnUYBTn7qu/oczsa+AAA==",
+    "widths": [
+      480,
+      768,
+      1100,
+      1360
+    ],
+    "fallback": "/assets/responsive/assets/witaj/jezioro-szelag-1360.webp"
+  },
+  "assets/witaj/lake.webp": {
+    "width": 2048,
+    "height": 1140,
+    "mtimeMs": 1790083447251.98,
+    "lqip": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAABQBACdASoUAAsAPu1iqU2ppaQiMAgBMB2JZACdMoRwACWSFqkh/Krs3pqQAP01Jwx6SboS91OiyelNzgllKf+evGfIlZU+u/W1HLoMH4PQAAAA",
+    "widths": [
+      480,
+      768,
+      1100,
+      1400,
+      2048
+    ],
+    "fallback": "/assets/responsive/assets/witaj/lake-2048.webp"
+  },
+  "assets/witaj/miejsce-na-ognisko.webp": {
+    "width": 1451,
+    "height": 1084,
+    "mtimeMs": 1792418005780,
+    "lqip": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAwBACdASoUAA8APu1oqk6ppiQiMAgBMB2JYwCdMoMkp8AAXkR7ZS+g8AAAzYaabB92NHiYJDHmPlICyfK3TIJWpDcT8kqNRZVENt0rpGAAAA==",
+    "widths": [
+      480,
+      768,
+      1100,
+      1400,
+      1451
+    ],
+    "fallback": "/assets/responsive/assets/witaj/miejsce-na-ognisko-1451.webp"
+  },
+  "assets/witaj/plac-zabaw.webp": {
+    "width": 1080,
+    "height": 1080,
+    "mtimeMs": 1790025858525,
+    "lqip": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAABQBACdASoUABQAPu1kp02ppaOiMBgMATAdiUAY/IHocvxDqQFhCvlvWuAAAMqSFvbM2ZgcYgRG1+TfMSYeGbzqwQCm5xCHWNNbCL3zUPQBOQvmbuR281qXB2YIAA==",
+    "widths": [
+      480,
+      768,
+      1080
+    ],
+    "fallback": "/assets/responsive/assets/witaj/plac-zabaw-1080.webp"
+  },
+  "assets/witaj/play.webp": {
+    "width": 1532,
+    "height": 2048,
+    "mtimeMs": 1790083462154.694,
+    "lqip": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAQBACdASoUABsAPu1mqk2ppaQpMAgBMB2JZQDLLB6VdtXkvzuurGWFAAD5t2qA3+qcHg8ZeopJeuJUT3doWwzyJNGRCabsUncuukVlkXgnb2AAAAA=",
+    "widths": [
+      480,
+      768,
+      1100,
+      1400,
+      1532
+    ],
+    "fallback": "/assets/responsive/assets/witaj/play-1532.webp"
+  },
+  "assets/witaj/rejs-motorowka.webp": {
+    "width": 1200,
+    "height": 900,
+    "mtimeMs": 1790027860948,
+    "lqip": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAACwAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JZwCw7CHWxRigZBkZAAD92DNNomdLwO6rThw7XB0I+X1dUkP9aWcr9YAAAA==",
+    "widths": [
+      480,
+      768,
+      1100,
+      1200
+    ],
+    "fallback": "/assets/responsive/assets/witaj/rejs-motorowka-1200.webp"
+  },
+  "assets/witaj/taras.webp": {
+    "width": 1200,
+    "height": 900,
+    "mtimeMs": 1792449218807.3281,
+    "lqip": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAwCdASoUAA8APu1mq04ppaQiMAgBMB2JagCdH8ACcPn4lYD5TCXAAP4VdFYE/XuBcfHMYRjUKbkLIRSmU2YU4i407VPGDUaEszOrGy3dr0w601o9AAAA",
+    "widths": [
+      480,
+      768,
+      1100,
+      1200
+    ],
+    "fallback": "/assets/responsive/assets/witaj/taras-1200.webp"
   }
 }

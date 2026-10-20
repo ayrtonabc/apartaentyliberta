@@ -1208,5 +1208,120 @@
       1086
     ],
     "fallback": "/assets/responsive/assets/wellness/sauna-wnetrze-zima-1086.webp"
+  },
+  "assets/facilities/apartament-z-zewnatrz.webp": {
+    "width": 1200,
+    "height": 1600,
+    "mtimeMs": 1792515274035.1667,
+    "lqip": "data:image/webp;base64,UklGRoYAAABXRUJQVlA4IHoAAADwBACdASoUABsAPulipE2pJaMiMAwBIB0JbACdACHfZuu6/A1HrozcIS58ldBcMAgA/tiiKGXUdkyWS/9tf+JS3/oyyqJ47qHXro2gn0Fzxr3k47VKDK7ok0LFumLmAmxtzCFOuJUQtOIHlz64xRIKJ7QdaNLt9OSAAA==",
+    "widths": [
+      480,
+      768,
+      1100,
+      1200
+    ],
+    "fallback": "/assets/responsive/assets/facilities/apartament-z-zewnatrz-1200.webp"
+  },
+  "assets/facilities/jadalnia.webp": {
+    "width": 1200,
+    "height": 800,
+    "mtimeMs": 1792515274036.167,
+    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAwCdASoUAA0APu1iqk4ppaQiMAgBMB2JYgCdACPb4AtAtVdBnVAA/sNE40rWwmmwSBdCgdACZXhUJlS7Xw2L1wigErTZeX+Uu9IAAAA=",
+    "widths": [
+      480,
+      768,
+      1100,
+      1200
+    ],
+    "fallback": "/assets/responsive/assets/facilities/jadalnia-1200.webp"
+  },
+  "assets/facilities/kuchnia.webp": {
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792515274037.168,
+    "lqip": "data:image/webp;base64,UklGRoYAAABXRUJQVlA4IHoAAAAQBQCdASoUABsAPu1wsFKppiSiqAgBMB2JQBdmZDAgQSjWEZGDMUfeP07dc5LpYn4AAP4+5oZQGKpjnhmmuuIBbdvz/g3+cNFiE35HJU0HX5JT2MyYJzRbq4Fu80ZosEUDX5ruT3AwY7t4PQH/CE1hgcH21LRjDEa4AA==",
+    "widths": [
+      480,
+      768,
+      1086
+    ],
+    "fallback": "/assets/responsive/assets/facilities/kuchnia-1086.webp"
+  },
+  "assets/facilities/lazienka.webp": {
+    "width": 1200,
+    "height": 900,
+    "mtimeMs": 1792515274038.1677,
+    "lqip": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAABQAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JZwDA3AagQiEgAAD+x+w2Nf+o2mu8wp/kB6ZV46Pm0FsKUnQ1YuRFKAA=",
+    "widths": [
+      480,
+      768,
+      1100,
+      1200
+    ],
+    "fallback": "/assets/responsive/assets/facilities/lazienka-1200.webp"
+  },
+  "assets/facilities/plan-osrodka.webp": {
+    "width": 3401,
+    "height": 2265,
+    "mtimeMs": 1792515274040.1685,
+    "lqip": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADQAwCdASoUAA0APu1iqk2ppaQiMAgBMB2JQBOkERhZDb+/MuIb38AA+iDt5MTGNtv1V0HzwBg72ge6WDolVfZslHIwpX3TSkPbQmAA",
+    "widths": [
+      480,
+      768,
+      1100,
+      1400,
+      3401
+    ],
+    "fallback": "/assets/responsive/assets/facilities/plan-osrodka-3401.webp"
+  },
+  "assets/facilities/salon-z-kominkiem.webp": {
+    "width": 1200,
+    "height": 900,
+    "mtimeMs": 1792515274042.1655,
+    "lqip": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADwAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JagCdMoAB62UiI+kUM9DwAP1CzRdmj9CoDc4eh1e5rwNlr9wvou17N4fuzlXMMpWki95Lgr2seL6n1g5KoWAA",
+    "widths": [
+      480,
+      768,
+      1100,
+      1200
+    ],
+    "fallback": "/assets/responsive/assets/facilities/salon-z-kominkiem-1200.webp"
+  },
+  "assets/facilities/sauna.webp": {
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792515274043.1653,
+    "lqip": "data:image/webp;base64,UklGRoQAAABXRUJQVlA4IHgAAAAQBQCdASoUABsAPt1WpU2opKOiN/qoARAbiWYAnTN2xQBzioPoV1wg0z+dfXj/5SUAAOQvkdUMLm3yYd4MMRFH/c3ZGNv/bHIr+rtiq0L3BHQ5srzLqPNEGK1qxuRvKvlxVW9mxpG7HWgJZECe0pVr3bkoiGeMAAA=",
+    "widths": [
+      480,
+      768,
+      1086
+    ],
+    "fallback": "/assets/responsive/assets/facilities/sauna-1086.webp"
+  },
+  "assets/facilities/sypialnia-dwuosobowa.webp": {
+    "width": 1200,
+    "height": 1600,
+    "mtimeMs": 1792515274045.17,
+    "lqip": "data:image/webp;base64,UklGRoYAAABXRUJQVlA4IHoAAACQBQCdASoUABsAPu1ur1KppiQiqAgBMB2JZACdMtP6ACFhaBrVnGi86UChZUzw7yl6cgkugADOE33C6NGeiTcQo+YF8zgxTePsxpR3Yy9aXIrBF/VtgQneMBo/vYaGSqmyTgom8q+zoxdd9Z8qoxM1pQm1qKOD4LwAAA==",
+    "widths": [
+      480,
+      768,
+      1100,
+      1200
+    ],
+    "fallback": "/assets/responsive/assets/facilities/sypialnia-dwuosobowa-1200.webp"
+  },
+  "assets/facilities/sypialnia.webp": {
+    "width": 1086,
+    "height": 1448,
+    "mtimeMs": 1792515274047.1687,
+    "lqip": "data:image/webp;base64,UklGRogAAABXRUJQVlA4IHwAAABQBQCdASoUABsAPu1qqVAppiOiqA1RMB2JYgCsL68Aol2LPJV5evk+5bkg14EgO0oPkoAAnqM5SJflaoKjh2+Lx/CN+QAs/nCiavITfI2exTM/xQ+DNfCw4N1COmYXASGMfCUxGgua8bdyXRn5ZLHaIy9TayCET4gML+AA",
+    "widths": [
+      480,
+      768,
+      1086
+    ],
+    "fallback": "/assets/responsive/assets/facilities/sypialnia-1086.webp"
   }
 }

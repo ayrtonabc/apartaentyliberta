@@ -293,11 +293,12 @@ Tres secciones nuevas, sin librerías externas. Todo el movimiento es CSS y los
 controles son dos scripts pequeños; las imágenes siguen entrando por
 `SmartImage` (srcset, LQIP y dimensiones reales).
 
-**`PricingShowcase.astro` — cennik.** Cuatro tarjetas claras con tarifa baja y
-alta por noche (700/900 PLN), capacidad **6 + 2**, nota de dostawka (100 zł/noc)
-y tasas, y CTA a Booking. Sin slider ni calculadora: el cliente pidió quitar el
-total calculado porque hacía que la sección pareciera un presupuesto caro. Los
-precios salen de `apartments.ts`, no están escritos a mano en el HTML.
+**`PricingShowcase.astro` — cennik.** Mesa de tarifas sobre fondo verde bosque:
+cuatro filas con 700/900 PLN, capacidad **6 + 2**, descuentos 7+/13+ noches,
+nota de dostawka (100 zł/noc) y tasas, y CTA a Booking. En la cabecera, tarjeta
+de contacto con el **teléfono de la empresa en grande** para consultas y
+reservas. Sin slider ni calculadora. Los precios salen de `apartments.ts`, no
+están escritos a mano en el HTML.
 
 **`Testimonials.astro` — opiniones.** Dos cintas continuas, una de Google y otra
 de Booking.com, con el logotipo de cada plataforma en la tarjeta. Cada cinta

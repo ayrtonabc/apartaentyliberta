@@ -1,14 +1,15 @@
 ---
 /**
- * PricingShowcase — tarifas de la portada, sin calculadora.
+ * PricingShowcase — cennik de la portada, rediseñado.
  *
- * El cliente pidió quitar el deslizador de noches y el total calculado: hacía
- * que la sección pareciera un presupuesto caro. Ahora se muestran cuatro
- * tarjetas claras, con la tarifa baja y alta por noche, y un único CTA a
- * Booking.com. Los precios salen de `apartments.ts`.
+ * Sin calculadora ni deslizador: una mesa de tarifas clara, cuatro filas y una
+ * tarjeta de contacto con el teléfono de la empresa en grande. El objetivo es
+ * que el precio no parezca un presupuesto y que quien prefiera hablar tenga el
+ * número a un toque.
  */
 import { type Locale, localeLink, t } from "~/lib/i18n";
 import { apartments } from "~/data/apartments";
+import { site } from "~/data/site";
 import { bookingUrl } from "~/data/booking";
 import Icon from "~/components/ui/Icon.astro";
 
@@ -25,50 +26,65 @@ const copy = {
   pl: {
     eyebrow: tr.home.pricingEyebrow,
     title: "Proste stawki za noc",
-    lead: "Cena za cały apartament dla 6 osób — nie za osobę. Do 8 osób z dostawką w salonie; bez kalendarza, który podbija kwotę.",
-    low: "Sezon niski",
-    high: "Sezon wysoki",
+    lead: "Cena za cały apartament dla 6 osób — nie za osobę. Bez kalendarza, który podbija kwotę.",
+    callLabel: "Wolisz zapytać?",
+    callText: "Rezerwacje i pytania. Zadzwoń — chętnie doradzimy przy wyborze terminu.",
+    callCta: "Zadzwoń teraz",
+    tableApartment: "Apartament",
+    tableGuests: "Goście",
+    tableLow: "Sezon niski",
+    tableHigh: "Sezon wysoki",
     from: "od",
     perNight: "/ noc",
-    cta: "Sprawdź terminy",
-    full: "Pełny cennik i usługi dodatkowe",
+    low: "niski",
+    high: "wysoki",
     discount: "7+ nocy −5% · 13+ nocy −10%",
     note: "Cena obejmuje apartament dla 6 osób, WiFi, parking, balię i drewno. Dostawka w salonie dla 2 osób: 100 zł/noc. Sprzątanie końcowe i opłata klimatyczna są doliczane jednorazowo — potwierdzamy je przed rezerwacją.",
-    people: "6 + 2 osoby",
-    size: "80 m²",
-    season: "Ceny za apartament",
+    cta: "Sprawdź terminy na Booking.com",
+    full: "Pełny cennik i usługi dodatkowe",
+    detail: "Zobacz apartament",
   },
   en: {
     eyebrow: tr.home.pricingEyebrow,
     title: "Simple nightly rates",
-    lead: "The price is for the whole apartment for 6 guests — not per person. Up to 8 with an extra bed in the living room; no calendar inflating the total.",
-    low: "Low season",
-    high: "High season",
+    lead: "The price is for the whole apartment for 6 guests — not per person. No calendar inflating the total.",
+    callLabel: "Prefer to ask?",
+    callText: "Bookings and questions. Call us — we will gladly help you choose your dates.",
+    callCta: "Call now",
+    tableApartment: "Apartment",
+    tableGuests: "Guests",
+    tableLow: "Low season",
+    tableHigh: "High season",
     from: "from",
     perNight: "/ night",
-    cta: "Check dates",
-    full: "Full price list and extras",
+    low: "low",
+    high: "high",
     discount: "7+ nights −5% · 13+ nights −10%",
     note: "The price covers the apartment for 6 guests, WiFi, parking, hot tub and firewood. Extra bed in the living room for 2: 100 PLN/night. Final cleaning and tourist tax are charged once — confirmed before booking.",
-    people: "6 + 2 guests",
-    size: "80 m²",
-    season: "Price per apartment",
+    cta: "Check dates on Booking.com",
+    full: "Full price list and extras",
+    detail: "View apartment",
   },
   de: {
     eyebrow: tr.home.pricingEyebrow,
     title: "Einfache Nachtpreise",
-    lead: "Der Preis gilt für die ganze Wohnung für 6 Gäste — nicht pro Person. Bis 8 mit Zustellbett im Wohnzimmer; kein Kalender, der die Summe aufbläht.",
-    low: "Nebensaison",
-    high: "Hochsaison",
+    lead: "Der Preis gilt für die ganze Wohnung für 6 Gäste — nicht pro Person. Kein Kalender, der die Summe aufbläht.",
+    callLabel: "Lieber fragen?",
+    callText: "Buchungen und Fragen. Rufen Sie an — wir helfen gerne bei der Terminwahl.",
+    callCta: "Jetzt anrufen",
+    tableApartment: "Ferienwohnung",
+    tableGuests: "Gäste",
+    tableLow: "Nebensaison",
+    tableHigh: "Hochsaison",
     from: "ab",
     perNight: "/ Nacht",
-    cta: "Termine prüfen",
-    full: "Vollständige Preisliste und Zusatzleistungen",
+    low: "niedrig",
+    high: "hoch",
     discount: "7+ Nächte −5% · 13+ Nächte −10%",
     note: "Der Preis umfasst die Wohnung für 6 Gäste, WiFi, Parkplatz, Hot Tub und Brennholz. Zustellbett im Wohnzimmer für 2: 100 PLN/Nacht. Endreinigung und Kurtaxe werden einmalig berechnet — vor der Buchung bestätigt.",
-    people: "6 + 2 Gäste",
-    size: "80 m²",
-    season: "Preis pro Wohnung",
+    cta: "Termine auf Booking.com prüfen",
+    full: "Vollständige Preisliste und Zusatzleistungen",
+    detail: "Wohnung ansehen",
   },
 }[locale];
 ---
@@ -77,67 +93,88 @@ const copy = {
   <div class="container">
     <header class="pricing__head">
       <div class="pricing__intro" data-reveal>
-        <span class="eyebrow">{copy.eyebrow}</span>
+        <span class="eyebrow eyebrow--inverse">{copy.eyebrow}</span>
         <h2 class="pricing__title" id="pricing-title">{copy.title}</h2>
         <p class="pricing__lead">{copy.lead}</p>
       </div>
 
-      <div class="pricing__seal" data-reveal style="--reveal-delay:80ms">
-        <span class="pricing__seal-icon"><Icon name="shield" size={18} /></span>
-        <span>
-          <strong>{copy.season}</strong>
-          <small>{copy.discount}</small>
-        </span>
-      </div>
+      <aside class="pricing__call" data-reveal style="--reveal-delay:80ms">
+        <span class="pricing__call-label">{copy.callLabel}</span>
+        <a class="pricing__phone" href={`tel:${site.phone.tel}`}>
+          {site.phone.display}
+        </a>
+        <p class="pricing__call-text">{copy.callText}</p>
+        <a class="pricing__call-link" href={`tel:${site.phone.tel}`}>
+          {copy.callCta}
+          <Icon name="phone" size={15} />
+        </a>
+      </aside>
     </header>
 
-    <ul class="pricing__grid" role="list" data-reveal>
-      {apartments.map((apartment, index) => (
-        <li class="pricing__card">
-          <div class="pricing__card-head">
-            <span class="pricing__number">{String(index + 1).padStart(2, "0")}</span>
-            <div>
-              <h3 class="pricing__name">{apartment.names[locale]}</h3>
-              <p class="pricing__specs">
-                <span><Icon name="users" size={14} /> {copy.people}</span>
-                <span><Icon name="ruler" size={14} /> {copy.size}</span>
-              </p>
-            </div>
-          </div>
+    <div class="pricing__board" data-reveal>
+      <table class="pricing__table">
+        <caption class="sr-only">{copy.title}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{copy.tableApartment}</th>
+            <th scope="col">{copy.tableGuests}</th>
+            <th scope="col">{copy.tableLow}</th>
+            <th scope="col">{copy.tableHigh}</th>
+            <th scope="col"><span class="sr-only">{copy.detail}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {apartments.map((apartment, index) => (
+            <tr>
+              <th scope="row">
+                <span class="pricing__name">
+                  <span class="pricing__number">{String(index + 1).padStart(2, "0")}</span>
+                  <a href={localeLink(locale, `/apartamenty/${apartment.slugs[locale]}/`)}>
+                    {apartment.names[locale]}
+                  </a>
+                </span>
+              </th>
+              <td data-label={copy.tableGuests}>6 + 2</td>
+              <td data-label={copy.tableLow}>
+                <strong>{copy.from} {nf(apartment.pricing.lowSeasonPLN)} zł</strong>
+                <em>{copy.perNight}</em>
+              </td>
+              <td data-label={copy.tableHigh}>
+                <strong>{nf(apartment.pricing.highSeasonPLN)} zł</strong>
+                <em>{copy.perNight}</em>
+              </td>
+              <td class="pricing__row-cta">
+                <a href={bookingUrl(locale)} target="_blank" rel="noopener noreferrer">
+                  {copy.cta}
+                  <Icon name="arrow-right" size={13} />
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-          <div class="pricing__rates">
-            <div class="pricing__rate">
-              <span>{copy.low}</span>
-              <strong>{copy.from} {nf(apartment.pricing.lowSeasonPLN)} zł <em>{copy.perNight}</em></strong>
-            </div>
-            <div class="pricing__rate pricing__rate--high">
-              <span>{copy.high}</span>
-              <strong>{nf(apartment.pricing.highSeasonPLN)} zł <em>{copy.perNight}</em></strong>
-            </div>
-          </div>
+      <div class="pricing__aside">
+        <p class="pricing__discount">
+          <Icon name="sparkles" size={16} />
+          {copy.discount}
+        </p>
+        <p class="pricing__note">{copy.note}</p>
+        <a class="pricing__full" href={localeLink(locale, "/cennik/")}>
+          {copy.full}
+          <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+    </div>
 
-          <a
-            class="pricing__cta"
-            href={bookingUrl(locale)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {copy.cta}
-            <Icon name="arrow-right" size={14} />
-          </a>
-        </li>
-      ))}
-    </ul>
-
-    <div class="pricing__foot" data-reveal>
-      <p class="pricing__note">{copy.note}</p>
-      <a class="btn btn--primary" href={bookingUrl(locale)} target="_blank" rel="noopener noreferrer">
-        {tr.booking.bookingCta}
+    <div class="pricing__actions" data-reveal>
+      <a class="btn btn--primary btn--lg" href={bookingUrl(locale)} target="_blank" rel="noopener noreferrer">
+        {copy.cta}
         <Icon name="arrow-right" size={15} />
       </a>
-      <a class="pricing__full" href={localeLink(locale, "/cennik/")}>
-        {copy.full}
-        <Icon name="arrow-right" size={14} />
+      <a class="pricing__phone-link" href={`tel:${site.phone.tel}`}>
+        <Icon name="phone" size={16} />
+        {site.phone.display}
       </a>
     </div>
   </div>
@@ -146,20 +183,22 @@ const copy = {
 <style>
   .pricing {
     padding-block: var(--section-y);
-    background: var(--color-bg-muted);
-    border-block: 1px solid var(--color-line);
+    background:
+      radial-gradient(80% 70% at 90% 0%, rgba(176, 141, 74, 0.16), transparent 58%),
+      var(--color-bg-inverse);
+    color: var(--color-text-inverse);
   }
 
   .pricing__head {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-8);
     align-items: end;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 900px) {
     .pricing__head {
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: var(--space-10);
+      grid-template-columns: minmax(0, 1fr) 22rem;
+      gap: var(--space-12);
     }
   }
 
@@ -170,221 +209,217 @@ const copy = {
   .pricing__title {
     margin-top: var(--space-3);
     margin-bottom: var(--space-4);
-    font-size: clamp(1.9rem, 3.9vw, 3.25rem);
+    font-size: clamp(1.9rem, 3.9vw, 3.2rem);
     line-height: 1.03;
     letter-spacing: var(--tracking-tighter);
+    color: var(--color-text-inverse);
     text-wrap: balance;
   }
 
   .pricing__lead {
     max-width: 58ch;
-    color: var(--color-text-muted);
     font-size: var(--text-lg);
     line-height: var(--leading-relaxed);
+    color: var(--on-dark-text-muted);
     text-wrap: pretty;
   }
 
-  .pricing__seal {
+  .pricing__call {
     display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    max-width: 26rem;
-    padding: var(--space-4) var(--space-5);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-line);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    background: var(--color-bg);
     border-radius: var(--radius-lg);
+    color: var(--color-text);
   }
 
-  .pricing__seal-icon {
+  .pricing__call-label {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .pricing__phone {
+    display: block;
+    max-width: 100%;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4.3vw, 2.85rem);
+    font-weight: var(--weight-normal);
+    line-height: 1;
+    letter-spacing: var(--tracking-tighter);
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .pricing__phone:hover {
+    color: var(--color-accent);
+  }
+
+  .pricing__call-text {
+    max-width: 28ch;
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  .pricing__call-link {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 2.4rem;
-    height: 2.4rem;
-    flex-shrink: 0;
-    color: var(--color-accent);
-    background: var(--color-accent-faded);
-    border-radius: var(--radius-full);
-  }
-
-  .pricing__seal strong,
-  .pricing__seal small {
-    display: block;
-  }
-
-  .pricing__seal strong {
+    gap: var(--space-2);
+    min-height: 2.5rem;
+    margin-top: var(--space-2);
     font-family: var(--font-grotesk);
     font-size: var(--text-2xs);
     font-weight: var(--weight-semibold);
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
+    color: var(--color-accent);
   }
 
-  .pricing__seal small {
-    margin-top: 2px;
-    font-size: var(--text-xs);
+  .pricing__call-link:hover {
+    text-decoration: underline;
+  }
+
+  .pricing__board {
+    margin-top: clamp(2rem, 4vw, 3.5rem);
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .pricing__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .pricing__table thead {
+    background: var(--color-bg-muted);
+  }
+
+  .pricing__table th,
+  .pricing__table td {
+    padding: var(--space-4) var(--space-5);
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .pricing__table thead th {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
     color: var(--color-text-muted);
   }
 
-  .pricing__grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
-    margin-top: clamp(2rem, 4vw, 3.5rem);
+  .pricing__table tbody th {
+    min-width: 15rem;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-normal);
+    color: var(--color-text);
   }
 
-  @media (min-width: 640px) {
-    .pricing__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  .pricing__card {
+  .pricing__name {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
-    padding: var(--space-6);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    transition: transform var(--transition-base), border-color var(--transition-base);
+    align-items: center;
+    gap: var(--space-3);
   }
 
-  .pricing__card:hover {
-    transform: translateY(-3px);
-    border-color: var(--color-accent);
-  }
-
-  .pricing__card-head {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-4);
+  .pricing__table tbody th a:hover {
+    color: var(--color-accent);
   }
 
   .pricing__number {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.3rem;
-    height: 2.3rem;
+    width: 2rem;
+    height: 2rem;
     flex-shrink: 0;
     font-family: var(--font-grotesk);
     font-size: var(--text-2xs);
     font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wide);
     color: var(--color-accent);
     background: var(--color-accent-faded);
     border-radius: var(--radius-full);
   }
 
-  .pricing__name {
-    margin: 0;
-    font-size: var(--text-xl);
-    line-height: 1.2;
-  }
-
-  .pricing__specs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    margin-top: var(--space-2);
-    max-width: none;
-    font-size: var(--text-xs);
+  .pricing__table td {
+    font-size: var(--text-sm);
     color: var(--color-text-muted);
+    white-space: nowrap;
   }
 
-  .pricing__specs span {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-  }
-
-  .pricing__specs :global(.icon) {
-    color: var(--color-accent);
-  }
-
-  .pricing__rates {
-    display: grid;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-line);
-  }
-
-  @media (min-width: 420px) {
-    .pricing__rates {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  .pricing__rate {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .pricing__rate > span {
-    font-family: var(--font-grotesk);
-    font-size: var(--text-2xs);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    color: var(--color-text-subtle);
-  }
-
-  .pricing__rate strong {
+  .pricing__table td strong {
+    display: block;
     font-family: var(--font-display);
     font-size: var(--text-xl);
     font-weight: var(--weight-normal);
-    line-height: 1.15;
     color: var(--color-text);
   }
 
-  .pricing__rate em {
+  .pricing__table td em {
+    display: block;
+    margin-top: 2px;
     font-family: var(--font-grotesk);
     font-style: normal;
     font-size: var(--text-2xs);
-    color: var(--color-text-muted);
+    color: var(--color-text-subtle);
   }
 
-  .pricing__rate--high strong {
-    color: var(--color-accent);
+  .pricing__row-cta {
+    text-align: right;
   }
 
-  .pricing__cta {
+  .pricing__row-cta a {
     display: inline-flex;
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-2);
-    margin-top: auto;
-    min-height: 2.75rem;
-    padding-block: var(--space-3);
+    min-height: 2.5rem;
     font-family: var(--font-grotesk);
     font-size: var(--text-2xs);
     font-weight: var(--weight-semibold);
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
     color: var(--color-accent);
+  }
+
+  .pricing__row-cta a:hover {
+    text-decoration: underline;
+  }
+
+  .pricing__aside {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    background: var(--color-bg-elevated);
     border-top: 1px solid var(--color-line);
   }
 
-  .pricing__cta:hover {
-    color: var(--color-accent-hover);
-  }
-
-  .pricing__foot {
-    display: flex;
+  .pricing__discount {
+    display: inline-flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-4) var(--space-6);
-    margin-top: clamp(2rem, 4vw, 3rem);
-    padding-top: var(--space-6);
-    border-top: 1px solid var(--color-line);
+    gap: var(--space-2);
+    max-width: none;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-accent);
   }
 
   .pricing__note {
-    flex: 1 1 22rem;
-    max-width: 62ch;
+    max-width: 80ch;
     font-size: var(--text-xs);
     line-height: 1.6;
     color: var(--color-text-muted);
@@ -394,6 +429,8 @@ const copy = {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
+    justify-self: start;
+    min-height: 2.5rem;
     font-family: var(--font-grotesk);
     font-size: var(--text-2xs);
     font-weight: var(--weight-semibold);
@@ -406,18 +443,100 @@ const copy = {
     text-decoration: underline;
   }
 
-  @media (max-width: 639px) {
-    .pricing__card {
+  .pricing__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-8);
+    margin-top: var(--space-8);
+  }
+
+  .pricing__phone-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-inverse);
+  }
+
+  .pricing__phone-link:hover {
+    color: var(--color-brass-light);
+  }
+
+  @media (max-width: 900px) {
+    .pricing__table thead {
+      display: none;
+    }
+
+    .pricing__table,
+    .pricing__table tbody,
+    .pricing__table tr,
+    .pricing__table th,
+    .pricing__table td {
+      display: block;
+      width: 100%;
+    }
+
+    .pricing__table tr {
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--color-line);
+    }
+
+    .pricing__table tbody th {
+      min-width: 0;
+      padding: 0 0 var(--space-3);
+      border: 0;
+    }
+
+    .pricing__table td {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: var(--space-2) 0;
+      border: 0;
+      white-space: normal;
+    }
+
+    .pricing__table td::before {
+      content: attr(data-label);
+      font-family: var(--font-grotesk);
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semibold);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-text-subtle);
+    }
+
+    .pricing__row-cta {
+      justify-content: flex-end;
+      padding-top: var(--space-3);
+    }
+
+    .pricing__row-cta::before {
+      display: none;
+    }
+
+    .pricing__aside {
       padding: var(--space-5);
     }
+  }
 
-    .pricing__foot {
-      align-items: stretch;
-      flex-direction: column;
+  @media (max-width: 479px) {
+    .pricing__call {
+      padding: var(--space-4);
     }
 
-    .pricing__foot .btn {
+    .pricing__phone {
+      font-size: clamp(1.55rem, 7.4vw, 2rem);
+    }
+
+    .pricing__actions .btn {
       width: 100%;
     }
   }
 </style>
+

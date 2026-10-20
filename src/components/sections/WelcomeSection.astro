@@ -8,8 +8,7 @@
  * mostrar aquí (`apartament-z-zewnatrz`, `salon-z-kominkiem`, `kuchnia`,
  * `jadalnia`).
  */
-import { type Locale, getLocaleFromUrl, localeLink } from "~/lib/i18n";
-import Icon from "~/components/ui/Icon.astro";
+import { type Locale, getLocaleFromUrl } from "~/lib/i18n";
 import SmartImage from "~/components/ui/SmartImage.astro";
 
 const locale: Locale = getLocaleFromUrl(Astro.url);
@@ -23,9 +22,7 @@ const copy = {
       "A co gdy dzień chyli się ku końcowi? Spędzając czas w naszych apartamentach na Mazurach masz darmowy bilet na kolejny spektakl. Tym razem słońce powoli chowa się za jeziorem, rozświetlając niebo feerią barw i przepięknych gradientów, rysując na tafli wody gest pożegnania dnia.",
       "Tego wszystkiego możesz doświadczyć już niedługo. Wystarczy zrobić prosty krok. Wystarczy odwiedzić Apartamenty Liberta na Mazurach.",
     ],
-    cta: "Zobacz apartamenty",
     signatureAlt: "Zapraszamy — podpis Ani i Piotra Birbach",
-    signatureCaption: "Ania i Piotr · gospodarze Liberta",
     alts: [
       "Balia góralska z widokiem na jezioro o zachodzie słońca",
       "Stół na tarasie z widokiem na jezioro Szeląg",
@@ -43,9 +40,7 @@ const copy = {
       "And when the day draws to a close? Staying at our Masurian apartments gives you a free ticket to another performance. This time the sun slowly sets behind the lake, lighting the sky with a kaleidoscope of colours and gradients and drawing a farewell gesture on the water.",
       "You can experience all of this soon. It takes one simple step: visit Apartamenty Liberta in Masuria.",
     ],
-    cta: "See the apartments",
     signatureAlt: "Zapraszamy — signature of Ania and Piotr Birbach",
-    signatureCaption: "Ania and Piotr · your hosts at Liberta",
     alts: [
       "Hot tub with a lake view at sunset",
       "Table on the terrace overlooking Lake Szeląg",
@@ -63,9 +58,7 @@ const copy = {
       "Und wenn der Tag zu Ende geht? Wer Zeit in unseren masurischen Ferienwohnungen verbringt, bekommt eine Freikarte für die nächste Vorstellung. Diesmal versinkt die Sonne langsam hinter dem See, lässt den Himmel in einer Vielfalt von Farben und Verläufen leuchten und zeichnet eine Abschiedsgeste auf die Wasserfläche.",
       "All das können Sie bald erleben. Ein einfacher Schritt genügt: ein Besuch der Apartamenty Liberta in Masuren.",
     ],
-    cta: "Ferienwohnungen ansehen",
     signatureAlt: "Zapraszamy — Unterschrift von Ania und Piotr Birbach",
-    signatureCaption: "Ania und Piotr · Ihre Gastgeber in Liberta",
     alts: [
       "Hot Tub mit Seeblick bei Sonnenuntergang",
       "Tisch auf der Terrasse mit Blick auf den Szeląg-See",
@@ -124,13 +117,7 @@ const photos = [
             loading="lazy"
             decoding="async"
           />
-          <span class="welcome__signature-caption">{copy.signatureCaption}</span>
         </div>
-
-        <a class="welcome__cta" href={localeLink(locale, "/apartamenty/")}>
-          {copy.cta}
-          <Icon name="arrow-right" size={15} />
-        </a>
       </div>
     </div>
   </div>
@@ -244,15 +231,16 @@ const photos = [
     max-width: 40rem;
   }
 
+  /* Misma tipografía que los eyebrows del resto de secciones. */
   .welcome__eyebrow {
     margin: 0 0 var(--space-4);
-    font-family: var(--font-display);
-    font-size: clamp(1.3rem, 2vw, 1.65rem);
-    font-weight: var(--weight-normal);
-    line-height: 1.2;
-    letter-spacing: var(--tracking-tight);
-    text-transform: none;
-    color: var(--color-accent);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
   }
 
   .welcome__prose {
@@ -289,47 +277,16 @@ const photos = [
 
   .welcome__signature-block {
     display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    margin-top: var(--space-6);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-line);
+    justify-content: center;
+    margin-top: var(--space-8);
   }
 
   .welcome__signature {
     display: block;
-    width: clamp(7rem, 11vw, 9.5rem);
+    width: clamp(11rem, 20vw, 16rem);
     height: auto;
     background: transparent;
-    opacity: 0.88;
-  }
-
-  .welcome__signature-caption {
-    max-width: 15rem;
-    font-family: var(--font-grotesk);
-    font-size: var(--text-2xs);
-    font-weight: var(--weight-medium);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    color: var(--color-text-subtle);
-  }
-
-  .welcome__cta {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-height: 2.75rem;
-    margin-top: var(--space-6);
-    font-family: var(--font-grotesk);
-    font-size: var(--text-2xs);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    color: var(--color-accent);
-  }
-
-  .welcome__cta:hover {
-    text-decoration: underline;
+    opacity: 0.9;
   }
 
   @media (max-width: 899px) {

@@ -10,7 +10,8 @@ import { buildFaqSchema, buildVideoListSchema } from "~/lib/seo";
 import { getFaq } from "~/data/faq";
 
 const locale: Locale = "en";
-const faqSchema = buildFaqSchema(getFaq(locale));
+// Solo las 6 preguntas visibles en la home: el schema no debe declarar más.
+const faqSchema = buildFaqSchema(getFaq(locale).slice(0, 6));
 const videoSchema = buildVideoListSchema(locale);
 
 export const prerender = true;
@@ -18,7 +19,7 @@ export const prerender = true;
 
 <BaseLayout
   title="Apartments with a private hot tub on Lake Szeląg"
-  description="Four 80 m² apartments with a private wood-fired hot tub, 105 m from Lake Szeląg Wielki in Stare Jabłonki, Masuria. Air conditioning, terrace, Netflix and music videos filmed at Liberta. From 700 PLN per night."
+  description="Four 80 m² apartments with a private hot tub and lake views, 105 m from Lake Szeląg. From 700 PLN/night. Book on Booking.com."
   canonicalPath="/"
   ogImage="/og-default.jpg"
   preloadImage="/assets/video/hero-poster.webp"

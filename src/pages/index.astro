@@ -11,7 +11,8 @@ import { buildFaqSchema, buildVideoListSchema } from "~/lib/seo";
 import { getFaq } from "~/data/faq";
 
 const locale = getLocaleFromUrl(Astro.url);
-const faqSchema = buildFaqSchema(getFaq(locale));
+// Solo las 6 preguntas visibles en la home: el schema no debe declarar más.
+const faqSchema = buildFaqSchema(getFaq(locale).slice(0, 6));
 const videoSchema = buildVideoListSchema(locale);
 
 export const prerender = true;
@@ -19,7 +20,7 @@ export const prerender = true;
 
 <BaseLayout
   title="Apartamenty z balią i widokiem na Jezioro Szeląg"
-  description="Cztery apartamenty 80 m² z prywatną balią góralską, 105 m od Jeziora Szeląg Wielki w Starych Jabłonkach na Mazurach. Klimatyzacja, taras, Netflix i teledyski nagrane w Libercie. Od 700 zł za noc."
+  description="Cztery apartamenty 80 m² z prywatną balią i widokiem na Jezioro Szeląg, 105 m od wody. Od 700 zł/noc. Rezerwacja na Booking.com."
   canonicalPath="/"
   ogImage="/og-default.jpg"
   preloadImage="/assets/video/hero-poster.webp"

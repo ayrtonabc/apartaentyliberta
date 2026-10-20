@@ -67,7 +67,7 @@ const copy: Record<
     extrasPrice: "Cena",
     extrasNote: "Usługi dodatkowe rozliczamy na miejscu — nie doliczamy ich do zadatku.",
     noteText:
-      "Ceny obejmują apartament dla maksymalnie 6 osób. Dostawka w salonie dla 2 dodatkowych osób: 100 zł za noc.",
+      "Ceny obejmują apartament dla 6 osób. Dostawka w salonie dla 2 dodatkowych osób: 100 zł za noc.",
     payEyebrow: "Płatność",
     payTitle: "Rezerwacja i płatność na Booking.com",
     payText:
@@ -91,7 +91,7 @@ const copy: Record<
     extrasPrice: "Price",
     extrasNote: "Additional services are settled on site — we do not add them to the deposit.",
     noteText:
-      "Rates cover the apartment for up to 6 guests. An extra bed in the living room for 2 more guests: 100 PLN per night.",
+      "Rates cover the apartment for 6 guests. An extra bed in the living room for 2 more guests: 100 PLN per night.",
     payEyebrow: "Payment",
     payTitle: "Booking and payment on Booking.com",
     payText:
@@ -115,7 +115,7 @@ const copy: Record<
     extrasPrice: "Preis",
     extrasNote: "Zusatzleistungen rechnen wir vor Ort ab — sie kommen nicht zur Anzahlung hinzu.",
     noteText:
-      "Die Preise gelten für die Wohnung mit bis zu 6 Personen. Zustellbett im Wohnzimmer für 2 weitere Gäste: 100 PLN pro Nacht.",
+      "Die Preise gelten für die Wohnung für 6 Personen. Zustellbett im Wohnzimmer für 2 weitere Gäste: 100 PLN pro Nacht.",
     payEyebrow: "Zahlung",
     payTitle: "Buchung und Zahlung über Booking.com",
     payText:
@@ -126,6 +126,8 @@ const copy: Record<
 };
 
 const c = copy[locale];
+const range = (min: number, max: number) =>
+  min === max ? formatPLN(min) : `${formatPLN(min)}–${formatPLN(max)}`;
 
 const seasons = [
   {
@@ -264,10 +266,10 @@ const extras = [
     <p class="rates__range">
       <Icon name="info" size={15} />
       {locale === "pl"
-        ? `Sezon niski: ${formatPLN(lowMin)}–${formatPLN(lowMax)} · Sezon wysoki: ${formatPLN(highMin)}–${formatPLN(highMax)}`
+        ? `Sezon niski: ${range(lowMin, lowMax)} · Sezon wysoki: ${range(highMin, highMax)}`
         : locale === "de"
-          ? `Nebensaison: ${formatPLN(lowMin)}–${formatPLN(lowMax)} · Hochsaison: ${formatPLN(highMin)}–${formatPLN(highMax)}`
-          : `Low season: ${formatPLN(lowMin)}–${formatPLN(lowMax)} · High season: ${formatPLN(highMin)}–${formatPLN(highMax)}`}
+          ? `Nebensaison: ${range(lowMin, lowMax)} · Hochsaison: ${range(highMin, highMax)}`
+          : `Low season: ${range(lowMin, lowMax)} · High season: ${range(highMin, highMax)}`}
     </p>
   </div>
 </section>

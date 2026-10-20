@@ -58,7 +58,7 @@ const en: typeof pl = {
 
   hero: {
     eyebrow: "Stare Jabłonki · Masuria",
-    title: "105 metres from the lake. A whole house to yourselves.",
+    title: "Apartments 105 m from the lake. A whole house to yourselves.",
     subtitle:
       "Four independent 80 m² apartments, each with a private wood-fired hot tub, a covered terrace and views over Lake Szeląg Wielki.",
     scroll: "Scroll",
@@ -94,7 +94,7 @@ const en: typeof pl = {
       "A place where comfort meets nature. Home-like ease, wild surroundings, and the owner's personal attention.",
     reason1Title: "Natura 2000",
     reason1Text: "105 metres from Lake Szeląg — as close as the law protecting this area allows.",
-    reason2Title: "80 m² for 6 guests",
+    reason2Title: "80 m² for 6 guests + extra bed",
     reason2Text: "Three bedrooms, two bathrooms, a living room with a stove, a terrace facing the water.",
     reason3Title: "Hot tub and sauna",
     reason3Text: "A private wood-fired hot tub with every apartment. Sauna on site — on request, 10am–10pm.",
@@ -149,7 +149,7 @@ const en: typeof pl = {
     locationDistanceGdanskValue: "180 km",
 
     pricingEyebrow: "Prices",
-    pricingTitle: "Transparent pricing, no hidden fees",
+    pricingTitle: "Clear apartment rates",
     pricingLead:
       "The rate depends on the season and the length of your stay. Discounts are applied automatically when you book.",
     pricingSeasonHigh: "High season",

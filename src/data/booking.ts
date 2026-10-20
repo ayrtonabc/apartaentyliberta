@@ -31,6 +31,11 @@ function validDate(value: string | null | undefined): string | undefined {
   return value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined;
 }
 
+/** Ficha limpia, sin parámetros de búsqueda, para sameAs y ReserveAction. */
+export function bookingProfileUrl(locale: Locale): string {
+  return PROPERTY[locale];
+}
+
 export function bookingUrl(locale: Locale, params: BookingParams = {}): string {
   const url = new URL(PROPERTY[locale]);
 

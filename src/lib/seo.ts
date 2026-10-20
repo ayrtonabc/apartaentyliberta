@@ -12,7 +12,7 @@
 import { site } from "~/data/site";
 import { aggregateRatings } from "~/data/reviews";
 import { videos } from "~/data/videos";
-import { bookingUrl } from "~/data/booking";
+import { bookingProfileUrl, bookingUrl } from "~/data/booking";
 import {
   type Locale,
   localeMeta,
@@ -137,9 +137,8 @@ export function buildLodgingBusinessSchema(locale: Locale = defaultLocale) {
       absolute("/assets/apartments/liberta-i/bania-goralska.jpg"),
     ],
     logo: absolute("/assets/logo.webp"),
-    priceRange: "700–1400 PLN",
+    priceRange: "700–900 PLN",
     currenciesAccepted: "PLN",
-    paymentAccepted: "Przelew, karta, gotówka",
     numberOfRooms: 4,
     petsAllowed: false,
     checkinTime: "16:00",
@@ -178,34 +177,43 @@ export function buildLodgingBusinessSchema(locale: Locale = defaultLocale) {
     /*
      * Valoraciones.
      *
-     * Se declaran las dos plataformas por separado, con su nota, su escala y su
-     * número de opiniones reales. Antes había un único AggregateRating con
-     * 9,9/17 que correspondía solo a Booking: ocultaba las 160 opiniones de
-     * Google y no representaba el conjunto.
-     *
-     * NO se emite una nota combinada. Google exige que `ratingValue` y
-     * `reviewCount` se correspondan con reseñas reales y verificables, y un
-     * promedio calculado por nosotros a partir de dos fuentes no lo es. El
-     * recuento total sí se puede comunicar como texto, pero nunca como nota.
+     * Google solo admite UN AggregateRating por entidad. Antes se emitía un
+     * array con Booking 9,9/10 y Google 4,9/5: dos escalas distintas colgadas
+     * del mismo LodgingBusiness, markup que Google ignora o penaliza. Se usa la
+     * valoración de Google, la fuente con más reseñas (160) y escala natural.
      */
-    aggregateRating: aggregateRatings.map((rating) => ({
-      "@type": "AggregateRating",
-      ratingValue: rating.score.toString(),
-      bestRating: rating.scale.toString(),
-      worstRating: "1",
-      reviewCount: rating.count,
-      url: rating.url,
-    })),
+    aggregateRating: (() => {
+      const primary = aggregateRatings.find((rating) => rating.source === "google") ?? aggregateRatings[0];
+      return {
+        "@type": "AggregateRating",
+        ratingValue: primary.score.toString(),
+        bestRating: primary.scale.toString(),
+        worstRating: "1",
+        reviewCount: primary.count,
+      };
+    })(),
     /*
-     * Perfiles públicos de la misma entidad. Incluir Google y Booking ayuda a
-     * que los motores de respuesta (AEO/GEO) unan la ficha del alojamiento con
-     * sus reseñas verificables, sin inventar una nota combinada.
+     * Perfiles canónicos de la misma entidad. Antes se colaban los enlaces
+     * cortos de compartir (booking.com/Share-…), que no identifican la ficha.
+     * Booking apunta a la URL limpia del hotel; Facebook e Instagram completan
+     * la consolidación de entidad.
      */
-    sameAs: [
-      site.social.facebook,
-      site.social.instagram,
-      ...aggregateRatings.map((rating) => rating.url).filter((url): url is string => Boolean(url)),
-    ],
+    sameAs: [site.social.facebook, site.social.instagram, bookingProfileUrl(locale)],
+    /*
+     * AEO: la acción de reserva explícita. El destino es la ficha de Booking,
+     * no un formulario propio, y así los motores entienden qué hacer.
+     */
+    potentialAction: {
+      "@type": "ReserveAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: bookingProfileUrl(locale),
+        actionPlatform: [
+          "https://schema.org/DesktopWebPlatform",
+          "https://schema.org/MobileWebPlatform",
+        ],
+      },
+    },
   };
 }
 
@@ -231,6 +239,7 @@ export function buildOrganizationSchema(locale: Locale = defaultLocale) {
       streetAddress: site.address.street,
       addressLocality: site.address.locality,
       postalCode: site.address.postalCode,
+      addressRegion: site.address.region,
       addressCountry: site.address.country,
     },
     contactPoint: [

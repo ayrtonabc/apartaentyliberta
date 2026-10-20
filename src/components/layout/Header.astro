@@ -53,7 +53,7 @@ const isActive = (match: string) =>
         */}
         <img
           class="hdr__wordmark hdr__wordmark--light"
-          src="/logoblanco.webp"
+          src="/logoblanco-400.webp"
           alt=""
           width="194"
           height="47"
@@ -259,24 +259,6 @@ const isActive = (match: string) =>
    */
   .hdr[data-theme="on-dark"] {
     color: #fff;
-  }
-
-  /*
-   * Las marcas del propietario (Facebook y Booking.com) son archivos blancos y
-   * SocialLinks los invierte por defecto para el fondo claro.
-   *
-   * Aquí se anula ese filtro mientras la cabecera está sobre el hero: ahí el
-   * fondo es la foto y las marcas deben imprimirse en blanco, tal como salieron
-   * del archivo. En cuanto aparece el fondo al hacer scroll, el atributo
-   * data-theme desaparece y el filtro vuelve solo.
-   */
-  .hdr[data-theme="on-dark"] :global(.social__img) {
-    filter: none;
-    opacity: 0.78;
-  }
-
-  .hdr[data-theme="on-dark"] :global(.social__link:hover .social__img) {
-    opacity: 1;
   }
 
   /*
@@ -902,6 +884,32 @@ const isActive = (match: string) =>
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && !menu.hidden) closeMenu();
+    });
+
+    /*
+     * El menú se declara `aria-modal`, así que el tabulador no debe escapar a
+     * los inputs del hero que quedan detrás del overlay. Se atrapa entre el
+     * primer y el último elemento visible del propio menú.
+     */
+    menu.addEventListener("keydown", (event) => {
+      if (event.key !== "Tab" || menu.hidden) return;
+      const focusables = Array.from(
+        menu.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => el.getClientRects().length > 0);
+
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     });
   }
 </script>

@@ -58,7 +58,7 @@ const de: typeof pl = {
 
   hero: {
     eyebrow: "Stare Jabłonki · Masuren",
-    title: "105 Meter bis zum See. Ein ganzes Haus für Sie allein.",
+    title: "Ferienwohnungen 105 m vom See. Ein ganzes Haus für Sie.",
     subtitle:
       "Vier unabhängige Ferienwohnungen mit je 80 m², jede mit privatem Holz-Hot-Tub, überdachter Terrasse und Blick auf den Szeląg-See.",
     scroll: "Scrollen",
@@ -94,7 +94,7 @@ const de: typeof pl = {
       "Ein Ort, an dem Komfort auf Natur trifft. Wohnliche Bequemlichkeit, wilde Umgebung und die persönliche Betreuung durch den Eigentümer.",
     reason1Title: "Natura 2000",
     reason1Text: "105 Meter vom Szeląg-See — näher, als das Schutzgesetz es zulässt.",
-    reason2Title: "80 m² für 6 Personen",
+    reason2Title: "80 m² für 6 Personen + Zustellbett",
     reason2Text: "Drei Schlafzimmer, zwei Bäder, Wohnzimmer mit Ofen, Terrasse mit Seeblick.",
     reason3Title: "Hot Tub und Sauna",
     reason3Text: "Privater Holz-Hot-Tub bei jeder Wohnung. Sauna in der Anlage — auf Wunsch, 10–22 Uhr.",
@@ -149,7 +149,7 @@ const de: typeof pl = {
     locationDistanceGdanskValue: "180 km",
 
     pricingEyebrow: "Preise",
-    pricingTitle: "Transparente Preise, keine versteckten Kosten",
+    pricingTitle: "Klare Preise pro Wohnung",
     pricingLead:
       "Der Preis richtet sich nach Saison und Aufenthaltsdauer. Rabatte rechnen wir bei der Buchung automatisch an.",
     pricingSeasonHigh: "Hochsaison",

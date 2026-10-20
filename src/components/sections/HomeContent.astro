@@ -61,6 +61,32 @@ const aboutTitle =
 
 <TrustStrip />
 
+<!-- ========================================================= BIENVENIDA -->
+<WelcomeSection />
+
+<!-- ================================================== LOS APARTAMENTOS -->
+<section class="section section--bg" id="apartamenty">
+  <div class="container">
+    <div class="section-head-split">
+      <div class="section-head-split__text" data-reveal>
+        <span class="eyebrow">Liberta I–IV</span>
+        <h2>{tr.home.apartmentsTitle}</h2>
+        <p class="lead">{tr.home.apartmentsLead}</p>
+      </div>
+      <a class="btn btn--outline" href={localeLink(locale, "/apartamenty/")} data-reveal>
+        {tr.cta.seeAllApartments}
+      </a>
+    </div>
+
+    <div class="apt-grid">
+      {apartments.map((apartment, index) => (
+        <ApartmentCard apartment={apartment} layout="vertical" index={index} />
+      ))}
+    </div>
+
+  </div>
+</section>
+
 <!-- ===================================================== SOBRE NOSOTROS -->
 <section class="about section">
   <div class="container">
@@ -100,32 +126,6 @@ const aboutTitle =
     </div>
   </div>
 </section>
-
-<!-- ================================================== LOS APARTAMENTOS -->
-<section class="section section--bg" id="apartamenty">
-  <div class="container">
-    <div class="section-head-split">
-      <div class="section-head-split__text" data-reveal>
-        <span class="eyebrow">Liberta I–IV</span>
-        <h2>{tr.home.apartmentsTitle}</h2>
-        <p class="lead">{tr.home.apartmentsLead}</p>
-      </div>
-      <a class="btn btn--outline" href={localeLink(locale, "/apartamenty/")} data-reveal>
-        {tr.cta.seeAllApartments}
-      </a>
-    </div>
-
-    <div class="apt-grid">
-      {apartments.map((apartment, index) => (
-        <ApartmentCard apartment={apartment} layout="vertical" index={index} />
-      ))}
-    </div>
-
-  </div>
-</section>
-
-<!-- ========================================================= BIENVENIDA -->
-<WelcomeSection />
 
 <!-- ======================================================= POR QUÉ LIBERTA -->
 <section class="reasons section">
@@ -257,17 +257,17 @@ const aboutTitle =
   </div>
 </section>
 
-<!-- ================================================================ PRECIOS -->
-<PricingShowcase locale={locale} />
-
 <!-- ================================================================= OPINIONES -->
 <Testimonials limit={6} />
 
-<!-- ============================================================ NAGRANO U NAS -->
-<VideoWallSection />
+<!-- ================================================================ PRECIOS -->
+<PricingShowcase locale={locale} />
 
 <!-- ======================================================================= FAQ -->
 <FaqSection limit={6} showFooterLink />
+
+<!-- ============================================================ NAGRANO U NAS -->
+<VideoWallSection />
 
 <!-- ================================================================== CONTACTO -->
 <!-- ================================================================== CONTACTO -->
@@ -516,7 +516,12 @@ const aboutTitle =
     }
   }
 
-  @media (min-width: 1024px) {
+  /*
+   * 1024 px es un ancho de portátil pequeño muy común. Con 4 columnas el pie
+   * de cada tarjeta mide 171 px y el CTA necesita 251: se recortaba 80 px.
+   * Hasta 1279 px se mantienen 2 columnas; las 4 entran a partir de 1280.
+   */
+  @media (min-width: 1280px) {
     .apt-grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }

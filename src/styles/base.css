@@ -88,9 +88,22 @@ p, h1, h2, h3, h4, h5, h6, li, dd, figcaption {
    --------------------------------------------------------------------------- */
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  /* Doble anillo: oscuro sobre superficies claras, latón sobre fondos oscuros. */
+  outline: 3px solid var(--color-bg-inverse);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--color-brass-light);
   border-radius: var(--radius-xs);
+}
+
+/*
+ * Los botones definen su propio `box-shadow` y anulaban el halo global, así
+ * que sobre la banda CTA oscura el foco quedaba en un contorno casi invisible.
+ * Esta regla tiene más especificidad y recupera el anillo de latón.
+ */
+.btn:focus-visible {
+  outline: 3px solid var(--color-bg-inverse);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--color-brass-light);
 }
 
 /* ---------------------------------------------------------------------------

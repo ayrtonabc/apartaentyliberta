@@ -25,6 +25,7 @@ const copy = {
     ],
     cta: "Zobacz apartamenty",
     signatureAlt: "Zapraszamy — podpis Ani i Piotra Birbach",
+    signatureCaption: "Ania i Piotr · gospodarze Liberta",
     alts: [
       "Kompleks Apartamentów Liberta z zewnątrz, oświetlone tarasy wieczorem",
       "Salon z kominkiem na drewno i widokiem na jezioro",
@@ -46,6 +47,7 @@ const copy = {
     ],
     cta: "See the apartments",
     signatureAlt: "Zapraszamy — signature of Ania and Piotr Birbach",
+    signatureCaption: "Ania and Piotr · your hosts at Liberta",
     alts: [
       "The Apartamenty Liberta complex from outside, terraces lit in the evening",
       "Living room with a wood-burning fireplace and lake view",
@@ -67,6 +69,7 @@ const copy = {
     ],
     cta: "Ferienwohnungen ansehen",
     signatureAlt: "Zapraszamy — Unterschrift von Ania und Piotr Birbach",
+    signatureCaption: "Ania und Piotr · Ihre Gastgeber in Liberta",
     alts: [
       "Die Anlage Apartamenty Liberta von außen, beleuchtete Terrassen am Abend",
       "Wohnzimmer mit Holzofen und Seeblick",
@@ -103,15 +106,18 @@ const photos = [
           ))}
         </div>
 
-        <img
-          class="welcome__signature"
-          src="/assets/branding/podpis.png"
-          alt={copy.signatureAlt}
-          width="292"
-          height="74"
-          loading="lazy"
-          decoding="async"
-        />
+        <div class="welcome__signature-block">
+          <img
+            class="welcome__signature"
+            src="/assets/branding/podpis.png"
+            alt={copy.signatureAlt}
+            width="292"
+            height="74"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="welcome__signature-caption">{copy.signatureCaption}</span>
+        </div>
       </div>
 
       <div class="welcome__gallery" data-reveal style="--reveal-delay:100ms">
@@ -139,7 +145,22 @@ const photos = [
 
 <style>
   .welcome {
-    background: var(--color-bg);
+    position: relative;
+    background:
+      radial-gradient(70% 55% at 8% 12%, rgba(176, 141, 74, 0.13), transparent 62%),
+      linear-gradient(180deg, #fcf8f0 0%, var(--color-bg) 58%);
+  }
+
+  .welcome::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: min(1120px, calc(100% - 3rem));
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-brass), transparent);
+    opacity: 0.45;
+    transform: translateX(-50%);
   }
 
   .welcome__grid {
@@ -201,12 +222,31 @@ const photos = [
     color: var(--color-accent);
   }
 
+  .welcome__signature-block {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-7);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-line);
+  }
+
   .welcome__signature {
     display: block;
     width: clamp(7rem, 12vw, 10rem);
     height: auto;
-    margin-top: var(--space-7);
-    opacity: 0.9;
+    background: transparent;
+    opacity: 0.88;
+  }
+
+  .welcome__signature-caption {
+    max-width: 16rem;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
   }
 
   /* --------------------------------------------------------------- Mosaico */

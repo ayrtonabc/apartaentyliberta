@@ -61,7 +61,7 @@ export default {
   /* ----------------------------------------------------------------- Hero */
   hero: {
     eyebrow: "Stare Jabłonki · Mazury",
-    title: "105 metrów od jeziora. Cały dom tylko dla Was.",
+    title: "Apartamenty 105 m od jeziora. Cały dom tylko dla Was.",
     subtitle:
       "Cztery niezależne apartamenty po 80 m², każdy z prywatną balią góralską, zadaszonym tarasem i widokiem na Jezioro Szeląg Wielki.",
     scroll: "Przewiń",
@@ -100,7 +100,7 @@ export default {
     reason1Title: "Natura 2000",
     reason1Text:
       "105 metrów od brzegu Jeziora Szeląg — najbliżej, jak pozwala prawo chroniące ten teren.",
-    reason2Title: "80 m² dla 6 osób",
+    reason2Title: "80 m² dla 6 osób + dostawka",
     reason2Text:
       "Trzy sypialnie, dwie łazienki, salon z kominkiem, taras z widokiem na wodę.",
     reason3Title: "Balia i sauna",
@@ -164,7 +164,7 @@ export default {
     locationDistanceGdanskValue: "180 km",
 
     pricingEyebrow: "Cennik",
-    pricingTitle: "Przejrzyste ceny, bez ukrytych opłat",
+    pricingTitle: "Przejrzyste ceny za apartament",
     pricingLead:
       "Cena zależy od sezonu i długości pobytu. Rabaty naliczamy automatycznie w momencie rezerwacji.",
     pricingSeasonHigh: "Sezon wysoki",

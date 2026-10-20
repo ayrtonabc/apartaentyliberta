@@ -293,19 +293,18 @@ Tres secciones nuevas, sin librerías externas. Todo el movimiento es CSS y los
 controles son dos scripts pequeños; las imágenes siguen entrando por
 `SmartImage` (srcset, LQIP y dimensiones reales).
 
-**`PricingShowcase.astro` — cennik.** Sustituye las dos tarjetas planas por un
-tablero editorial: a la izquierda, el precio grande con el selector de temporada
-y lo que incluye; a la derecha, una calculadora de estancia (2–14 noches) que
-aplica los descuentos reales del 5 % (7+ noches) y 10 % (13+ noches). El total
-se recalcula en el navegador y se anuncia con `aria-live`; sin JS queda el
-ejemplo de 7 noches. Los precios salen de `apartments.ts`, no están escritos a
-mano en el HTML.
+**`PricingShowcase.astro` — cennik.** Cuatro tarjetas claras con tarifa baja y
+alta por noche (700/900 PLN), capacidad **6 + 2**, nota de dostawka (100 zł/noc)
+y tasas, y CTA a Booking. Sin slider ni calculadora: el cliente pidió quitar el
+total calculado porque hacía que la sección pareciera un presupuesto caro. Los
+precios salen de `apartments.ts`, no están escritos a mano en el HTML.
 
 **`Testimonials.astro` — opiniones.** Dos cintas continuas, una de Google y otra
 de Booking.com, con el logotipo de cada plataforma en la tarjeta. Cada cinta
 muestra 10 reseñas con texto suficiente y se puede pausar; las tarjetas largas
-tienen “Czytaj więcej”. El resumen mantiene las dos notas separadas (9,9/10 y
-4,9/5) y el total como recuento (178). Los textos están en polaco; la única
+tienen “Czytaj więcej”. En la portada solo se muestran las dos notas separadas
+(9,9/10 y 4,9/5), sin recuentos ni total; `/opinie/` conserva los recuentos. Los
+textos están en polaco; la única
 excepción es la reseña neerlandesa de Jirg. `TestimonialCard.astro` solo pinta
 nombre, estrellas, comentario y plataforma, sin fechas ni países.
 
@@ -389,25 +388,11 @@ Produce en `public/assets/video/`:
 
 | Archivo | Peso | Uso |
 |---|---|---|
-| `hero.mp4` | 8,9 MB | escritorio, 1920 px (el nativo del máster), 56 s |
-| `hero-movil.mp4` | 4,7 MB | móvil (≤767 px), 960 px, 56 s |
+| `hero-720.mp4` | 4,3 MB | escritorio, 1280 px, bucle de 28 s |
+| `hero-mobile.mp4` | 0,61 MB | móvil (≤767 px), 720 px, 18 s |
 | `hero-poster.webp` | 80 KB | póster: primer fotograma |
 
-**Por qué 8,9 MB y no menos.** El máster son 11,36 MB a 1483 kbps: ya está muy
-ajustado, así que recodificarlo a la misma resolución sale **más pesado** que él.
-Medido con `scripts/tune-hero-res.mjs`:
-
-| Ancho | CRF | Peso | SSIM |
-|---|---|---|---|
-| 1920 | 32 | 10,9 MB | 0,973 |
-| **1920** | **34** | **8,9 MB** | **0,966** |
-| 1600 | 32 | 8,6 MB | 0,961 |
-| 1280 | 32 | 5,8 MB | 0,954 |
-| 960 | 30 | 4,7 MB | 0,958 |
-
-A 1920 el suelo está en unos 8,9 MB. Bajar de 6 MB exige bajar a 960-1280 px, y
-eso está descartado. **La velocidad se gana por otras vías, que no cuestan
-calidad:**
+**La velocidad se gana por otras vías, que no cuestan calidad:**
 
 1. **Sin audio.** La pista AAC son ~250 KB que nadie oye, y algunos navegadores
    son más estrictos con el autoplay si el vídeo trae sonido.

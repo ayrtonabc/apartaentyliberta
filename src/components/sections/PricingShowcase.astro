@@ -1,11 +1,11 @@
 ---
 /**
- * PricingShowcase — cennik de la portada, rediseñado.
+ * PricingShowcase — cennik de la portada.
  *
- * Sin calculadora ni deslizador: una mesa de tarifas clara, cuatro filas y una
- * tarjeta de contacto con el teléfono de la empresa en grande. El objetivo es
- * que el precio no parezca un presupuesto y que quien prefiera hablar tenga el
- * número a un toque.
+ * Los cuatro apartamentos son idénticos: no tiene sentido repetir cuatro filas
+ * con el mismo precio. Se muestra una sola ficha con capacidad, precio bajo y
+ * alto, lo incluido, reserva y llamada. El diseño verde bosque y el teléfono
+ * grande se mantienen.
  */
 import { type Locale, localeLink, t } from "~/lib/i18n";
 import { apartments } from "~/data/apartments";
@@ -22,69 +22,103 @@ const tr = t(locale);
 
 const nf = (value: number) => String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
+/** Los cuatro apartamentos comparten tarifa; se toma el mínimo/máximo real. */
+const low = Math.min(...apartments.map((apartment) => apartment.pricing.lowSeasonPLN));
+const high = Math.max(...apartments.map((apartment) => apartment.pricing.highSeasonPLN));
+
 const copy = {
   pl: {
     eyebrow: tr.home.pricingEyebrow,
     title: "Proste stawki za noc",
-    lead: "Cena za cały apartament dla 6 osób — nie za osobę. Bez kalendarza, który podbija kwotę.",
+    lead: "Wszystkie apartamenty są takie same: 80 m², 6 + 2 osoby, prywatna balia i taras z widokiem na jezioro.",
     callLabel: "Wolisz zapytać?",
-    callText: "Rezerwacje i pytania. Zadzwoń — chętnie doradzimy przy wyborze terminu.",
+    callText: "Rezerwacje i pytania — zadzwoń, chętnie doradzimy.",
     callCta: "Zadzwoń teraz",
-    tableApartment: "Apartament",
-    tableGuests: "Goście",
-    tableLow: "Sezon niski",
-    tableHigh: "Sezon wysoki",
+    all: "Wszystkie apartamenty",
+    allName: "Liberta I–IV",
+    capacity: "6 + 2 osoby",
+    size: "80 m²",
+    low: "Sezon niski",
+    high: "Sezon wysoki",
     from: "od",
     perNight: "/ noc",
-    low: "niski",
-    high: "wysoki",
+    includes: "W cenie",
+    amenities: [
+      "Prywatna balia góralska",
+      "Taras z widokiem na jezioro",
+      "WiFi i Netflix",
+      "Parking przy apartamencie",
+      "Klimatyzacja",
+    ],
+    booking: "Rezerwacja",
+    bookingText: "Aktualne terminy i potwierdzenie w Booking.com.",
+    cta: "Sprawdź terminy",
+    call: "Zadzwoń",
     discount: "7+ nocy −5% · 13+ nocy −10%",
-    note: "Cena obejmuje apartament dla 6 osób, WiFi, parking, balię i drewno. Dostawka w salonie dla 2 osób: 100 zł/noc. Sprzątanie końcowe i opłata klimatyczna są doliczane jednorazowo — potwierdzamy je przed rezerwacją.",
-    cta: "Sprawdź terminy na Booking.com",
+    note: "Dostawka w salonie dla 2 osób: 100 zł/noc. Sprzątanie końcowe i opłata klimatyczna — jednorazowo.",
     full: "Pełny cennik i usługi dodatkowe",
-    detail: "Zobacz apartament",
   },
   en: {
     eyebrow: tr.home.pricingEyebrow,
     title: "Simple nightly rates",
-    lead: "The price is for the whole apartment for 6 guests — not per person. No calendar inflating the total.",
+    lead: "All apartments are the same: 80 m², 6 + 2 guests, a private hot tub and a terrace with lake views.",
     callLabel: "Prefer to ask?",
-    callText: "Bookings and questions. Call us — we will gladly help you choose your dates.",
+    callText: "Bookings and questions — call us, we are happy to help.",
     callCta: "Call now",
-    tableApartment: "Apartment",
-    tableGuests: "Guests",
-    tableLow: "Low season",
-    tableHigh: "High season",
+    all: "All apartments",
+    allName: "Liberta I–IV",
+    capacity: "6 + 2 guests",
+    size: "80 m²",
+    low: "Low season",
+    high: "High season",
     from: "from",
     perNight: "/ night",
-    low: "low",
-    high: "high",
+    includes: "Included",
+    amenities: [
+      "Private wood-fired hot tub",
+      "Terrace with lake view",
+      "WiFi and Netflix",
+      "Parking at the apartment",
+      "Air conditioning",
+    ],
+    booking: "Booking",
+    bookingText: "Current dates and confirmation on Booking.com.",
+    cta: "Check dates",
+    call: "Call",
     discount: "7+ nights −5% · 13+ nights −10%",
-    note: "The price covers the apartment for 6 guests, WiFi, parking, hot tub and firewood. Extra bed in the living room for 2: 100 PLN/night. Final cleaning and tourist tax are charged once — confirmed before booking.",
-    cta: "Check dates on Booking.com",
+    note: "Extra bed in the living room for 2: 100 PLN/night. Final cleaning and tourist tax — charged once.",
     full: "Full price list and extras",
-    detail: "View apartment",
   },
   de: {
     eyebrow: tr.home.pricingEyebrow,
     title: "Einfache Nachtpreise",
-    lead: "Der Preis gilt für die ganze Wohnung für 6 Gäste — nicht pro Person. Kein Kalender, der die Summe aufbläht.",
+    lead: "Alle Ferienwohnungen sind gleich: 80 m², 6 + 2 Gäste, privater Hot Tub und Terrasse mit Seeblick.",
     callLabel: "Lieber fragen?",
-    callText: "Buchungen und Fragen. Rufen Sie an — wir helfen gerne bei der Terminwahl.",
+    callText: "Buchungen und Fragen — rufen Sie an, wir helfen gerne.",
     callCta: "Jetzt anrufen",
-    tableApartment: "Ferienwohnung",
-    tableGuests: "Gäste",
-    tableLow: "Nebensaison",
-    tableHigh: "Hochsaison",
+    all: "Alle Ferienwohnungen",
+    allName: "Liberta I–IV",
+    capacity: "6 + 2 Gäste",
+    size: "80 m²",
+    low: "Nebensaison",
+    high: "Hochsaison",
     from: "ab",
     perNight: "/ Nacht",
-    low: "niedrig",
-    high: "hoch",
+    includes: "Inklusive",
+    amenities: [
+      "Privater Holz-Hot-Tub",
+      "Terrasse mit Seeblick",
+      "WiFi und Netflix",
+      "Parkplatz an der Wohnung",
+      "Klimaanlage",
+    ],
+    booking: "Buchung",
+    bookingText: "Aktuelle Termine und Bestätigung auf Booking.com.",
+    cta: "Termine prüfen",
+    call: "Anrufen",
     discount: "7+ Nächte −5% · 13+ Nächte −10%",
-    note: "Der Preis umfasst die Wohnung für 6 Gäste, WiFi, Parkplatz, Hot Tub und Brennholz. Zustellbett im Wohnzimmer für 2: 100 PLN/Nacht. Endreinigung und Kurtaxe werden einmalig berechnet — vor der Buchung bestätigt.",
-    cta: "Termine auf Booking.com prüfen",
+    note: "Zustellbett im Wohnzimmer für 2: 100 PLN/Nacht. Endreinigung und Kurtaxe — einmalig.",
     full: "Vollständige Preisliste und Zusatzleistungen",
-    detail: "Wohnung ansehen",
   },
 }[locale];
 ---
@@ -112,69 +146,63 @@ const copy = {
     </header>
 
     <div class="pricing__board" data-reveal>
-      <table class="pricing__table">
-        <caption class="sr-only">{copy.title}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{copy.tableApartment}</th>
-            <th scope="col">{copy.tableGuests}</th>
-            <th scope="col">{copy.tableLow}</th>
-            <th scope="col">{copy.tableHigh}</th>
-            <th scope="col"><span class="sr-only">{copy.detail}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          {apartments.map((apartment, index) => (
-            <tr>
-              <th scope="row">
-                <span class="pricing__name">
-                  <span class="pricing__number">{String(index + 1).padStart(2, "0")}</span>
-                  <a href={localeLink(locale, `/apartamenty/${apartment.slugs[locale]}/`)}>
-                    {apartment.names[locale]}
-                  </a>
-                </span>
-              </th>
-              <td data-label={copy.tableGuests}>6 + 2</td>
-              <td data-label={copy.tableLow}>
-                <strong>{copy.from} {nf(apartment.pricing.lowSeasonPLN)} zł</strong>
-                <em>{copy.perNight}</em>
-              </td>
-              <td data-label={copy.tableHigh}>
-                <strong>{nf(apartment.pricing.highSeasonPLN)} zł</strong>
-                <em>{copy.perNight}</em>
-              </td>
-              <td class="pricing__row-cta">
-                <a href={bookingUrl(locale)} target="_blank" rel="noopener noreferrer">
-                  {copy.cta}
-                  <Icon name="arrow-right" size={13} />
-                </a>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div class="pricing__aside">
-        <p class="pricing__discount">
-          <Icon name="sparkles" size={16} />
-          {copy.discount}
+      <div class="pricing__overview">
+        <span class="pricing__overline">{copy.all}</span>
+        <h3 class="pricing__name">{copy.allName}</h3>
+        <p class="pricing__specs">
+          <span><Icon name="users" size={15} /> {copy.capacity}</span>
+          <span><Icon name="ruler" size={15} /> {copy.size}</span>
         </p>
-        <p class="pricing__note">{copy.note}</p>
-        <a class="pricing__full" href={localeLink(locale, "/cennik/")}>
-          {copy.full}
-          <Icon name="arrow-right" size={14} />
-        </a>
+
+        <div class="pricing__rates">
+          <div>
+            <span>{copy.low}</span>
+            <strong>{copy.from} {nf(low)} zł <em>{copy.perNight}</em></strong>
+          </div>
+          <div class="pricing__rate--high">
+            <span>{copy.high}</span>
+            <strong>{nf(high)} zł <em>{copy.perNight}</em></strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="pricing__amenities">
+        <h3 class="pricing__block-title">{copy.includes}</h3>
+        <ul role="list">
+          {copy.amenities.map((amenity) => (
+            <li>
+              <Icon name="check" size={14} />
+              {amenity}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="pricing__booking">
+        <h3 class="pricing__block-title">{copy.booking}</h3>
+        <p>{copy.bookingText}</p>
+        <div class="pricing__actions">
+          <a class="btn btn--primary btn--full" href={bookingUrl(locale)} target="_blank" rel="noopener noreferrer">
+            {copy.cta}
+            <Icon name="arrow-right" size={15} />
+          </a>
+          <a class="pricing__call-action" href={`tel:${site.phone.tel}`}>
+            <Icon name="phone" size={15} />
+            {copy.call} · {site.phone.display}
+          </a>
+        </div>
       </div>
     </div>
 
-    <div class="pricing__actions" data-reveal>
-      <a class="btn btn--primary btn--lg" href={bookingUrl(locale)} target="_blank" rel="noopener noreferrer">
-        {copy.cta}
-        <Icon name="arrow-right" size={15} />
-      </a>
-      <a class="pricing__phone-link" href={`tel:${site.phone.tel}`}>
-        <Icon name="phone" size={16} />
-        {site.phone.display}
+    <div class="pricing__foot" data-reveal>
+      <p class="pricing__discount">
+        <Icon name="sparkles" size={15} />
+        {copy.discount}
+      </p>
+      <p class="pricing__note">{copy.note}</p>
+      <a class="pricing__full" href={localeLink(locale, "/cennik/")}>
+        {copy.full}
+        <Icon name="arrow-right" size={14} />
       </a>
     </div>
   </div>
@@ -262,7 +290,7 @@ const copy = {
   }
 
   .pricing__call-text {
-    max-width: 28ch;
+    max-width: 30ch;
     font-size: var(--text-xs);
     line-height: 1.5;
     color: var(--color-text-muted);
@@ -287,6 +315,8 @@ const copy = {
   }
 
   .pricing__board {
+    display: grid;
+    grid-template-columns: 1fr;
     margin-top: clamp(2rem, 4vw, 3.5rem);
     background: var(--color-bg);
     color: var(--color-text);
@@ -294,97 +324,155 @@ const copy = {
     overflow: hidden;
   }
 
-  .pricing__table {
-    width: 100%;
-    border-collapse: collapse;
+  @media (min-width: 900px) {
+    .pricing__board {
+      grid-template-columns: 1.35fr 0.9fr 0.85fr;
+    }
   }
 
-  .pricing__table thead {
-    background: var(--color-bg-muted);
+  .pricing__overview,
+  .pricing__amenities,
+  .pricing__booking {
+    padding: var(--space-6);
   }
 
-  .pricing__table th,
-  .pricing__table td {
-    padding: var(--space-4) var(--space-5);
-    text-align: left;
-    vertical-align: middle;
-    border-bottom: 1px solid var(--color-line);
+  @media (min-width: 900px) {
+    .pricing__overview,
+    .pricing__amenities {
+      border-right: 1px solid var(--color-line);
+    }
   }
 
-  .pricing__table thead th {
+  .pricing__overline {
     font-family: var(--font-grotesk);
     font-size: var(--text-2xs);
     font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wide);
+    letter-spacing: var(--tracking-wider);
     text-transform: uppercase;
-    color: var(--color-text-muted);
-  }
-
-  .pricing__table tbody th {
-    min-width: 15rem;
-    font-family: var(--font-display);
-    font-size: var(--text-lg);
-    font-weight: var(--weight-normal);
-    color: var(--color-text);
-  }
-
-  .pricing__name {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .pricing__table tbody th a:hover {
-    color: var(--color-accent);
-  }
-
-  .pricing__number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    flex-shrink: 0;
-    font-family: var(--font-grotesk);
-    font-size: var(--text-2xs);
-    font-weight: var(--weight-semibold);
-    color: var(--color-accent);
-    background: var(--color-accent-faded);
-    border-radius: var(--radius-full);
-  }
-
-  .pricing__table td {
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
-    white-space: nowrap;
-  }
-
-  .pricing__table td strong {
-    display: block;
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
-    font-weight: var(--weight-normal);
-    color: var(--color-text);
-  }
-
-  .pricing__table td em {
-    display: block;
-    margin-top: 2px;
-    font-family: var(--font-grotesk);
-    font-style: normal;
-    font-size: var(--text-2xs);
     color: var(--color-text-subtle);
   }
 
-  .pricing__row-cta {
-    text-align: right;
+  .pricing__name {
+    margin-top: var(--space-2);
+    font-size: var(--text-2xl);
+    line-height: 1.15;
   }
 
-  .pricing__row-cta a {
+  .pricing__specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+    margin-top: var(--space-3);
+    max-width: none;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .pricing__specs span {
     display: inline-flex;
     align-items: center;
+    gap: var(--space-1);
+  }
+
+  .pricing__specs :global(.icon) {
+    color: var(--color-accent);
+  }
+
+  .pricing__rates {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .pricing__rates > div > span {
+    display: block;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .pricing__rates strong {
+    display: block;
+    margin-top: 2px;
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.3vw, 1.8rem);
+    font-weight: var(--weight-normal);
+    line-height: 1.15;
+    color: var(--color-text);
+  }
+
+  .pricing__rates em {
+    font-family: var(--font-grotesk);
+    font-style: normal;
+    font-size: var(--text-2xs);
+    color: var(--color-text-muted);
+  }
+
+  .pricing__rate--high strong {
+    color: var(--color-accent);
+  }
+
+  .pricing__block-title {
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .pricing__amenities ul {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  .pricing__amenities li {
+    display: flex;
+    align-items: flex-start;
     gap: var(--space-2);
-    min-height: 2.5rem;
+    font-size: var(--text-sm);
+    line-height: 1.4;
+    color: var(--color-text-muted);
+  }
+
+  .pricing__amenities :global(.icon) {
+    flex-shrink: 0;
+    margin-top: 0.15em;
+    color: var(--color-accent);
+  }
+
+  .pricing__booking {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    background: var(--color-accent-faded);
+  }
+
+  .pricing__booking p {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+
+  .pricing__actions {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: auto;
+  }
+
+  .pricing__call-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
     font-family: var(--font-grotesk);
     font-size: var(--text-2xs);
     font-weight: var(--weight-semibold);
@@ -393,16 +481,16 @@ const copy = {
     color: var(--color-accent);
   }
 
-  .pricing__row-cta a:hover {
+  .pricing__call-action:hover {
     text-decoration: underline;
   }
 
-  .pricing__aside {
-    display: grid;
-    gap: var(--space-4);
-    padding: var(--space-6);
-    background: var(--color-bg-elevated);
-    border-top: 1px solid var(--color-line);
+  .pricing__foot {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    margin-top: var(--space-6);
   }
 
   .pricing__discount {
@@ -415,118 +503,46 @@ const copy = {
     font-weight: var(--weight-semibold);
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
-    color: var(--color-accent);
+    color: var(--color-brass-light);
   }
 
   .pricing__note {
-    max-width: 80ch;
+    flex: 1 1 26rem;
+    max-width: 70ch;
     font-size: var(--text-xs);
-    line-height: 1.6;
-    color: var(--color-text-muted);
+    line-height: 1.55;
+    color: var(--on-dark-text-muted);
   }
 
   .pricing__full {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    justify-self: start;
     min-height: 2.5rem;
     font-family: var(--font-grotesk);
     font-size: var(--text-2xs);
     font-weight: var(--weight-semibold);
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
-    color: var(--color-accent);
-  }
-
-  .pricing__full:hover {
-    text-decoration: underline;
-  }
-
-  .pricing__actions {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-4) var(--space-8);
-    margin-top: var(--space-8);
-  }
-
-  .pricing__phone-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-height: 2.75rem;
-    font-family: var(--font-grotesk);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
     color: var(--color-text-inverse);
   }
 
-  .pricing__phone-link:hover {
+  .pricing__full:hover {
     color: var(--color-brass-light);
   }
 
-  @media (max-width: 900px) {
-    .pricing__table thead {
-      display: none;
-    }
-
-    .pricing__table,
-    .pricing__table tbody,
-    .pricing__table tr,
-    .pricing__table th,
-    .pricing__table td {
-      display: block;
-      width: 100%;
-    }
-
-    .pricing__table tr {
-      padding: var(--space-4);
+  @media (max-width: 899px) {
+    .pricing__overview,
+    .pricing__amenities {
       border-bottom: 1px solid var(--color-line);
-    }
-
-    .pricing__table tbody th {
-      min-width: 0;
-      padding: 0 0 var(--space-3);
-      border: 0;
-    }
-
-    .pricing__table td {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: var(--space-4);
-      padding: var(--space-2) 0;
-      border: 0;
-      white-space: normal;
-    }
-
-    .pricing__table td::before {
-      content: attr(data-label);
-      font-family: var(--font-grotesk);
-      font-size: var(--text-2xs);
-      font-weight: var(--weight-semibold);
-      letter-spacing: var(--tracking-wide);
-      text-transform: uppercase;
-      color: var(--color-text-subtle);
-    }
-
-    .pricing__row-cta {
-      justify-content: flex-end;
-      padding-top: var(--space-3);
-    }
-
-    .pricing__row-cta::before {
-      display: none;
-    }
-
-    .pricing__aside {
-      padding: var(--space-5);
     }
   }
 
   @media (max-width: 479px) {
-    .pricing__call {
+    .pricing__call,
+    .pricing__overview,
+    .pricing__amenities,
+    .pricing__booking {
       padding: var(--space-4);
     }
 
@@ -534,9 +550,14 @@ const copy = {
       font-size: clamp(1.55rem, 7.4vw, 2rem);
     }
 
-    .pricing__actions .btn {
-      width: 100%;
+    .pricing__rates {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+    }
+
+    .pricing__foot {
+      align-items: flex-start;
+      flex-direction: column;
     }
   }
 </style>
-

@@ -418,7 +418,13 @@ const rest = videos.filter((video) => video !== featured);
     background: #000;
   }
 
-  .videos__player iframe {
+  /*
+   * `:global` es obligatorio: el iframe lo crea el JS y no lleva el atributo
+   * `data-astro-cid`, así que la regla con scope no le aplicaba y se quedaba
+   * en su tamaño por defecto (300×150). Ese era el motivo de que los controles
+   * de YouTube se vieran diminutos incluso con el diálogo a pantalla completa.
+   */
+  .videos__player :global(iframe) {
     display: block;
     width: 100%;
     height: 100%;
@@ -443,13 +449,58 @@ const rest = videos.filter((video) => video !== featured);
     text-decoration: underline;
   }
 
+  /*
+   * En móvil el diálogo ocupa la pantalla completa. Antes era un modal de
+   * 16:9 con 358 px de ancho: el reproductor de YouTube cargaba su interfaz
+   * móvil dentro de un hueco de 201 px y los botones (CC, ajustes, pantalla
+   * completa) se veían diminutos. Con el iframe a 100dvh × 100vw, YouTube
+   * dimensiona sus controles como en su propia app.
+   */
   @media (max-width: 767px) {
+    .videos__dialog {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      max-width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      max-height: 100vh;
+      max-height: 100dvh;
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+    }
+
+    .videos__dialog[open] {
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      height: 100vh;
+      height: 100dvh;
+    }
+
     .videos__dialog-bar {
-      padding: var(--space-3) var(--space-4);
+      padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
+      padding-inline: var(--space-4);
+      padding-bottom: var(--space-3);
     }
 
     .videos__dialog-title {
       font-size: var(--text-2xs);
+    }
+
+    .videos__player {
+      aspect-ratio: auto;
+      min-height: 0;
+      height: 100%;
+    }
+
+    .videos__player :global(iframe) {
+      width: 100%;
+      height: 100%;
+    }
+
+    .videos__dialog-link {
+      justify-self: center;
+      padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
     }
   }
 </style>

@@ -15,12 +15,13 @@
  *   datos de terceros no es defendible: Google exige que las valoraciones
  *   estructuradas correspondan a reseñas reales y verificables.
  *
- * El recuento total sí se comunica ("178 opiniones"), pero como cantidad, nunca
- * como nota.
+ * El recuento total se comunica solo cuando `showCounts` es true (la franja
+ * del hero lo desactiva y deja únicamente las calificaciones).
  *
  * Props:
- *   variant — "light" (fondos claros) · "dark" (fondos oscuros)
- *   size    — alto del logotipo en px
+ *   variant   — "light" (fondos claros) · "dark" (fondos oscuros)
+ *   size      — alto del logotipo en px
+ *   showCounts — muestra los recuentos y el total (la franja del hero los oculta)
  */
 import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
 import { aggregateRatings, getTotalReviews } from "~/data/reviews";
@@ -29,10 +30,11 @@ import RatingSource from "~/components/ui/RatingSource.astro";
 interface Props {
   variant?: "light" | "dark";
   size?: number;
+  showCounts?: boolean;
   class?: string;
 }
 
-const { variant = "light", size = 22, class: className } = Astro.props;
+const { variant = "light", size = 22, showCounts = true, class: className } = Astro.props;
 
 const locale: Locale = getLocaleFromUrl(Astro.url);
 const tr = t(locale);
@@ -52,6 +54,7 @@ const filledStars = (score: number, scale: number) => Math.round((score / scale)
           score={rating.score}
           scale={rating.scale}
           count={rating.count}
+          showCount={showCounts}
           url={rating.url}
           variant={variant}
           size={size}
@@ -68,10 +71,12 @@ const filledStars = (score: number, scale: number) => Math.round((score / scale)
     ))}
   </ul>
 
-  <p class="rsummary__total">
-    <strong class="tnum">{total}</strong>
-    {tr.reviews.countMany} · {tr.reviews.ratingSources}
-  </p>
+  {showCounts && (
+    <p class="rsummary__total">
+      <strong class="tnum">{total}</strong>
+      {tr.reviews.countMany} · {tr.reviews.ratingSources}
+    </p>
+  )}
 </div>
 
 <style>

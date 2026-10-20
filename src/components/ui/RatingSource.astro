@@ -22,6 +22,7 @@
  *   score   — nota
  *   scale   — escala de la nota (10 o 5)
  *   count   — número de opiniones
+ *   showCount — muestra el recuento junto a la nota (por defecto, sí)
  *   url     — perfil público
  *   variant — "light" (fondos claros) · "dark" (fondos oscuros)
  *   size    — altura real del logotipo en px
@@ -33,12 +34,13 @@ interface Props {
   score: number;
   scale: 10 | 5;
   count: number;
+  showCount?: boolean;
   url?: string;
   variant?: "light" | "dark";
   size?: number;
 }
 
-const { source, score, scale, count, url, variant = "light", size } = Astro.props;
+const { source, score, scale, count, showCount = true, url, variant = "light", size } = Astro.props;
 
 /**
  * El "G" de Google es cuadrado y parece más pequeño que un wordmark a la misma
@@ -60,7 +62,11 @@ const logoWidth = Math.round((logo.w / logo.h) * logoHeight);
   href={url ?? site.url}
   target="_blank"
   rel="noopener noreferrer"
-  aria-label={`${logo.alt} — ${score.toString().replace(".", ",")}/${scale} · ${count}`}
+  aria-label={
+    showCount && count > 0
+      ? `${logo.alt} — ${score.toString().replace(".", ",")}/${scale} · ${count}`
+      : `${logo.alt} — ${score.toString().replace(".", ",")}/${scale}`
+  }
   style={`--rsource-logo-h: ${logoHeight}px`}
 >
   <img
@@ -75,7 +81,7 @@ const logoWidth = Math.round((logo.w / logo.h) * logoHeight);
   <span class="rsource__score tnum">
     {score.toString().replace(".", ",")}<em>/{scale}</em>
   </span>
-  {count > 0 && <span class="rsource__count">({count})</span>}
+  {showCount && count > 0 && <span class="rsource__count">({count})</span>}
 </a>
 
 <style>

@@ -316,12 +316,13 @@ editorial combina interiores de sauna en verano e invierno, la sauna de noche,
 la balia y dos fotos de ognisko; la grande ocupa 2×2. La sauna se describe como
 “na życzenie”, que es como funciona: no se vende como incluida si no lo está.
 
-**`WelcomeSection.astro` — “Witaj na Mazurach”.** Recupera el gesto cálido de
-la web anterior: dos fotos superpuestas (`balia` y `taras`) sobre una forma de
-agua azul, texto a la derecha y la firma transparente de los propietarios. No
-usa el mosaico de instalaciones ni las fotos `apartament-z-zewnatrz`,
-`salon-z-kominkiem`, `kuchnia` o `jadalnia`. Fondo crema-sálvia, degradado
-latón y firma integrada; texto traducido a EN/DE.
+**`WelcomeSection.astro` — “Witaj na Mazurach”.** Mosaico cálido de **seis
+fotos** de `public/assets/facilities` (`balia`, `taras`, `lake`, `sypialnia`,
+`lazienka`, `miejsce-na-ognisko`) sobre una forma de agua azul, texto a la
+derecha y firma transparente de los propietarios. El `eyebrow` es ahora el
+propio “Witaj na Mazurach”; se eliminó el titular grande duplicado. No usa las
+fotos `apartament-z-zewnatrz`, `salon-z-kominkiem`, `kuchnia` ni `jadalnia`.
+Fondo crema-sálvia, degradado latón y texto traducido a EN/DE.
 
 **`VideoWallSection.astro` — “Nagrano u nas”.** Los ocho vídeos grabados en el
 complejo: seis telediscos (Fisher, Explozja, Lena z Zespołem, Daniel Dąbrowski),

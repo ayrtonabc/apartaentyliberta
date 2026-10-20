@@ -553,10 +553,16 @@ const isActive = (match: string) =>
    * Resultado: la regla no se aplicaba y los tres iconos salían en móvil,
    * apretando el logo contra la hamburguesa.
    */
-  :global(.hdr__social) { display: none; }
+  /*
+   * `.social` del hijo tiene más especificidad que `.hdr__social` a secas
+   * (`0,2` contra `0,1`), así que la regla anterior no ocultaba nada: en un
+   * iPhone de 320 px los tres iconos empujaban la hamburguesa fuera de la
+   * pantalla. Se combinan ambas clases para ganar la especificidad.
+   */
+  :global(.hdr__social.social) { display: none !important; }
 
   @media (min-width: 1200px) {
-    :global(.hdr__social) { display: flex; }
+    :global(.hdr__social.social) { display: flex !important; }
   }
 
   .hdr__lang { display: none; }

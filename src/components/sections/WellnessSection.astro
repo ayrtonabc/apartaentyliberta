@@ -252,7 +252,7 @@ const photos = [
   .wellness__title {
     margin-top: var(--space-3);
     margin-bottom: var(--space-4);
-    font-size: clamp(2.2rem, 4.8vw, 4.4rem);
+    font-size: clamp(1.9rem, 3.9vw, 3.25rem);
     line-height: 1.03;
     letter-spacing: var(--tracking-tighter);
     text-wrap: balance;
@@ -437,7 +437,28 @@ const photos = [
     text-shadow: 0 1px 2px rgba(6, 14, 11, 0.6);
   }
 
-  @media (max-width: 639px) {
+  @media (min-width: 360px) and (max-width: 639px) {
+    .wellness__gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: 12rem;
+    }
+
+    .wellness__shot--big,
+    .wellness__shot--wide {
+      grid-column: span 2;
+    }
+
+    .wellness__shot--big {
+      grid-row: span 2;
+    }
+
+    .wellness__caption {
+      left: var(--space-3);
+      bottom: var(--space-2);
+    }
+  }
+
+  @media (max-width: 359px) {
     .wellness__gallery {
       grid-auto-rows: 13rem;
     }

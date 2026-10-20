@@ -88,15 +88,14 @@ const bookingNote =
       data-hero-video
     >
       <!--
-        UNA sola fuente para todos los viewports. Antes había `hero-movil.mp4`
-        (versión de 960 px) para móvil y `hero.mp4` para escritorio, pero el
-        cliente marcó la versión móvil como fea y pidió que se use el mismo
-        vídeo de escritorio en ambos. El archivo es más pesado en móvil,
-        pero `preload="metadata"` limita la primera carga y
-        `prefers-reduced-motion` ya oculta todo el elemento si el usuario
-        lo pide.
+        Dos fuentes, no una: el original de 1080p pesa 17,6 MB y el de móvil
+        anterior 4,6 MB. Ahora el móvil recibe un loop de 720 px y 18 s
+        (0,61 MB) y el escritorio un 720p de 4,3 MB. El encuadre es el mismo;
+        el scrim y el titular tapan la diferencia de nitidez. `preload`
+        metadata evita descargar el archivo entero antes de necesitarlo.
       -->
-      <source src="/assets/video/hero.mp4" type="video/mp4" />
+      <source src="/assets/video/hero-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
+      <source src="/assets/video/hero-720.mp4" type="video/mp4" />
     </video>
     <div class="hero__scrim"></div>
   </div>
@@ -303,7 +302,7 @@ const bookingNote =
      * un teléfono y el titular se iría a 6 líneas) y la altura manda en
      * escritorio, donde es lo que decide si el buscador entra en pantalla.
      */
-    font-size: clamp(2rem, min(8.2vw, 8.7svh), 4.5rem);
+    font-size: clamp(1.82rem, min(7.4vw, 8svh), 3.45rem);
     line-height: 1.03;
     letter-spacing: var(--tracking-tighter);
     color: #fff;
@@ -402,6 +401,22 @@ const bookingNote =
 
   }
 
+  /*
+   * 320 px: dos columnas de fecha + invitados + botón no caben. El botón
+   * "Sprawdź dostępność" se salía 14 px y el formulario se veía roto. En esta
+   * anchura, invitados y botón pasan a fila completa.
+   */
+  @media (max-width: 359px) {
+    .hero__field--sm,
+    .hero__submit {
+      grid-column: 1 / -1;
+    }
+
+    .hero__submit {
+      width: 100%;
+    }
+  }
+
   @media (min-width: 768px) {
     .hero__quick {
       grid-template-columns: 1fr auto 1fr 0.7fr auto;
@@ -481,7 +496,7 @@ const bookingNote =
     }
 
     .hero__title {
-      font-size: 1.875rem;
+      font-size: 1.68rem;
       margin-top: var(--space-3);
     }
 

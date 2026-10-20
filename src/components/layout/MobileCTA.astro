@@ -13,13 +13,13 @@ const locale: Locale = getLocaleFromUrl(Astro.url);
 const tr = t(locale);
 ---
 
-<div class="mcta" role="region" aria-label={tr.cta.checkAvailability}>
+<div class="mcta" role="region" aria-label={tr.cta.bookNow}>
   <a class="mcta__main" href={bookingUrl(locale)} target="_blank" rel="noopener noreferrer">
     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
       <rect x="3" y="4" width="18" height="18" rx="2"></rect>
       <path d="M16 2v4M8 2v4M3 10h18"></path>
     </svg>
-    <span>{tr.cta.checkAvailability}</span>
+    <span>{tr.cta.bookNow}</span>
   </a>
 
   <a class="mcta__icon" href={`tel:${site.phone.tel}`} aria-label={`${tr.cta.call} ${site.phone.display}`}>

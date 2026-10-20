@@ -186,6 +186,13 @@ const legal = [
      */
   }
 
+  /* En móvil, deja libre la franja de la barra de reserva fija. */
+  @media (max-width: 767px) {
+    .ftr {
+      padding-bottom: calc(var(--space-8) + 4.75rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
   /* Halo de marca muy sutil */
   .ftr__glow {
     position: absolute;

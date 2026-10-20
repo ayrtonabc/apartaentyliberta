@@ -149,14 +149,19 @@ Resultados medidos sobre el build de producción (`curl` contra `npm start`,
 
 | Página | HTML sin comprimir | Brotli | Ahorro |
 |---|---|---|---|
-| Home | 383 KB | **39 KB** | 90 % |
+| Home | 384 KB | **40 KB** | 90 % |
 | Ficha de apartamento | 168 KB | **25 KB** | 85 % |
 | Cennik | 112 KB | **18 KB** | 84 % |
 | FAQ | 103 KB | **16 KB** | 84 % |
 
-El peso del despliegue completo es **89 MB** (`dist/client`), casi todo fotos
-responsive. `public/import-original/` (19,5 MB de originales de cámara) ya no se
+El peso del despliegue completo es **72 MB** (`dist/client`), casi todo fotos
+responsive. `public/import-original/` (los originales de cámara) ya no se
 publica: lo saca `scripts/prune-dist.mjs` en `postbuild`.
+
+El vídeo del hero se sirve en dos versiones: **0,61 MB** para móvil (720 px,
+18 s) y **4,3 MB** para escritorio (720p). Antes eran 17,6 MB y 4,6 MB. Además
+se precarga el póster correcto (`hero-poster.webp`, 80 KB) en lugar de la foto
+`hero-1.webp` de 244 KB, que no era la imagen LCP.
 
 ### Cabeceras
 

@@ -5,15 +5,16 @@
  * El objetivo comercial de esta barra es que la reserva esté siempre a un
  * toque de distancia. Jerarquía: reservar (primario) → llamar → escribir.
  */
-import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
 import { site } from "~/data/site";
+import { bookingUrl } from "~/data/booking";
 
 const locale: Locale = getLocaleFromUrl(Astro.url);
 const tr = t(locale);
 ---
 
 <div class="mcta" role="region" aria-label={tr.cta.checkAvailability}>
-  <a class="mcta__main" href={localeLink(locale, "/rezerwacja/")}>
+  <a class="mcta__main" href={bookingUrl(locale)} target="_blank" rel="noopener noreferrer">
     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
       <rect x="3" y="4" width="18" height="18" rx="2"></rect>
       <path d="M16 2v4M8 2v4M3 10h18"></path>

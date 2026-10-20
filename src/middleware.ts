@@ -36,7 +36,7 @@ const SECURITY_HEADERS = {
     "base-uri 'self'",
     "object-src 'none'",
     "frame-ancestors 'self'",
-    "form-action 'self'",
+    "form-action 'self' https://www.booking.com https://secure.booking.com https://booking.com",
     "img-src 'self' data:",
     "font-src 'self' data:",
     "style-src 'self' 'unsafe-inline'",

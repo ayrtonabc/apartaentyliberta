@@ -10,8 +10,9 @@
  * No se inventan fechas, países ni estancias: la tarjeta solo lleva nombre,
  * estrellas, comentario y plataforma.
  */
-import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
 import { aggregateRatings, getTotalReviews, reviewsForLocale } from "~/data/reviews";
+import { bookingUrl } from "~/data/booking";
 import Icon from "~/components/ui/Icon.astro";
 import ReviewLogo from "~/components/ui/ReviewLogo.astro";
 import ReviewStars from "~/components/ui/ReviewStars.astro";
@@ -225,7 +226,14 @@ const booking = platform("booking");
     <footer class="revs__foot">
       <p class="revs__foot-note">{copy.footNote}</p>
       <div class="revs__actions">
-        <a class="btn btn--primary" href={localeLink(locale, "/rezerwacja/")}>{copy.cta}</a>
+        <a
+          class="btn btn--primary"
+          href={bookingUrl(locale)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {copy.cta}
+        </a>
       </div>
     </footer>
   </div>

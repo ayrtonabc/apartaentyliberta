@@ -12,11 +12,11 @@ import { apartments, type Apartment } from "~/data/apartments";
 import { formatPLN } from "~/lib/format";
 import { site } from "~/data/site";
 import { getAmenities } from "~/data/amenities";
+import { bookingUrl } from "~/data/booking";
 
 import SmartImage from "~/components/ui/SmartImage.astro";
 import Icon from "~/components/ui/Icon.astro";
 import Gallery, { type GalleryPhoto } from "~/components/content/Gallery.astro";
-import BookingForm from "~/components/content/BookingForm.astro";
 import MapEmbed from "~/components/content/MapEmbed.astro";
 import ApartmentCard from "~/components/content/ApartmentCard.astro";
 
@@ -291,14 +291,17 @@ const otherApartments = apartments.filter((a) => a.id !== apartment.id);
       </div>
       <p class="abook__text">{tr.apartment.stickyText}</p>
 
-      <BookingForm apartmentId={apartment.id} compact />
+      <a
+        class="btn btn--primary btn--full"
+        href={bookingUrl(locale)}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {tr.booking.bookingCta}
+        <Icon name="arrow-right" size={15} />
+      </a>
+      <p class="abook__note">{tr.booking.bookingNote}</p>
 
-      <!--
-        Solo la insignia de opiniones verificadas.
-        Antes había aquí otra línea con `tr.form.fastReply`, pero BookingForm ya
-        la pinta bajo el botón de envío: en la ficha se leía dos veces seguidas
-        "Odpowiadamy zwykle w kilka godzin".
-      -->
       <div class="abook__trust">
         <span><Icon name="shield" size={15} /> {tr.trust.verified}</span>
       </div>
@@ -747,6 +750,14 @@ const otherApartments = apartments.filter((a) => a.id !== apartment.id);
     font-size: var(--text-sm);
     color: var(--color-text-muted);
     max-width: none;
+  }
+
+  .abook__note {
+    margin-top: var(--space-3);
+    max-width: none;
+    font-size: var(--text-2xs);
+    line-height: 1.45;
+    color: var(--color-text-subtle);
   }
 
   .abook__trust {

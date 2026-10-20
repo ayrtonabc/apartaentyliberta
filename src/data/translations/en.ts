@@ -177,8 +177,8 @@ const en: typeof pl = {
 
     ctaBandTitle: "Summer dates go quickly",
     ctaBandText:
-      "Write or call — we reply within 24 hours and confirm availability straight away.",
-    ctaBandNote: "No deposit to enquire. A 30% deposit confirms the booking.",
+      "Check current dates and prices on Booking.com — your booking is confirmed there.",
+    ctaBandNote: "Booking and payment are handled by Booking.com.",
   },
 
   apartment: {
@@ -250,13 +250,13 @@ const en: typeof pl = {
     seasonSummerNote: "High season. Minimum six nights, limited availability.",
     seasonAutumnNote: "Golden Polish autumn, mushrooms, quiet and the best rates.",
     paymentTitle: "Payment and booking",
-    paymentStep1: "You send an enquiry with your dates.",
-    paymentStep2: "We confirm availability within 24 hours.",
-    paymentStep3: "A 30% deposit reserves the dates exclusively for you.",
-    paymentStep4: "The balance is settled on site.",
+    paymentStep1: "Choose your dates on Booking.com.",
+    paymentStep2: "See the current price and availability.",
+    paymentStep3: "Book and pay on Booking.com.",
+    paymentStep4: "Confirmation and stay details come from Booking.com.",
     cancellationTitle: "Changes and cancellation",
     cancellationText:
-      "Up to 30 days before arrival the deposit is refunded in full, or we move it to another date. Full details in our terms.",
+      "Change and cancellation conditions depend on the rate chosen on Booking.com. Full details are in your booking confirmation.",
   },
 
   reviews: {
@@ -283,7 +283,7 @@ const en: typeof pl = {
     title: "Questions and answers",
     lead: "Practical information about your stay, payment and the surrounding area.",
     q1: "How do booking and payment work?",
-    a1: "You send an enquiry with your dates and we confirm availability within 24 hours. A 30% deposit (bank transfer) holds the booking. The balance is paid on site, by card or in cash.",
+    a1: "Booking.com handles the booking and payment. Choose your dates, see the current price and availability, and receive confirmation and stay details from Booking.com. If you have a question before booking, call or write to us.",
     q2: "What is the minimum stay?",
     a2: "In July and August the minimum is six nights. Outside the season we accept shorter stays — for two or three nights please call us.",
     q3: "Are the hot tub and the sauna included?",
@@ -373,20 +373,9 @@ const en: typeof pl = {
   booking: {
     eyebrow: "Booking",
     title: "Book your stay at Liberta",
-    lead: "No booking engine and no commission — you talk directly to the owner.",
-    stepsTitle: "How it works",
-    directTitle: "Book direct",
-    directText:
-      "Booking with us directly means no platform commission and flexible date changes.",
-    paymentTitle: "Bank transfer details",
-    paymentAccount: "Account holder",
-    paymentIban: "Account number",
-    paymentTitleLabel: "Payment reference",
-    paymentAmount: "Deposit amount",
-    paymentAmountValue: "30% of the stay",
-    contactTitle: "Talk to us directly",
-    checkinTitle: "Check-in and check-out",
-    checkinText: "Check-in from 16:00, check-out by 11:00. Earlier check-in on request.",
+    lead: "Bookings are handled by Booking.com — check current dates, prices and confirmation there.",
+    bookingCta: "Book on Booking.com",
+    bookingNote: "The official Booking.com listing opens in a new tab.",
   },
 
   location: {

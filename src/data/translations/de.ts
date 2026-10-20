@@ -177,8 +177,8 @@ const de: typeof pl = {
 
     ctaBandTitle: "Sommertermine sind schnell weg",
     ctaBandText:
-      "Schreiben oder rufen Sie an — wir antworten innerhalb von 24 Stunden und bestätigen die Verfügbarkeit sofort.",
-    ctaBandNote: "Anfragen ist kostenlos. Eine Anzahlung von 30 % bestätigt die Buchung.",
+      "Prüfen Sie aktuelle Termine und Preise auf Booking.com — dort wird die Buchung bestätigt.",
+    ctaBandNote: "Buchung und Zahlung laufen über Booking.com.",
   },
 
   apartment: {
@@ -250,13 +250,13 @@ const de: typeof pl = {
     seasonSummerNote: "Hochsaison. Mindestens sechs Nächte, begrenzte Verfügbarkeit.",
     seasonAutumnNote: "Goldener polnischer Herbst, Pilze, Ruhe und die besten Preise.",
     paymentTitle: "Zahlung und Buchung",
-    paymentStep1: "Sie senden eine Anfrage mit Ihrem Termin.",
-    paymentStep2: "Wir bestätigen die Verfügbarkeit innerhalb von 24 Stunden.",
-    paymentStep3: "Eine Anzahlung von 30 % reserviert den Termin exklusiv.",
-    paymentStep4: "Der Rest wird vor Ort beglichen.",
+    paymentStep1: "Sie wählen Ihren Termin auf Booking.com.",
+    paymentStep2: "Sie sehen den aktuellen Preis und die Verfügbarkeit.",
+    paymentStep3: "Sie buchen und zahlen auf Booking.com.",
+    paymentStep4: "Bestätigung und Aufenthaltsdetails erhalten Sie von Booking.com.",
     cancellationTitle: "Änderung und Stornierung",
     cancellationText:
-      "Bis 30 Tage vor Anreise erstatten wir die Anzahlung vollständig oder verschieben sie auf einen anderen Termin. Details in unseren AGB.",
+      "Änderungs- und Stornierungsbedingungen hängen von der auf Booking.com gewählten Rate ab. Details stehen in der Buchungsbestätigung.",
   },
 
   reviews: {
@@ -283,7 +283,7 @@ const de: typeof pl = {
     title: "Fragen und Antworten",
     lead: "Praktische Informationen zu Aufenthalt, Zahlung und Umgebung.",
     q1: "Wie funktionieren Buchung und Zahlung?",
-    a1: "Sie senden eine Anfrage mit Ihrem Termin, wir bestätigen die Verfügbarkeit innerhalb von 24 Stunden. Eine Anzahlung von 30 % (Überweisung) reserviert die Wohnung. Den Rest zahlen Sie vor Ort per Karte oder bar.",
+    a1: "Buchung und Zahlung laufen über Booking.com. Sie wählen den Termin, sehen den aktuellen Preis und die Verfügbarkeit und erhalten Bestätigung sowie Aufenthaltsdetails von Booking.com. Bei Fragen vor der Buchung rufen Sie an oder schreiben Sie uns.",
     q2: "Wie lang muss ich mindestens bleiben?",
     a2: "Im Juli und August sind es mindestens sechs Nächte. Außerhalb der Saison sind kürzere Aufenthalte möglich — bei zwei oder drei Nächten rufen Sie uns bitte an.",
     q3: "Sind Hot Tub und Sauna inklusive?",
@@ -373,20 +373,9 @@ const de: typeof pl = {
   booking: {
     eyebrow: "Reservierung",
     title: "Aufenthalt in Liberta buchen",
-    lead: "Kein Buchungssystem und keine Provision — Sie sprechen direkt mit dem Eigentümer.",
-    stepsTitle: "So läuft es ab",
-    directTitle: "Direkt buchen",
-    directText:
-      "Bei einer Direktbuchung zahlen Sie keine Plattformprovision und bleiben bei Terminänderungen flexibel.",
-    paymentTitle: "Bankverbindung",
-    paymentAccount: "Kontoinhaber",
-    paymentIban: "Kontonummer",
-    paymentTitleLabel: "Verwendungszweck",
-    paymentAmount: "Anzahlung",
-    paymentAmountValue: "30 % des Aufenthalts",
-    contactTitle: "Direkter Kontakt",
-    checkinTitle: "Check-in und Check-out",
-    checkinText: "Check-in ab 16:00 Uhr, Check-out bis 11:00 Uhr. Früherer Check-in auf Anfrage.",
+    lead: "Die Buchung läuft über Booking.com — dort finden Sie aktuelle Termine, Preise und die Bestätigung.",
+    bookingCta: "Auf Booking.com buchen",
+    bookingNote: "Das offizielle Booking.com-Profil öffnet sich in einem neuen Tab.",
   },
 
   location: {

@@ -27,7 +27,9 @@
  *     parking ya aparece en la sección de equipamiento. Repetir lo mismo dos
  *     veces seguidas no refuerza, hace que la página parezca relleno.
  */
-import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
+import { bookingUrl } from "~/data/booking";
+import ReviewLogo from "~/components/ui/ReviewLogo.astro";
 
 const locale: Locale = getLocaleFromUrl(Astro.url);
 const tr = t(locale);
@@ -41,13 +43,19 @@ const videoLabel =
       : "Drone view of Lake Szeląg Wielki and Apartamenty Liberta";
 
 /**
- * Destino del buscador de la portada.
+ * El buscador de la portada entrega las fechas directamente a Booking.com.
  *
- * Antes enviaba al formulario de reserva, que no responde a "¿hay sitio?": el
- * huésped rellenaba otro formulario y esperaba un correo. Ahora va a la página
- * de resultados, que sí contesta: disponible, ocupado y fechas alternativas.
+ * No hay motor propio ni API: el formulario es un GET a la ficha oficial con
+ * `checkin`, `checkout` y `group_adults`. Booking abre en una pestaña nueva para
+ * que el visitante no pierda la web del alojamiento.
  */
-const searchHref = localeLink(locale, "/rezerwacja/wyniki/");
+const bookingAction = bookingUrl(locale);
+const bookingNote =
+  locale === "pl"
+    ? "Rezerwacja przez Booking.com"
+    : locale === "de"
+      ? "Buchung über Booking.com"
+      : "Booking through Booking.com";
 ---
 
 <section class="hero" data-hero>
@@ -105,24 +113,37 @@ const searchHref = localeLink(locale, "/rezerwacja/wyniki/");
       <p class="hero__subtitle">{tr.hero.subtitle}</p>
 
       <!-- Consulta rápida de fechas -->
-      <form class="hero__quick" method="get" action={searchHref}>
+      <form
+        class="hero__quick"
+        method="get"
+        action={bookingAction}
+        target="_blank"
+      >
         <div class="hero__field">
           <label for="hero-in">{tr.form.checkIn}</label>
-          <input type="date" id="hero-in" name="checkIn" />
+          <input type="date" id="hero-in" name="checkin" required />
         </div>
         <span class="hero__arrow" aria-hidden="true">→</span>
         <div class="hero__field">
           <label for="hero-out">{tr.form.checkOut}</label>
-          <input type="date" id="hero-out" name="checkOut" />
+          <input type="date" id="hero-out" name="checkout" required />
         </div>
         <div class="hero__field hero__field--sm">
           <label for="hero-guests">{tr.form.guests}</label>
-          <input type="number" id="hero-guests" name="guests" min="1" max="8" value="6" />
+          <input type="number" id="hero-guests" name="group_adults" min="1" max="8" value="6" />
         </div>
+        <input type="hidden" name="group_children" value="0" />
+        <input type="hidden" name="no_rooms" value="1" />
+        <input type="hidden" name="selected_currency" value="PLN" />
         <button class="btn btn--primary hero__submit" type="submit">
           {tr.cta.checkAvailability}
         </button>
       </form>
+
+      <p class="hero__booking-note">
+        <ReviewLogo source="booking" />
+        <span>{bookingNote}</span>
+      </p>
     </div>
   </div>
 </section>
@@ -333,6 +354,24 @@ const searchHref = localeLink(locale, "/rezerwacja/wyniki/");
     box-shadow: var(--shadow-xl);
     grid-template-columns: 1fr;
     max-width: 52rem;
+  }
+
+  .hero__booking-note {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    max-width: none;
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .hero__booking-note :global(.rlogo) {
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
   }
 
   /*

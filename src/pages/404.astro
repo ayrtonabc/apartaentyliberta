@@ -6,6 +6,7 @@
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+import { bookingUrl } from "~/data/booking";
 import Icon from "~/components/ui/Icon.astro";
 import SmartImage from "~/components/ui/SmartImage.astro";
 
@@ -24,7 +25,7 @@ const suggestions = [
   { href: localeLink(locale, "/cennik/"), label: tr.nav.prices },
   { href: localeLink(locale, "/lokalizacja/"), label: tr.nav.location },
   { href: localeLink(locale, "/atrakcje/"), label: tr.nav.attractions },
-  { href: localeLink(locale, "/rezerwacja/"), label: tr.nav.booking },
+  { href: bookingUrl(locale), label: tr.nav.booking },
   { href: localeLink(locale, "/faq/"), label: tr.nav.faq },
 ];
 
@@ -57,7 +58,11 @@ const suggestions = [
           <ul role="list">
             {suggestions.map((item) => (
               <li>
-                <a href={item.href}>
+                <a
+                  href={item.href}
+                  target={item.href.startsWith("http") ? "_blank" : undefined}
+                  rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                >
                   {item.label}
                   <Icon name="arrow-right" size={14} />
                 </a>

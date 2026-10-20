@@ -59,7 +59,7 @@ const items = limit ? all.slice(0, limit) : all;
               </svg>
               {site.phone.display}
             </a>
-            <a class="btn btn--outline" href={localeLink(locale, "/rezerwacja/")}>
+            <a class="btn btn--outline" href={`mailto:${site.email}`}>
               {tr.cta.askQuestion}
             </a>
           </div>

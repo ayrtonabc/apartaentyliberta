@@ -28,9 +28,9 @@ process.env.ASTRO_NODE_AUTOSTART = process.env.ASTRO_NODE_AUTOSTART ?? "disabled
  *
  * El adaptador de Node NO lee el archivo `.env` al arrancar (Astro solo lo hace
  * con `astro dev`), así que sin esto un despliegue con `node ./server.mjs` y un
- * `.env` en la raíz arrancaría sin RESEND_API_KEY y las reservas se quedarían
- * en el log. `loadEnvFile` no pisa lo que ya venga del entorno, así que en
- * Docker/systemd las variables del contenedor siguen mandando.
+ * `.env` en la raíz arrancaría sin `PORT`/`HOST`. `loadEnvFile` no pisa lo que
+ * ya venga del entorno, así que en Docker/systemd las variables del contenedor
+ * siguen mandando.
  *
  * Disponible desde Node 20.12; en versiones anteriores se ignora sin romper.
  */
@@ -43,13 +43,8 @@ try {
 /**
  * `server.mjs` ES el servidor de producción, así que lo declara.
  *
- * Importa por dos cosas:
- *   1. Astro y sus dependencias toman el camino de producción (sin avisos de
- *      desarrollo ni comprobaciones extra por petición).
- *   2. `src/lib/availability.ts` usa NODE_ENV para decidir si puede leer el
- *      calendario de EJEMPLO. Sin esta línea, `npm start` en un VPS haría
- *      NODE_ENV=undefined y el `.ics` de muestra —con reservas inventadas—
- *      bloquearía fechas reales.
+ * Astro y sus dependencias toman así el camino de producción: sin avisos de
+ * desarrollo ni comprobaciones extra por petición.
  */
 process.env.NODE_ENV = process.env.NODE_ENV ?? "production";
 
@@ -124,7 +119,7 @@ const SECURITY_HEADERS = {
     "base-uri 'self'",
     "object-src 'none'",
     "frame-ancestors 'self'",
-    "form-action 'self'",
+    "form-action 'self' https://www.booking.com https://secure.booking.com https://booking.com",
     "img-src 'self' data:",
     "font-src 'self' data:",
     "style-src 'self' 'unsafe-inline'",

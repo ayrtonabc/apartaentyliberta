@@ -12,6 +12,7 @@
 import { site } from "~/data/site";
 import { aggregateRatings } from "~/data/reviews";
 import { videos } from "~/data/videos";
+import { bookingUrl } from "~/data/booking";
 import {
   type Locale,
   localeMeta,
@@ -403,7 +404,7 @@ export function buildAccommodationSchema(apartment: {
     isPartOf: { "@id": `${BASE}/#lodging` },
     offers: {
       "@type": "Offer",
-      url: absoluteUrl(canonicalPath, locale),
+      url: bookingUrl(locale),
       priceCurrency: "PLN",
       price: lowSeasonPLN,
       priceSpecification: {

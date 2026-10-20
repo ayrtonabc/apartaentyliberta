@@ -3,8 +3,9 @@
  * CtaBand — banda de cierre con llamada a la acción.
  * Bloque de conversión: fecha, teléfono y formulario a un clic.
  */
-import { type Locale, getLocaleFromUrl, localeLink, t } from "~/lib/i18n";
+import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
 import { site } from "~/data/site";
+import { bookingUrl } from "~/data/booking";
 import SmartImage from "~/components/ui/SmartImage.astro";
 
 interface Props {
@@ -45,7 +46,12 @@ const tr = t(locale);
     </div>
 
     <div class="cta-band__actions" data-reveal style="--reveal-delay:100ms">
-      <a class="btn btn--primary btn--xl" href={localeLink(locale, "/rezerwacja/")}>
+      <a
+        class="btn btn--primary btn--xl"
+        href={bookingUrl(locale)}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         {tr.cta.checkAvailability}
       </a>
       <a class="btn btn--invert btn--xl" href={`tel:${site.phone.tel}`}>

@@ -192,8 +192,8 @@ export default {
 
     ctaBandTitle: "Wolne terminy znikają szybko w sezonie",
     ctaBandText:
-      "Napisz lub zadzwoń — odpowiadamy w ciągu 24 godzin i od razu potwierdzamy dostępność.",
-    ctaBandNote: "Bez zaliczki przy zapytaniu. Rezerwację potwierdza zadatek 30%.",
+      "Sprawdź aktualne terminy i ceny na Booking.com — rezerwację potwierdzasz w serwisie.",
+    ctaBandNote: "Rezerwacja i płatność po stronie Booking.com.",
   },
 
   /* --------------------------------------------------------- Apartamentos */
@@ -272,14 +272,14 @@ export default {
     seasonSpringNote: "Puste jezioro, niskie ceny, budząca się przyroda.",
     seasonSummerNote: "Sezon wysoki. Minimum 6 nocy, dostępność ograniczona.",
     seasonAutumnNote: "Złota polska jesień, grzyby, spokój i najlepsze ceny.",
-    paymentTitle: "Płatność i rezerwacja",
-    paymentStep1: "Wysyłasz zapytanie z terminem.",
-    paymentStep2: "Potwierdzamy dostępność w ciągu 24 godzin.",
-    paymentStep3: "Zadatek 30% rezerwuje termin na wyłączność.",
-    paymentStep4: "Pozostałą część rozliczamy na miejscu.",
+    paymentTitle: "Rezerwacja na Booking.com",
+    paymentStep1: "Wybierasz termin na Booking.com.",
+    paymentStep2: "Widzisz aktualną cenę i dostępność.",
+    paymentStep3: "Rezerwujesz i płacisz w serwisie Booking.com.",
+    paymentStep4: "Potwierdzenie i szczegóły pobytu dostajesz od Booking.com.",
     cancellationTitle: "Zmiana i anulowanie",
     cancellationText:
-      "Do 30 dni przed przyjazdem zadatek wraca w całości lub przenosimy go na inny termin. Szczegóły w regulaminie.",
+      "Warunki zmiany i anulowania zależą od oferty wybranej na Booking.com. Szczegóły są w potwierdzeniu rezerwacji.",
   },
 
   /* -------------------------------------------------------------- Opinie */
@@ -314,7 +314,7 @@ export default {
     title: "Pytania i odpowiedzi",
     lead: "Praktyczne informacje o pobycie, płatnościach i okolicy.",
     q1: "Jak wygląda rezerwacja i płatność?",
-    a1: "Wysyłasz zapytanie z terminem, a my potwierdzamy dostępność w ciągu 24 godzin. Rezerwację blokuje zadatek 30% (przelew lub BLIK). Pozostałą kwotę rozliczasz na miejscu — kartą lub gotówką.",
+    a1: "Rezerwację i płatność obsługuje Booking.com. Wybierasz termin, widzisz aktualną cenę i dostępność, a potwierdzenie oraz szczegóły pobytu otrzymujesz od Booking.com. Przy pytaniach przed rezerwacją zadzwoń lub napisz.",
     q2: "Jaki jest minimalny pobyt?",
     a2: "W lipcu i sierpniu minimum to 6 nocy. Poza sezonem przyjmujemy krótsze pobyty — przy 2–3 nocach prosimy o kontakt telefoniczny.",
     q3: "Czy balia góralska i sauna są w cenie?",
@@ -409,20 +409,9 @@ export default {
   booking: {
     eyebrow: "Rezerwacja",
     title: "Zarezerwuj pobyt w Liberta",
-    lead: "Bez systemu rezerwacji i bez prowizji — rozmawiasz bezpośrednio z właścicielem.",
-    stepsTitle: "Jak to działa",
-    directTitle: "Rezerwacja bezpośrednia",
-    directText:
-      "Rezerwując u nas bezpośrednio, nie płacisz prowizji portalu i masz elastyczne warunki zmiany terminu.",
-    paymentTitle: "Dane do przelewu",
-    paymentAccount: "Odbiorca",
-    paymentIban: "Numer konta",
-    paymentTitleLabel: "Tytuł przelewu",
-    paymentAmount: "Kwota zadatku",
-    paymentAmountValue: "30% wartości pobytu",
-    contactTitle: "Kontakt bezpośredni",
-    checkinTitle: "Zameldowanie i wymeldowanie",
-    checkinText: "Zameldowanie od 16:00, wymeldowanie do 11:00. Wcześniejsze zameldowanie — na zapytanie.",
+    lead: "Rezerwacje prowadzi Booking.com — sprawdzisz tam aktualne terminy, ceny i potwierdzenie.",
+    bookingCta: "Zarezerwuj na Booking.com",
+    bookingNote: "Otworzy się oficjalny profil Booking.com w nowej karcie.",
   },
 
   /* ------------------------------------------------------- Localización */

@@ -1,13 +1,24 @@
 ---
 /**
- * /rezerwacja/wyniki/ — resultados de la búsqueda del hero (polaco).
+ * /rezerwacja/wyniki/ — compatibilidad con los enlaces antiguos.
  *
- * SSR: lee la disponibilidad en cada petición. Si se prerenderizara, quedaría
- * congelada con las fechas del build.
+ * Ya no hay motor de disponibilidad propio: cualquier búsqueda se entrega a
+ * Booking.com con las fechas y huéspedes que lleguen por la URL. Es un 302
+ * porque el destino cambia con cada consulta.
  */
-import SearchResults from "~/components/sections/SearchResults.astro";
+import { bookingUrl } from "~/data/booking";
 
 export const prerender = false;
----
 
-<SearchResults locale="pl" />
+const params = Astro.url.searchParams;
+const guests = Number(params.get("group_adults") ?? params.get("guests") ?? 0);
+
+return Astro.redirect(
+  bookingUrl("pl", {
+    checkIn: params.get("checkin") ?? params.get("checkIn") ?? undefined,
+    checkOut: params.get("checkout") ?? params.get("checkOut") ?? undefined,
+    guests: Number.isFinite(guests) && guests > 0 ? guests : undefined,
+  }),
+  302,
+);
+---

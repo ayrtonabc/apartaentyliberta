@@ -14,6 +14,7 @@
  */
 import { type Locale, getLocaleFromUrl, localeLink, t, canonicalPath } from "~/lib/i18n";
 import { site } from "~/data/site";
+import { bookingUrl } from "~/data/booking";
 import LanguageSwitcher from "~/components/layout/LanguageSwitcher.astro";
 import SocialLinks from "~/components/ui/SocialLinks.astro";
 import logoFull from "~/assets/nav-wordmark.webp";
@@ -32,7 +33,7 @@ const navItems = [
   { href: localeLink(locale, "/opinie/"), label: tr.nav.reviews, match: "/opinie/" },
 ];
 
-const bookingHref = localeLink(locale, "/rezerwacja/");
+const bookingHref = bookingUrl(locale);
 
 const isActive = (match: string) =>
   match === "/apartamenty/" ? here.startsWith("/apartamenty/") : here === match;
@@ -97,7 +98,12 @@ const isActive = (match: string) =>
           <LanguageSwitcher variant="pill" />
         </div>
 
-        <a class="btn btn--primary btn--sm hdr__cta" href={bookingHref}>
+        <a
+          class="btn btn--primary btn--sm hdr__cta"
+          href={bookingHref}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {tr.cta.bookNow}
         </a>
 
@@ -157,7 +163,13 @@ const isActive = (match: string) =>
     </div>
 
     <div class="mm__foot">
-      <a class="btn btn--primary btn--full btn--lg" href={bookingHref} data-menu-link>
+      <a
+        class="btn btn--primary btn--full btn--lg"
+        href={bookingHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-menu-link
+      >
         {tr.cta.checkAvailability}
       </a>
       <div class="mm__contact">

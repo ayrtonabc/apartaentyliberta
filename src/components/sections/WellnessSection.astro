@@ -10,6 +10,7 @@
  * como incluida si no lo está.
  */
 import { type Locale, getLocaleFromUrl, localeLink } from "~/lib/i18n";
+import { bookingUrl } from "~/data/booking";
 import Icon from "~/components/ui/Icon.astro";
 import SmartImage from "~/components/ui/SmartImage.astro";
 
@@ -183,7 +184,14 @@ const photos = [
         <p class="wellness__note">{copy.note}</p>
 
         <div class="wellness__actions">
-          <a class="btn btn--primary" href={localeLink(locale, "/rezerwacja/")}>{copy.cta}</a>
+          <a
+            class="btn btn--primary"
+            href={bookingUrl(locale)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {copy.cta}
+          </a>
           <a class="wellness__link" href={localeLink(locale, "/apartamenty/")}>
             {copy.link}
             <Icon name="arrow-right" size={14} />

@@ -13,6 +13,7 @@
  */
 import { type Locale, localeLink, t } from "~/lib/i18n";
 import { apartments } from "~/data/apartments";
+import { bookingUrl } from "~/data/booking";
 import Icon from "~/components/ui/Icon.astro";
 
 interface Props {
@@ -39,8 +40,8 @@ const copy = {
     eyebrow: tr.home.pricingEyebrow,
     title: tr.home.pricingTitle,
     lead: tr.home.pricingLead,
-    sealTitle: "Rezerwacja bezpośrednia",
-    sealText: "Bez prowizji portali i bez ukrytych opłat.",
+    sealTitle: "Rezerwacja przez Booking.com",
+    sealText: "Aktualne ceny i potwierdzenie w serwisie Booking.com.",
     seasonLow: tr.home.pricingSeasonLow,
     seasonHigh: tr.home.pricingSeasonHigh,
     from: "od",
@@ -71,8 +72,8 @@ const copy = {
     eyebrow: tr.home.pricingEyebrow,
     title: tr.home.pricingTitle,
     lead: tr.home.pricingLead,
-    sealTitle: "Book direct",
-    sealText: "No platform commission and no hidden fees.",
+    sealTitle: "Book on Booking.com",
+    sealText: "Current prices and confirmation on Booking.com.",
     seasonLow: tr.home.pricingSeasonLow,
     seasonHigh: tr.home.pricingSeasonHigh,
     from: "from",
@@ -103,8 +104,8 @@ const copy = {
     eyebrow: tr.home.pricingEyebrow,
     title: tr.home.pricingTitle,
     lead: tr.home.pricingLead,
-    sealTitle: "Direkt buchen",
-    sealText: "Keine Portalprovision, keine versteckten Kosten.",
+    sealTitle: "Buchung über Booking.com",
+    sealText: "Aktuelle Preise und Bestätigung auf Booking.com.",
     seasonLow: tr.home.pricingSeasonLow,
     seasonHigh: tr.home.pricingSeasonHigh,
     from: "ab",
@@ -255,7 +256,12 @@ const includes = [
 
         <p class="pricing__calc-note">{copy.calcNote}</p>
 
-        <a class="btn btn--primary btn--full" href={localeLink(locale, "/rezerwacja/")}>
+        <a
+          class="btn btn--primary btn--full"
+          href={bookingUrl(locale)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {copy.cta}
           <Icon name="arrow-right" size={15} />
         </a>

@@ -92,8 +92,6 @@ console.log("\n📄 Páginas PL:");
   "src/pages/404.astro",
   "src/pages/apartamenty/index.astro",
   "src/pages/apartamenty/[slug].astro",
-  "src/pages/api/booking.ts",
-  "src/pages/api/availability.ts",
 ].forEach((page) => check(exists(page), page));
 
 console.log("\n🌍 Páginas EN/DE:");
@@ -140,8 +138,8 @@ console.log("\n🧩 Componentes:");
   "src/components/ui/PageHero.astro",
   "src/components/ui/SectionHeading.astro",
   "src/components/content/ApartmentCard.astro",
-  "src/components/content/BookingForm.astro",
-  "src/components/content/BookingSearch.astro",
+  /* El formulario y el buscador de reservas se retiraron: la reserva se cierra
+     en Booking.com mediante enlaces profundos (src/data/booking.ts). */
   /* ContactBlock.astro ya no existe: su contenido se reparte entre MapEmbed
      (mapa) y SocialLinks (redes). Se comprueban esos dos en su lugar. */
   "src/components/content/MapEmbed.astro",
@@ -274,7 +272,7 @@ if (exists(VIDEO_HERO)) {
 
 /* -------------------------------------------------------------------- Lib */
 console.log("\n🔧 Lib:");
-["src/lib/i18n.ts", "src/lib/format.ts", "src/lib/seo.ts", "src/lib/availability.ts", "src/env.d.ts"].forEach(
+["src/lib/i18n.ts", "src/lib/format.ts", "src/lib/seo.ts", "src/env.d.ts"].forEach(
   (f) => check(exists(f), f),
 );
 

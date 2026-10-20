@@ -25,7 +25,6 @@
     "images:import": "node scripts/import-new-photos.mjs",
     "images:posters": "node scripts/import-video-posters.mjs",
     "images:wellness": "node scripts/import-wellness-photos.mjs",
-    "availability:update": "node scripts/update-availability.mjs",
     "rename:hero": "node scripts/rename-hero-images.mjs",
     "compress": "node scripts/compress-dist.mjs",
     "prune": "node scripts/prune-dist.mjs",

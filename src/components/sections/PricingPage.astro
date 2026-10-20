@@ -5,6 +5,7 @@
  */
 import { type Locale, localeLink, t } from "~/lib/i18n";
 import { apartments } from "~/data/apartments";
+import { bookingUrl } from "~/data/booking";
 import { formatPLN } from "~/lib/format";
 import { site } from "~/data/site";
 
@@ -43,6 +44,11 @@ const copy: Record<
     extrasPrice: string;
     extrasNote: string;
     noteText: string;
+    payEyebrow: string;
+    payTitle: string;
+    payText: string;
+    payCheckin: string;
+    payNote: string;
   }
 > = {
   pl: {
@@ -62,6 +68,12 @@ const copy: Record<
     extrasNote: "Usługi dodatkowe rozliczamy na miejscu — nie doliczamy ich do zadatku.",
     noteText:
       "Ceny obejmują apartament dla maksymalnie 6 osób. Dostawka w salonie dla 2 dodatkowych osób: 100 zł za noc.",
+    payEyebrow: "Płatność",
+    payTitle: "Rezerwacja i płatność na Booking.com",
+    payText:
+      "Terminy, ceny i potwierdzenie rezerwacji obsługuje Booking.com. Nie pobieramy danych karty na naszej stronie i nie prowadzimy własnego systemu rezerwacji.",
+    payCheckin: "Zameldowanie od 16:00, wymeldowanie do 11:00. Wcześniejsze zameldowanie — na zapytanie.",
+    payNote: "Po rezerwacji szczegóły płatności i zameldowania znajdziesz w potwierdzeniu Booking.com.",
   },
   en: {
     crumbs: "Prices",
@@ -80,6 +92,12 @@ const copy: Record<
     extrasNote: "Additional services are settled on site — we do not add them to the deposit.",
     noteText:
       "Rates cover the apartment for up to 6 guests. An extra bed in the living room for 2 more guests: 100 PLN per night.",
+    payEyebrow: "Payment",
+    payTitle: "Booking and payment on Booking.com",
+    payText:
+      "Dates, prices and booking confirmation are handled by Booking.com. We do not collect card details on our site and do not run our own booking engine.",
+    payCheckin: "Check-in from 16:00, check-out by 11:00. Earlier check-in on request.",
+    payNote: "After booking, payment and check-in details are in your Booking.com confirmation.",
   },
   de: {
     crumbs: "Preise",
@@ -98,6 +116,12 @@ const copy: Record<
     extrasNote: "Zusatzleistungen rechnen wir vor Ort ab — sie kommen nicht zur Anzahlung hinzu.",
     noteText:
       "Die Preise gelten für die Wohnung mit bis zu 6 Personen. Zustellbett im Wohnzimmer für 2 weitere Gäste: 100 PLN pro Nacht.",
+    payEyebrow: "Zahlung",
+    payTitle: "Buchung und Zahlung über Booking.com",
+    payText:
+      "Termine, Preise und Buchungsbestätigung laufen über Booking.com. Wir erheben auf unserer Seite keine Kartendaten und betreiben kein eigenes Buchungssystem.",
+    payCheckin: "Check-in ab 16:00 Uhr, Check-out bis 11:00 Uhr. Früherer Check-in auf Anfrage.",
+    payNote: "Nach der Buchung finden Sie Zahlungs- und Check-in-Details in Ihrer Booking.com-Bestätigung.",
   },
 };
 
@@ -303,36 +327,23 @@ const extras = [
   <div class="container">
     <div class="pay split split--balanced">
       <div data-reveal>
-        <span class="eyebrow">{tr.booking.paymentTitle}</span>
-        <h2 class="pay-title">{tr.booking.checkinTitle}</h2>
-        <p class="lead">{tr.booking.checkinText}</p>
+        <span class="eyebrow">{c.payEyebrow}</span>
+        <h2 class="pay-title">{c.payTitle}</h2>
+        <p class="lead">{c.payText}</p>
 
-        <dl class="pay__details">
-          <div>
-            <dt>{tr.booking.paymentAccount}</dt>
-            <dd>{site.bank.accountHolder}</dd>
-          </div>
-          <div>
-            <dt>{tr.booking.paymentIban}</dt>
-            <dd class="tnum">{site.bank.iban}</dd>
-          </div>
-          <div>
-            <dt>{tr.booking.paymentTitleLabel}</dt>
-            <dd>{site.bank.label}</dd>
-          </div>
-          <div>
-            <dt>{tr.booking.paymentAmount}</dt>
-            <dd>{tr.booking.paymentAmountValue}</dd>
-          </div>
-        </dl>
+        <p class="pay__checkin">
+          <Icon name="clock" size={16} />
+          {c.payCheckin}
+        </p>
+        <p class="pay__note">{c.payNote}</p>
       </div>
 
       <div class="pay__cta" data-reveal style="--reveal-delay:120ms">
         <h3 class="pay__cta-title">{tr.home.ctaBandTitle}</h3>
         <p class="pay__cta-text">{tr.home.ctaBandText}</p>
         <div class="btn-group btn-group--stack">
-          <a class="btn btn--primary btn--lg" href={localeLink(locale, "/rezerwacja/")}>
-            {tr.cta.askQuestion}
+          <a class="btn btn--primary btn--lg" href={bookingUrl(locale)} target="_blank" rel="noopener noreferrer">
+            {tr.booking.bookingCta}
           </a>
           <a class="btn btn--outline btn--lg" href={`tel:${site.phone.tel}`}>
             {site.phone.display}
@@ -529,27 +540,29 @@ const extras = [
   }
 
   /* Pago */
-  .pay__details {
-    display: grid;
-    gap: var(--space-5);
-    margin-top: var(--space-8);
-    padding-top: var(--space-6);
-    border-top: 1px solid var(--color-line);
-  }
-
-  .pay__details dt {
-    font-family: var(--font-grotesk);
-    font-size: var(--text-2xs);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wider);
-    text-transform: uppercase;
-    color: var(--color-text-subtle);
-    margin-bottom: var(--space-1);
-  }
-
-  .pay__details dd {
-    font-size: var(--text-base);
+  .pay__checkin {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-top: var(--space-7);
+    max-width: none;
+    font-size: var(--text-sm);
+    line-height: 1.5;
     color: var(--color-text);
+  }
+
+  .pay__checkin :global(.icon) {
+    flex-shrink: 0;
+    margin-top: 0.15em;
+    color: var(--color-accent);
+  }
+
+  .pay__note {
+    margin-top: var(--space-3);
+    max-width: 48ch;
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    color: var(--color-text-subtle);
   }
 
   .pay__cta {

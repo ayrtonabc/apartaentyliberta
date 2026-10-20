@@ -26,12 +26,10 @@ const adapter = process.env.VERCEL === "1"
 export default defineConfig({
   site: "https://apartamentyliberta.pl",
   /**
-   * El sitio se sirve con SSR porque /api/booking y /api/availability
-   * necesitan ejecutarse en el servidor (envío de emails y lectura del
-   * calendario iCal). Con `output: "static"` el `404.astro` no llegaba a
-   * renderizarse en este proyecto (FailedToFindPageMapSSR), así que se usa
-   * `server`: todas las páginas se siguen pre-renderizando en build y solo
-   * los endpoints quedan on-demand.
+   * El sitio se sirve con SSR por dos motivos de runtime: el `404.astro` no
+   * llegaba a renderizarse con `output: "static"` (FailedToFindPageMapSSR) y
+   * las antiguas URLs de búsqueda redirigen a Booking.com conservando fechas y
+   * huéspedes. Las páginas normales se siguen pre-renderizando en build.
    */
   output: "server",
   adapter,
@@ -65,7 +63,12 @@ export default defineConfig({
       // va sin prefijo, así que no se usa el i18n del plugin (generaba
       // enlaces alternos incorrectos al no poder mapear el idioma por
       // defecto).
-      filter: (page) => !page.includes("/api/") && !page.includes("/404"),
+      filter: (page) =>
+        !page.includes("/api/") &&
+        !page.includes("/404") &&
+        !page.includes("/wyniki/") &&
+        !page.includes("/results/") &&
+        !page.includes("/ergebnisse/"),
       changefreq: "weekly",
       priority: 0.7,
     }),

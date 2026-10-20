@@ -1,15 +1,19 @@
 ---
 /**
- * BookingPage — página de reserva: formulario, contacto y datos de pago.
- * Compartido por /rezerwacja/, /en/booking/ y /de/reservierung/.
+ * BookingPage — reserva a través de Booking.com, sin motor propio.
+ *
+ * El cliente no quiere formulario ni API: la disponibilidad y el pago viven en
+ * Booking. Esta página explica el flujo, enlaza a la ficha oficial y deja el
+ * contacto directo solo para dudas previas.
  */
 import { type Locale, localeLink, t } from "~/lib/i18n";
 import { site } from "~/data/site";
+import { bookingUrl } from "~/data/booking";
+import { aggregateRatings } from "~/data/reviews";
 
 import PageHero from "~/components/ui/PageHero.astro";
-import BookingForm from "~/components/content/BookingForm.astro";
-import BookingSearch from "~/components/content/BookingSearch.astro";
-import Testimonials from "~/components/content/Testimonials.astro";
+import ReviewLogo from "~/components/ui/ReviewLogo.astro";
+import ReviewStars from "~/components/ui/ReviewStars.astro";
 import Icon from "~/components/ui/Icon.astro";
 
 interface Props {
@@ -18,76 +22,80 @@ interface Props {
 
 const { locale } = Astro.props;
 const tr = t(locale);
+const target = bookingUrl(locale);
+const bookingScore = aggregateRatings.find((rating) => rating.source === "booking");
+const scoreText = bookingScore
+  ? new Intl.NumberFormat(locale === "pl" ? "pl-PL" : locale === "de" ? "de-DE" : "en-GB", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(bookingScore.score)
+  : "";
 
-const copy: Record<
-  Locale,
-  {
-    formTitle: string;
-    directTitle: string;
-    directText: string;
-    paymentTitle: string;
-    account: string;
-    iban: string;
-    reference: string;
-    deposit: string;
-    depositValue: string;
-    checkinTitle: string;
-    checkinText: string;
-    contactTitle: string;
-    replyTime: string;
-  }
-> = {
+const copy = {
   pl: {
-    formTitle: "Formularz zapytania",
-    directTitle: "Rezerwacja bezpośrednia",
-    directText:
-      "Rezerwując u nas bezpośrednio, nie płacisz prowizji portalu i zachowujesz elastyczność przy zmianie terminu. Odpowiadamy zwykle w kilka godzin.",
-    paymentTitle: "Dane do przelewu",
-    account: "Odbiorca",
-    iban: "Numer konta",
-    reference: "Tytuł przelewu",
-    deposit: "Zadatek",
-    depositValue: "30% wartości pobytu",
+    panelEyebrow: "Oficjalny profil",
+    panelTitle: "Rezerwacja przez Booking.com",
+    panelText:
+      "Terminy, ceny i potwierdzenie obsługuje Booking.com. Nie tworzymy konta ani nie prosimy o dane karty na naszej stronie.",
+    benefits: [
+      "Aktualna dostępność i ceny",
+      "Potwierdzenie rezerwacji po stronie Booking.com",
+      "Bezpieczna płatność w serwisie",
+    ],
+    cta: "Przejdź do Booking.com",
+    note: "Otworzy się w nowej karcie. Jeśli masz pytanie przed rezerwacją, zadzwoń lub napisz.",
+    contactTitle: "Masz pytanie?",
+    contactText:
+      "Odpowiadamy na pytania o apartament, okolicę i pobyt. Rezerwację i płatność prowadzi Booking.com.",
     checkinTitle: "Zameldowanie i wymeldowanie",
     checkinText: "Zameldowanie od 16:00, wymeldowanie do 11:00. Wcześniejsze zameldowanie — na zapytanie.",
-    contactTitle: "Wolisz zadzwonić?",
-    replyTime: "Odpowiadamy zwykle w kilka godzin",
+    addressTitle: "Adres",
+    scoreLabel: "Ocena gości",
+    viewProfile: "Zobacz profil",
   },
   en: {
-    formTitle: "Enquiry form",
-    directTitle: "Book direct",
-    directText:
-      "Booking with us directly means no platform commission and full flexibility if your dates change. We usually reply within a few hours.",
-    paymentTitle: "Bank transfer details",
-    account: "Account holder",
-    iban: "Account number",
-    reference: "Payment reference",
-    deposit: "Deposit",
-    depositValue: "30% of the stay",
+    panelEyebrow: "Official listing",
+    panelTitle: "Booking through Booking.com",
+    panelText:
+      "Dates, prices and confirmation are handled by Booking.com. We do not create an account or ask for card details on our site.",
+    benefits: [
+      "Current availability and prices",
+      "Booking confirmation on Booking.com",
+      "Secure payment on the platform",
+    ],
+    cta: "Go to Booking.com",
+    note: "It opens in a new tab. If you have a question before booking, call or write to us.",
+    contactTitle: "A question?",
+    contactText:
+      "We answer questions about the apartment, the area and your stay. Booking and payment are handled by Booking.com.",
     checkinTitle: "Check-in and check-out",
     checkinText: "Check-in from 16:00, check-out by 11:00. Earlier check-in on request.",
-    contactTitle: "Prefer to call?",
-    replyTime: "We usually reply within a few hours",
+    addressTitle: "Address",
+    scoreLabel: "Guest rating",
+    viewProfile: "View listing",
   },
   de: {
-    formTitle: "Anfrageformular",
-    directTitle: "Direkt buchen",
-    directText:
-      "Bei einer Direktbuchung zahlen Sie keine Plattformprovision und bleiben bei Terminänderungen flexibel. Wir antworten meist innerhalb weniger Stunden.",
-    paymentTitle: "Bankverbindung",
-    account: "Kontoinhaber",
-    iban: "Kontonummer",
-    reference: "Verwendungszweck",
-    deposit: "Anzahlung",
-    depositValue: "30 % des Aufenthalts",
+    panelEyebrow: "Offizielles Profil",
+    panelTitle: "Buchung über Booking.com",
+    panelText:
+      "Termine, Preise und Bestätigung laufen über Booking.com. Wir erstellen kein Konto und fragen auf unserer Seite keine Kartendaten ab.",
+    benefits: [
+      "Aktuelle Verfügbarkeit und Preise",
+      "Buchungsbestätigung auf Booking.com",
+      "Sichere Zahlung auf der Plattform",
+    ],
+    cta: "Zu Booking.com",
+    note: "Öffnet sich in einem neuen Tab. Bei Fragen vor der Buchung rufen Sie an oder schreiben Sie uns.",
+    contactTitle: "Eine Frage?",
+    contactText:
+      "Wir beantworten Fragen zur Wohnung, zur Umgebung und zum Aufenthalt. Buchung und Zahlung laufen über Booking.com.",
     checkinTitle: "Check-in und Check-out",
     checkinText: "Check-in ab 16:00 Uhr, Check-out bis 11:00 Uhr. Früherer Check-in auf Anfrage.",
-    contactTitle: "Lieber anrufen?",
-    replyTime: "Wir antworten meist innerhalb weniger Stunden",
+    addressTitle: "Adresse",
+    scoreLabel: "Gästebewertung",
+    viewProfile: "Profil ansehen",
   },
-};
-
-const c = copy[locale];
+}[locale];
 ---
 
 <PageHero
@@ -100,206 +108,289 @@ const c = copy[locale];
   ]}
 />
 
-<!--
-  BUSCADOR INTELIGENTE (estilo Booking).
-
-  Arriba del formulario manual. El huésped mete fechas y personas, ve los
-  4 apartamentos disponibles con su precio total, y al pulsar "Reservar
-  este apartamento" se hace scroll al formulario de abajo con los datos
-  ya rellenados. El formulario envía como siempre al endpoint
-  /api/booking.
--->
-<BookingSearch locale={locale} />
-
-<section class="section">
+<section class="bredirect section">
   <div class="container">
-    <div class="book split split--text-heavy split--start">
-      <!-- Formulario -->
-      <div class="book__form" data-reveal>
-        <h2 class="book__title">{c.formTitle}</h2>
-        <p class="lead u-mb-8">{tr.form.subtitle}</p>
-        <BookingForm locale={locale} />
+    <div class="bredirect__grid">
+      <div class="bredirect__main" data-reveal>
+        <span class="eyebrow">{copy.panelEyebrow}</span>
+        <h2 class="bredirect__title">{copy.panelTitle}</h2>
+        <p class="bredirect__text">{copy.panelText}</p>
+
+        <ul class="bredirect__benefits" role="list">
+          {copy.benefits.map((benefit) => (
+            <li>
+              <Icon name="check" size={16} />
+              {benefit}
+            </li>
+          ))}
+        </ul>
+
+        <a class="btn btn--primary btn--lg bredirect__cta" href={target} target="_blank" rel="noopener noreferrer">
+          {copy.cta}
+          <Icon name="external" size={16} />
+        </a>
+        <p class="bredirect__note">{copy.note}</p>
       </div>
 
-      <!-- Panel lateral -->
-      <aside class="book__aside" data-reveal style="--reveal-delay:120ms">
-        <!-- Contacto directo -->
-        <article class="bcard bcard--accent">
-          <h3 class="bcard__title">
+      <aside class="bredirect__aside" data-reveal style="--reveal-delay:100ms">
+        {bookingScore && (
+          <a
+            class="bredirect__score"
+            href={target}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${copy.scoreLabel}: ${scoreText}/${bookingScore.scale} (${bookingScore.count})`}
+          >
+            <span class="bredirect__score-label">{copy.scoreLabel}</span>
+            <span class="bredirect__score-row">
+              <ReviewLogo source="booking" />
+              <strong>{scoreText}<em>/{bookingScore.scale}</em></strong>
+              <span>({bookingScore.count})</span>
+            </span>
+            <ReviewStars rating={bookingScore.score} scale={bookingScore.scale} size={14} />
+            <span class="bredirect__score-link">
+              {copy.viewProfile}
+              <Icon name="arrow-right" size={13} />
+            </span>
+          </a>
+        )}
+
+        <article class="bredirect__card bredirect__card--accent">
+          <h2 class="bredirect__card-title">
             <Icon name="phone" size={18} />
-            {c.contactTitle}
-          </h3>
-          <a class="bcard__phone" href={`tel:${site.phone.tel}`}>{site.phone.display}</a>
-          <a class="bcard__mail" href={`mailto:${site.email}`}>{site.email}</a>
-          <p class="bcard__note">{c.replyTime}</p>
+            {copy.contactTitle}
+          </h2>
+          <p class="bredirect__card-text">{copy.contactText}</p>
+          <a class="bredirect__contact" href={`tel:${site.phone.tel}`}>
+            <Icon name="phone" size={15} />
+            {site.phone.display}
+          </a>
+          <a class="bredirect__contact" href={`mailto:${site.email}`}>
+            <Icon name="mail" size={15} />
+            {site.email}
+          </a>
         </article>
 
-        <!-- Reserva directa -->
-        <article class="bcard">
-          <h3 class="bcard__title">
-            <Icon name="award" size={18} />
-            {c.directTitle}
-          </h3>
-          <p class="bcard__text">{c.directText}</p>
-        </article>
-
-        <!-- Datos de pago -->
-        <article class="bcard">
-          <h3 class="bcard__title">
-            <Icon name="key" size={18} />
-            {c.paymentTitle}
-          </h3>
-          <dl class="bcard__dl">
-            <div>
-              <dt>{c.account}</dt>
-              <dd>{site.bank.accountHolder}</dd>
-            </div>
-            <div>
-              <dt>{c.iban}</dt>
-              <dd class="tnum">{site.bank.iban}</dd>
-            </div>
-            <div>
-              <dt>{c.reference}</dt>
-              <dd>{site.bank.label}</dd>
-            </div>
-            <div>
-              <dt>{c.deposit}</dt>
-              <dd>{c.depositValue}</dd>
-            </div>
-          </dl>
-        </article>
-
-        <!-- Horarios -->
-        <article class="bcard">
-          <h3 class="bcard__title">
+        <article class="bredirect__card">
+          <h2 class="bredirect__card-title">
             <Icon name="clock" size={18} />
-            {c.checkinTitle}
-          </h3>
-          <p class="bcard__text">{c.checkinText}</p>
-          <p class="bcard__addr">
-            <Icon name="pin" size={15} />
-            {site.address.full}
-          </p>
+            {copy.checkinTitle}
+          </h2>
+          <p class="bredirect__card-text">{copy.checkinText}</p>
+        </article>
+
+        <article class="bredirect__card">
+          <h2 class="bredirect__card-title">
+            <Icon name="pin" size={18} />
+            {copy.addressTitle}
+          </h2>
+          <p class="bredirect__card-text">{site.address.full}</p>
         </article>
       </aside>
     </div>
   </div>
 </section>
 
-<Testimonials limit={3} />
-
 <style>
-  .book__title {
-    font-size: var(--text-3xl);
-    margin-bottom: var(--space-4);
+  .bredirect {
+    background: var(--color-bg);
   }
 
-  .book__aside {
+  .bredirect__grid {
     display: grid;
-    gap: var(--space-4);
-    align-content: start;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    align-items: start;
   }
 
-  .bcard {
+  @media (min-width: 1024px) {
+    .bredirect__grid {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: var(--space-12);
+    }
+  }
+
+  .bredirect__main {
+    max-width: 46rem;
+  }
+
+  .bredirect__title {
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: clamp(2.2rem, 4.6vw, 4.2rem);
+    line-height: 1.04;
+    letter-spacing: var(--tracking-tighter);
+    text-wrap: balance;
+  }
+
+  .bredirect__text {
+    max-width: 56ch;
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted);
+    text-wrap: pretty;
+  }
+
+  .bredirect__benefits {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-7);
     padding: var(--space-6);
     background: var(--color-bg-elevated);
     border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
   }
 
-  .bcard--accent {
-    background: var(--color-bg-inverse);
-    border-color: transparent;
-    color: var(--color-text-inverse);
-  }
-
-  .bcard__title {
+  .bredirect__benefits li {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-3);
-    font-family: var(--font-grotesk);
-    font-size: var(--text-xs);
-    font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wider);
-    text-transform: uppercase;
-    color: var(--color-text-subtle);
-    margin-bottom: var(--space-4);
-  }
-
-  .bcard--accent .bcard__title {
-    color: var(--color-accent-soft);
-  }
-
-  .bcard__phone {
-    display: block;
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    letter-spacing: var(--tracking-tight);
-    color: var(--color-text-inverse);
-    margin-bottom: var(--space-2);
-  }
-
-  .bcard__phone:hover {
-    color: var(--color-accent-soft);
-  }
-
-  .bcard__mail {
-    display: inline-block;
     font-size: var(--text-sm);
-    color: var(--on-dark-text-muted);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    line-height: 1.45;
+    color: var(--color-text);
   }
 
-  .bcard__note {
+  .bredirect__benefits :global(.icon) {
+    flex-shrink: 0;
+    margin-top: 0.15em;
+    color: var(--color-accent);
+  }
+
+  .bredirect__cta {
+    margin-top: var(--space-7);
+  }
+
+  .bredirect__cta :global(.icon) {
+    margin-left: var(--space-2);
+  }
+
+  .bredirect__note {
     margin-top: var(--space-4);
+    max-width: 52ch;
     font-size: var(--text-xs);
-    color: var(--on-dark-text-muted);
-    max-width: none;
+    line-height: 1.5;
+    color: var(--color-text-subtle);
   }
 
-  .bcard__text {
-    font-size: var(--text-sm);
-    line-height: var(--leading-relaxed);
-    color: var(--color-text-muted);
-    max-width: none;
-  }
-
-  .bcard__dl {
+  .bredirect__aside {
     display: grid;
     gap: var(--space-4);
   }
 
-  .bcard__dl dt {
+  .bredirect__score {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+    border-radius: var(--radius-lg);
+    transition: transform var(--transition-base);
+  }
+
+  .bredirect__score:hover {
+    transform: translateY(-2px);
+  }
+
+  .bredirect__score-label {
     font-family: var(--font-grotesk);
     font-size: var(--text-2xs);
     font-weight: var(--weight-semibold);
     letter-spacing: var(--tracking-wider);
     text-transform: uppercase;
-    color: var(--color-text-subtle);
-    margin-bottom: 2px;
+    color: var(--on-dark-text-muted);
   }
 
-  .bcard__dl dd {
-    font-size: var(--text-sm);
-    color: var(--color-text);
-    overflow-wrap: anywhere;
-  }
-
-  .bcard__addr {
+  .bredirect__score-row {
     display: flex;
-    align-items: flex-start;
-    gap: var(--space-2);
-    margin-top: var(--space-4);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-line);
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
-    max-width: none;
+    align-items: center;
+    gap: var(--space-3);
   }
 
-  .bcard__addr :global(.icon) {
+  .bredirect__score-row :global(.rlogo) {
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+  }
+
+  .bredirect__score-row strong {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-normal);
+    line-height: 1;
+    margin-left: auto;
+  }
+
+  .bredirect__score-row strong em {
+    font-style: normal;
+    font-size: 0.55em;
+    color: var(--on-dark-text-muted);
+  }
+
+  .bredirect__score-row span {
+    font-size: var(--text-xs);
+    color: var(--on-dark-text-muted);
+  }
+
+  .bredirect__score-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-brass-light);
+  }
+
+  .bredirect__card {
+    padding: var(--space-5);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+  }
+
+  .bredirect__card--accent {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .bredirect__card-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .bredirect__card-title :global(.icon) {
     color: var(--color-accent);
-    margin-top: 0.2em;
+  }
+
+  .bredirect__card-text {
+    max-width: none;
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    color: var(--color-text-muted);
+  }
+
+  .bredirect__contact {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+  }
+
+  .bredirect__contact:hover {
+    text-decoration: underline;
+  }
+
+  .bredirect__contact :global(.icon) {
+    flex-shrink: 0;
   }
 </style>

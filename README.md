@@ -120,8 +120,9 @@ ruta publicada. Es el test que faltaba cuando el sitio enlazaba a 58 URLs rotas.
   `WebSite`, `Accommodation` + `Offer` por apartamento, `ItemList`,
   `BreadcrumbList`, `FAQPage`
 - Open Graph y Twitter Cards con imágenes 1200×630 generadas (`public/og-*.jpg`)
-- `sitemap-index.xml` + `sitemap-0.xml` (46 URLs, sin `404` ni `/api/`)
-- `robots.txt` con `Disallow: /api/`
+- `sitemap-index.xml` + `sitemap-0.xml` (43 URLs, sin `404`, `/api/` ni las
+  redirecciones de búsqueda)
+- `robots.txt` abierto; ya no hay API que bloquear
 - Metadatos geográficos (`geo.position`, `ICBM`) para búsquedas locales
 - Un solo `<h1>` por página y `alt` descriptivo y traducido en todas las imágenes
 
@@ -148,12 +149,12 @@ Resultados medidos sobre el build de producción (`curl` contra `npm start`,
 
 | Página | HTML sin comprimir | Brotli | Ahorro |
 |---|---|---|---|
-| Home | 381 KB | **39 KB** | 90 % |
+| Home | 383 KB | **39 KB** | 90 % |
 | Ficha de apartamento | 168 KB | **25 KB** | 85 % |
 | Cennik | 112 KB | **18 KB** | 84 % |
 | FAQ | 103 KB | **16 KB** | 84 % |
 
-El peso del despliegue completo es **90 MB** (`dist/client`), casi todo fotos
+El peso del despliegue completo es **89 MB** (`dist/client`), casi todo fotos
 responsive. `public/import-original/` (19,5 MB de originales de cámara) ya no se
 publica: lo saca `scripts/prune-dist.mjs` en `postbuild`.
 
@@ -189,22 +190,21 @@ src/
 ├── components/
 │   ├── layout/      Header · Footer · MobileCTA · LanguageSwitcher
 │   ├── ui/          Flag · Icon · SmartImage · PageHero · SectionHeading
-│   ├── content/     ApartmentCard · BookingForm · Gallery · Testimonials
-│   │                TestimonialCard · VideoCard · FaqSection · MapEmbed
-│   │                SocialLinks
+│   ├── content/     ApartmentCard · Gallery · Testimonials · TestimonialCard
+│   │                VideoCard · FaqSection · MapEmbed · SocialLinks
 │   └── sections/    Hero · TrustStrip · AmenitiesShowcase · WellnessSection
 │                    WelcomeSection · PricingShowcase · VideoWallSection
 │                    AttractionsGrid
 │                    CtaBand · HomeContent · ApartmentDetail · ApartmentsIndex
 │                    PricingPage · AttractionsPage · LocationPage
 │                    BookingPage · ReviewsPage
-├── data/            site · apartments · amenities · attractions · reviews
-│                    videos · faq · locales · icons · translations/{pl,en,de}
-│                    image-manifest.json (generado)
+├── data/            site · booking · apartments · amenities · attractions
+│                    reviews · videos · faq · locales · icons
+│                    translations/{pl,en,de} · image-manifest.json (generado)
 ├── layouts/         BaseLayout (SEO, hreflang, JSON-LD, preload)
-├── lib/             i18n · seo · format · availability
+├── lib/             i18n · seo · format
 ├── middleware.ts    Compresión y cabeceras para respuestas SSR
-├── pages/           Rutas PL + en/ + de/ + api/
+├── pages/           Rutas PL + en/ + de/
 ├── styles/          tokens · base · typography · layout · components
 │                    utilities · global
 └── assets/          Logo del header y del footer (optimizados)
@@ -231,7 +231,6 @@ src/
 | `npm run images:import` | Importa las fotos nuevas del propietario (normaliza a sRGB/JPEG y limpia las antiguas) |
 | `npm run images:posters` | Descarga las miniaturas de los vídeos de YouTube y las convierte a WebP 16:9 |
 | `npm run images:wellness` | Importa las 7 fotos de sauna y ognisko del propietario (sRGB, WebP) |
-| `npm run availability:update` | Importa el calendario iCal de Booking.com |
 | `npm run compress` | Re-precomprime `dist/client` sin recompilar |
 | `npm run prune` | Saca `public/import-original` del deploy sin recompilar |
 | `npm run audit:shots` | Capturas de todas las páginas y secciones con Chrome headless |
@@ -664,73 +663,30 @@ node scripts/capture-about.mjs 8080       # ¿encaja sin recorte?
 nombre en polaco, porque los nombres acaban en URLs públicas. Los originales se
 respaldan en `public/import-original/otros/`.
 
-#### Búsqueda de disponibilidad
+#### Reserva en Booking.com (sin API)
 
-El buscador de la portada envía a `/rezerwacja/wyniki/` (`/en/booking/results/`,
-`/de/reservierung/ergebnisse/`), no al formulario de reserva. Antes el huésped
-elegía fechas y aterrizaba en otro formulario, sin respuesta a "¿hay sitio?".
-Ahora la búsqueda tiene su propia página, con el lenguaje de las webs de
-reservas: primero un estado de búsqueda y después el resultado.
+El cliente no quiere motor de reservas propio: la reserva se cierra en
+Booking.com. No hay formulario POST, ni endpoints `/api/booking` o
+`/api/availability`, ni calendario iCal en el servidor.
 
-**La página es SSR** (`prerender = false`). Si se prerenderizara, quedaría
-congelada con las fechas del build.
+`src/data/booking.ts` construye la ficha oficial con los parámetros que Booking
+entiende: `checkin`, `checkout`, `group_adults`, `no_rooms` y
+`selected_currency=PLN`. La URL usa la variante de idioma del sitio
+(`.pl.html`, `.en-gb.html`, `.de.html`).
 
-Qué muestra, según el caso:
+- El buscador del hero es un `GET` directo a Booking, con `target="_blank"` para
+  no perder la web. La CSP permite `form-action` a `booking.com`.
+- Los CTA de cabecera, precios, wellness, apartamentos y banda final apuntan a
+  la misma ficha. No hay un segundo flujo de reserva.
+- `/rezerwacja/`, `/en/booking/` y `/de/reservierung/` siguen existiendo como
+  página informativa: explicación, nota de valoración y contacto para dudas.
+- Las antiguas URLs de resultados (`/rezerwacja/wyniki/`, etc.) responden con un
+  302 a Booking conservando fechas y huéspedes. No afirman disponibilidad.
+- Las páginas de resultados quedan fuera del sitemap.
 
-| Caso | Resultado |
-|---|---|
-| Fechas libres | Los 4 apartamentos, marcados como disponibles, con CTA |
-| Fechas ocupadas | Los 4 marcados como ocupados, el rango que bloquea y **fechas alternativas** |
-| Sin fechas | Mensaje para completarlas, con el buscador ya en la página |
-
-Las alternativas se calculan con `findNearestAvailable()`: busca hacia atrás y
-hacia delante desde el rango pedido, **manteniendo el número de noches**, y para
-en el primer hueco. Devolver "libre en noviembre" cuando lo útil es lo más
-cercano no sirve de nada.
-
-```bash
-# El caso "fechas ocupadas" necesita el calendario de ejemplo:
-AVAILABILITY_ALLOW_SAMPLE=1 node ./server.mjs
-node scripts/verify-search-flow.mjs 8080
-```
-
-Sin calendario conectado el script lo dice y omite ese caso: la página muestra
-"Nie możemy potwierdzić terminu", las tarjetas "Zapytaj" y los 60 días en gris
-("Brak danych"). Antes pintaba todo en verde y afirmaba disponibilidad sin dato.
-
-#### Disponibilidad: de dónde sale el dato (pendiente)
-
-**El calendario actual es AGREGADO de la propiedad, no por apartamento.** El
-iCal que exporta Booking para esta ficha dice si la casa está llena, no qué
-unidad está ocupada. Por eso los cuatro apartamentos aparecen siempre con el
-mismo estado y la página **lo dice con todas las letras** en lugar de fingir un
-reparto que el dato no sostiene.
-
-Para mostrar disponibilidad real por apartamento hace falta que el propietario
-exporte **un iCal por unidad**. Cuando lo haya, el único sitio que cambia es
-`availabilityByApartment()` en `src/lib/availability.ts`: se le pasa un
-calendario distinto a cada unidad y el resto de la página ya funciona.
-
-`src/data/availability.json` es hoy un marcador de posición (`*** not
-configured ***`, cero rangos). **Los avisos importan aquí:** si no se encuentra
-ninguno, `loadBookedRanges()` responde "todo libre" y lo avisa por consola. Ese
-camino llegó a estar activo **en producción por un error de ruta**: el módulo
-compilado vive en `dist/server/chunks/`, así que resolver la ruta con
-`import.meta.url` buscaba `dist/src/data/…`. En desarrollo no se notaba.
-
-Reglas vigentes:
-
-- La ruta se resuelve desde `AVAILABILITY_FILE` (ruta explícita) o, si no está,
-  desde el directorio de trabajo. `PUBLIC_DATA_DIR` se mantiene por
-  compatibilidad.
-- **El `.ics` de ejemplo NO se usa en producción.** Contiene reservas inventadas
-  (por ejemplo 2026-11-01 → 2026-11-08) que, con el calendario real sin conectar,
-  rechazaban fechas libres. Solo se lee si `NODE_ENV=development`, o con
-  `AVAILABILITY_ALLOW_SAMPLE=1 node ./server.mjs` para probar en local.
-- Si el calendario lleva **más de 7 días** sin actualizarse, el servidor avisa:
-  un JSON congelado rechaza estancias que ya se liberaron.
-- Sin datos, la página de resultados **no afirma disponibilidad**: dice que no se
-  pudo comprobar el calendario y que se confirma por teléfono o email.
+El propietario sigue recibiendo las reservas en Booking; el sitio solo aporta el
+contexto y el enlace. Si Booking cambia su ficha, basta con actualizar la
+constante `PROPERTY` en `src/data/booking.ts`.
 
 #### Bloque de contacto
 
@@ -884,22 +840,11 @@ Copiar `.env.example` a `.env`. `.env` no se versiona.
 
 | Variable | Obligatoria | Uso |
 |---|---|---|
-| `RESEND_API_KEY` | **Sí, en producción** | Envío de emails de reserva |
-| `OWNER_EMAIL` | No | Destino de los avisos (por defecto, `site.email`) |
-| `BOOKING_FROM_EMAIL` | No | Remitente (dominio verificado en Resend) |
-| `BOOKING_ICAL_URL` | Solo mantenimiento | iCal de Booking para `npm run availability:update` |
-| `AVAILABILITY_FILE` | Recomendada en VPS | JSON de disponibilidad fuera del código |
 | `PORT` / `HOST` | No | Servidor de producción (8080 / 0.0.0.0) |
 
-Si falta `RESEND_API_KEY`, las reservas se registran en el log del servidor en
-lugar de enviarse: útil para probar el formulario sin configurar nada.
-
-**Las variables se leen en TIEMPO DE EJECUCIÓN, no de build.** Esto es
-deliberado: antes la clave se leía con `import.meta.env`, Vite la inlineaba en el
-bundle (`const resendApiKey = undefined`) y el sitio compilado sin la clave no
-podía enviar correos nunca, aunque se configurara después en el servidor. Ahora
-se leen con `process.env` en cada petición y `server.mjs` carga `.env` al
-arrancar (sin pisar lo que venga del entorno del contenedor).
+La reserva se cierra en Booking.com, así que **no hay claves de email, API ni
+calendario** que configurar. Si Booking cambia la ficha, se actualiza la
+constante `PROPERTY` de `src/data/booking.ts`.
 
 ---
 
@@ -930,23 +875,18 @@ npm start            # node ./server.mjs  → PORT/HOST de .env
 ```
 
 `npm start` sirve el sitio completo con `server.mjs`: HTML prerenderizado desde
-`dist/client` con las variantes `.br`/`.gz`, y las rutas on-demand (`/api/*`,
-404) delegadas al handler de Astro.
+`dist/client` con las variantes `.br`/`.gz`, las redirecciones de búsqueda a
+Booking y el 404 delegados al handler de Astro.
 
 Puntos que hay que respetar en el servidor:
 
 1. **El proceso escucha en `0.0.0.0`** y va detrás de Nginx/Caddy con TLS. Las
    cabeceras HSTS solo se envían si llega `X-Forwarded-Proto: https`: el proxy
    tiene que mandarla.
-2. **TLS es obligatorio** para la CSP y para que el formulario no viaje en claro.
-3. **El calendario, en un volumen.** `AVAILABILITY_FILE=/srv/liberta-data/availability.json`
-   y un cron cada hora que ejecute `npm run availability:update` desde una copia
-   del repo con `BOOKING_ICAL_URL`. Sin ese cron, el sitio avisa de que el
-   calendario está desactualizado.
-4. **No copies `public/import-original/`**: son 19,5 MB de originales de cámara.
+2. **TLS es obligatorio** para la CSP y para que el formulario de fechas del hero
+   no viaje en claro hacia Booking.
+3. **No copies `public/import-original/`**: son los originales de cámara.
    `postbuild` ya lo saca de `dist/client` (`npm run prune`).
-5. **Secretos fuera de la imagen.** `RESEND_API_KEY` va por entorno del
-   contenedor o por `.env` en el host, nunca en el `Dockerfile` ni en git.
 
 Un unit de systemd mínimo (ajustar rutas y usuario):
 
@@ -971,24 +911,22 @@ Comprobación rápida tras desplegar:
 
 ```bash
 curl -sI https://apartamentyliberta.pl/ | grep -Ei 'content-encoding|content-security|strict-transport'
-curl -s -o /dev/null -w '%{http_code}\n' https://apartamentyliberta.pl/api/availability?checkIn=2026-12-01&checkOut=2026-12-05
+curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' 'https://apartamentyliberta.pl/rezerwacja/wyniki/?checkin=2026-12-01&checkout=2026-12-05'
 ```
 
----
-
-## Formulario de reserva
-
-- Funciona **sin JavaScript** (POST clásico a `/api/booking`)
-- Con JS: comprobación de disponibilidad en vivo, estados de carga y mensajes
-- Validación con Zod en el servidor y honeypot antispam + límite de 5 envíos por
-  hora e IP. El límite vive **en memoria del proceso**, así que vale para un
-  único servidor Node; si algún día hay varias instancias, hay que moverlo a
-  Redis/Upstash. No hay Turnstile ni captcha: no se ha implementado.
-- Los emails al huésped y al propietario se generan **en el idioma del visitante**
-- Comprobación contra el calendario importado de Booking.com (fail-open: si el
-  calendario no está disponible, la solicitud pasa y el propietario confirma)
+La segunda línea debe responder **302** con destino a `booking.com`.
 
 ---
+
+## Reserva
+
+- **Sin motor propio y sin API.** El hero y todos los CTA enlazan a la ficha
+  oficial de Booking.com; las fechas viajan como query string.
+- **Sin formulario POST** ni envío de correos desde el sitio. El contacto directo
+  (teléfono/email) queda para dudas, no para cerrar la reserva.
+- **Compatibilidad:** `/rezerwacja/wyniki/`, `/en/booking/results/` y
+  `/de/reservierung/ergebnisse/` redirigen a Booking con las fechas recibidas.
+- **CSP:** `form-action` permite `booking.com`; el iframe no se usa.
 
 ## Convenciones
 

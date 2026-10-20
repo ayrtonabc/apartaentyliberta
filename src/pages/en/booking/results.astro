@@ -1,12 +1,21 @@
 ---
 /**
- * /en/booking/results/ — resultados de la búsqueda (inglés).
- *
- * SSR: lee la disponibilidad en cada petición.
+ * /en/booking/results/ — compatibility with old search links.
+ * Forwards dates and guests to Booking.com; no local availability engine.
  */
-import SearchResults from "~/components/sections/SearchResults.astro";
+import { bookingUrl } from "~/data/booking";
 
 export const prerender = false;
----
 
-<SearchResults locale="en" />
+const params = Astro.url.searchParams;
+const guests = Number(params.get("group_adults") ?? params.get("guests") ?? 0);
+
+return Astro.redirect(
+  bookingUrl("en", {
+    checkIn: params.get("checkin") ?? params.get("checkIn") ?? undefined,
+    checkOut: params.get("checkout") ?? params.get("checkOut") ?? undefined,
+    guests: Number.isFinite(guests) && guests > 0 ? guests : undefined,
+  }),
+  302,
+);
+---

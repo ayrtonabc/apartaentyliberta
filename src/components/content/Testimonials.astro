@@ -11,7 +11,7 @@
  * estrellas, comentario y plataforma.
  */
 import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
-import { aggregateRatings, getTotalReviews, reviewsForLocale } from "~/data/reviews";
+import { aggregateRatings, reviewsForLocale } from "~/data/reviews";
 import { bookingUrl } from "~/data/booking";
 import Icon from "~/components/ui/Icon.astro";
 import ReviewLogo from "~/components/ui/ReviewLogo.astro";
@@ -20,7 +20,6 @@ import TestimonialCard from "~/components/content/TestimonialCard.astro";
 
 const locale: Locale = getLocaleFromUrl(Astro.url);
 const tr = t(locale);
-const total = getTotalReviews();
 
 const all = reviewsForLocale(locale);
 
@@ -44,7 +43,6 @@ const copy = {
     title: "To mówią",
     accent: "nasi goście",
     lead: "Nie kupujemy opinii i nie prosimy o nie przy wymeldowaniu. Te pochodzą z publicznych profili Google i Booking.com — także te mniej wygodne.",
-    totalLabel: "opinii w Google i Booking.com",
     verified: "Profile publiczne, opinie weryfikowalne",
     googleRow: "Google",
     bookingRow: "Booking.com",
@@ -60,7 +58,6 @@ const copy = {
     title: "What our",
     accent: "guests say",
     lead: "We do not buy reviews and we never ask for them at check-out. These come from public Google and Booking.com profiles — including the less comfortable ones.",
-    totalLabel: "reviews on Google and Booking.com",
     verified: "Public profiles, verifiable reviews",
     googleRow: "Google",
     bookingRow: "Booking.com",
@@ -76,7 +73,6 @@ const copy = {
     title: "Das sagen",
     accent: "unsere Gäste",
     lead: "Wir kaufen keine Bewertungen und fragen beim Check-out nie danach. Diese stammen aus öffentlichen Google- und Booking.com-Profilen — auch die unbequemen.",
-    totalLabel: "Bewertungen auf Google und Booking.com",
     verified: "Öffentliche Profile, überprüfbare Bewertungen",
     googleRow: "Google",
     bookingRow: "Booking.com",
@@ -108,11 +104,6 @@ const booking = platform("booking");
       </div>
 
       <aside class="revs__summary" data-reveal style="--reveal-delay:90ms" aria-label={tr.reviews.eyebrow}>
-        <p class="revs__summary-top">
-          <strong class="revs__total">{total}</strong>
-          <span>{copy.totalLabel}</span>
-        </p>
-
         <ul class="revs__platforms" role="list">
           {aggregateRatings.map((rating) => (
             <li>
@@ -121,13 +112,12 @@ const booking = platform("booking");
                 href={rating.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`${rating.label} — ${fmtScore(rating.score)}/${rating.scale} (${rating.count})`}
+                aria-label={`${rating.label} — ${fmtScore(rating.score)}/${rating.scale}`}
               >
                 <ReviewLogo source={rating.source} />
                 <span class="revs__score tnum">
                   {fmtScore(rating.score)}<em>/{rating.scale}</em>
                 </span>
-                <span class="revs__count">({rating.count})</span>
                 <ReviewStars rating={rating.score} scale={rating.scale} size={12} />
               </a>
             </li>
@@ -146,7 +136,7 @@ const booking = platform("booking");
         <div class="revs__row-head">
           <span class="revs__row-label">
             <ReviewLogo source="google" />
-            <span>{copy.googleRow} · {google?.count}</span>
+            <span>{copy.googleRow}</span>
           </span>
           <div class="revs__row-actions">
             <button
@@ -166,7 +156,7 @@ const booking = platform("booking");
           </div>
         </div>
 
-        <div class="revs__viewport" aria-label={`${copy.googleRow} — ${copy.totalLabel}`}>
+        <div class="revs__viewport" aria-label={copy.googleRow}>
           <div class="revs__track">
             <div class="revs__group">
               {googleReviews.map((review) => (
@@ -186,7 +176,7 @@ const booking = platform("booking");
         <div class="revs__row-head">
           <span class="revs__row-label">
             <ReviewLogo source="booking" />
-            <span>{copy.bookingRow} · {booking?.count}</span>
+            <span>{copy.bookingRow}</span>
           </span>
           <div class="revs__row-actions">
             <button
@@ -206,7 +196,7 @@ const booking = platform("booking");
           </div>
         </div>
 
-        <div class="revs__viewport" aria-label={`${copy.bookingRow} — ${copy.totalLabel}`}>
+        <div class="revs__viewport" aria-label={copy.bookingRow}>
           <div class="revs__track revs__track--reverse">
             <div class="revs__group">
               {bookingReviews.map((review) => (
@@ -305,31 +295,6 @@ const booking = platform("booking");
     box-shadow: var(--shadow-sm);
   }
 
-  .revs__summary-top {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-3);
-    max-width: none;
-  }
-
-  .revs__total {
-    font-family: var(--font-display);
-    font-size: clamp(2.8rem, 6vw, 4rem);
-    line-height: 0.9;
-    letter-spacing: var(--tracking-tighter);
-    color: var(--color-text);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .revs__summary-top span {
-    font-family: var(--font-grotesk);
-    font-size: var(--text-2xs);
-    line-height: 1.35;
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    color: var(--color-text-subtle);
-  }
-
   .revs__platforms {
     display: grid;
     gap: var(--space-2);
@@ -367,12 +332,6 @@ const booking = platform("booking");
     font-style: normal;
     font-size: 0.6em;
     color: var(--color-text-subtle);
-  }
-
-  .revs__count {
-    font-size: var(--text-2xs);
-    color: var(--color-text-subtle);
-    font-variant-numeric: tabular-nums;
   }
 
   .revs__verified {

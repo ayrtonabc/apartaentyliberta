@@ -1,11 +1,12 @@
 ---
 /**
- * WelcomeSection — el texto editorial de bienvenida de la web anterior, con
- * una firma y un mosaico de fotos reales del complejo.
+ * WelcomeSection — bienvenida editorial de la portada.
  *
- * Sustituye el antiguo bloque "complex" (galería + comparador), que el cliente
- * considera de sobra. Las fotos salen de `public/assets/facilities`, como pidió;
- * no se reutilizan las de sauna/balia que ya viven en la sección Wellness.
+ * Vuelve al planteamiento cálido de la web anterior: dos fotos superpuestas
+ * con una forma de agua detrás, texto a la derecha y la firma de los
+ * propietarios. No usa el mosaico de cuatro fotos de instalaciones (el cliente
+ * pidió expresamente no mostrar `apartament-z-zewnatrz`, `salon-z-kominkiem`,
+ * `kuchnia` ni `jadalnia` aquí).
  */
 import { type Locale, getLocaleFromUrl, localeLink } from "~/lib/i18n";
 import Icon from "~/components/ui/Icon.astro";
@@ -26,15 +27,8 @@ const copy = {
     cta: "Zobacz apartamenty",
     signatureAlt: "Zapraszamy — podpis Ani i Piotra Birbach",
     signatureCaption: "Ania i Piotr · gospodarze Liberta",
-    alts: [
-      "Kompleks Apartamentów Liberta z zewnątrz, oświetlone tarasy wieczorem",
-      "Salon z kominkiem na drewno i widokiem na jezioro",
-      "Kuchnia z wyspą i drewnianym blatem",
-      "Jezioro Szeląg Wielki o zachodzie słońca",
-      "Zadaszony taras z widokiem na jezioro",
-      "Ognisko nad brzegiem jeziora",
-      "Jadalnia z dużym stołem, otwarta na salon",
-    ],
+    mainAlt: "Balia góralska z widokiem na jezioro o zachodzie słońca",
+    smallAlt: "Stół na tarasie z widokiem na jezioro Szeląg",
   },
   en: {
     eyebrow: "Masuria",
@@ -48,15 +42,8 @@ const copy = {
     cta: "See the apartments",
     signatureAlt: "Zapraszamy — signature of Ania and Piotr Birbach",
     signatureCaption: "Ania and Piotr · your hosts at Liberta",
-    alts: [
-      "The Apartamenty Liberta complex from outside, terraces lit in the evening",
-      "Living room with a wood-burning fireplace and lake view",
-      "Kitchen with an island and a wooden worktop",
-      "Lake Szeląg Wielki at sunset",
-      "Covered terrace with a lake view",
-      "Fire pit by the lake",
-      "Dining area with a large table, open to the living room",
-    ],
+    mainAlt: "Hot tub with a lake view at sunset",
+    smallAlt: "Table on the terrace overlooking Lake Szeląg",
   },
   de: {
     eyebrow: "Masuren",
@@ -70,33 +57,37 @@ const copy = {
     cta: "Ferienwohnungen ansehen",
     signatureAlt: "Zapraszamy — Unterschrift von Ania und Piotr Birbach",
     signatureCaption: "Ania und Piotr · Ihre Gastgeber in Liberta",
-    alts: [
-      "Die Anlage Apartamenty Liberta von außen, beleuchtete Terrassen am Abend",
-      "Wohnzimmer mit Holzofen und Seeblick",
-      "Küche mit Kochinsel und Holzplatte",
-      "Der Szeląg-See bei Sonnenuntergang",
-      "Überdachte Terrasse mit Seeblick",
-      "Feuerstelle am Seeufer",
-      "Essbereich mit großem Tisch, offen zum Wohnzimmer",
-    ],
+    mainAlt: "Hot Tub mit Seeblick bei Sonnenuntergang",
+    smallAlt: "Tisch auf der Terrasse mit Blick auf den Szeląg-See",
   },
 }[locale];
-
-const photos = [
-  { src: "/assets/facilities/apartament-z-zewnatrz.webp", index: 0, size: "big" as const },
-  { src: "/assets/facilities/salon-z-kominkiem.webp", index: 1 },
-  { src: "/assets/facilities/kuchnia.webp", index: 2 },
-  { src: "/assets/facilities/lake.webp", index: 3, size: "wide" as const },
-  { src: "/assets/facilities/taras.webp", index: 4 },
-  { src: "/assets/facilities/miejsce-na-ognisko.webp", index: 5 },
-  { src: "/assets/facilities/jadalnia.webp", index: 6 },
-];
 ---
 
 <section class="welcome section" id="witaj" aria-labelledby="welcome-title">
   <div class="container">
     <div class="welcome__grid">
-      <div class="welcome__copy" data-reveal>
+      <div class="welcome__collage" data-reveal>
+        <span class="welcome__wave welcome__wave--back" aria-hidden="true"></span>
+        <span class="welcome__wave welcome__wave--front" aria-hidden="true"></span>
+
+        <figure class="welcome__shot welcome__shot--main">
+          <SmartImage
+            src="/assets/facilities/balia.webp"
+            alt={copy.mainAlt}
+            sizes="(min-width: 1024px) 38vw, 88vw"
+          />
+        </figure>
+
+        <figure class="welcome__shot welcome__shot--small">
+          <SmartImage
+            src="/assets/facilities/taras.webp"
+            alt={copy.smallAlt}
+            sizes="(min-width: 1024px) 24vw, 56vw"
+          />
+        </figure>
+      </div>
+
+      <div class="welcome__copy" data-reveal style="--reveal-delay:90ms">
         <span class="eyebrow">{copy.eyebrow}</span>
         <h2 class="welcome__title" id="welcome-title">{copy.title}</h2>
 
@@ -118,25 +109,10 @@ const photos = [
           />
           <span class="welcome__signature-caption">{copy.signatureCaption}</span>
         </div>
-      </div>
-
-      <div class="welcome__gallery" data-reveal style="--reveal-delay:100ms">
-        {photos.map((photo) => (
-          <figure class:list={["welcome__shot", photo.size && `welcome__shot--${photo.size}`]}>
-            <SmartImage
-              src={photo.src}
-              alt={copy.alts[photo.index]}
-              sizes={photo.size === "big" ? "(min-width: 1024px) 46vw, 100vw" : "(min-width: 1024px) 23vw, (min-width: 640px) 48vw, 100vw"}
-            />
-          </figure>
-        ))}
 
         <a class="welcome__cta" href={localeLink(locale, "/apartamenty/")}>
-          <span class="welcome__cta-eyebrow">{copy.eyebrow}</span>
-          <strong>{copy.cta}</strong>
-          <span class="welcome__cta-arrow" aria-hidden="true">
-            <Icon name="arrow-right" size={18} />
-          </span>
+          {copy.cta}
+          <Icon name="arrow-right" size={15} />
         </a>
       </div>
     </div>
@@ -146,9 +122,10 @@ const photos = [
 <style>
   .welcome {
     position: relative;
+    overflow: hidden;
     background:
-      radial-gradient(70% 55% at 8% 12%, rgba(176, 141, 74, 0.13), transparent 62%),
-      linear-gradient(180deg, #fcf8f0 0%, var(--color-bg) 58%);
+      radial-gradient(70% 60% at 86% 8%, rgba(176, 141, 74, 0.12), transparent 60%),
+      linear-gradient(180deg, #f7f3e7 0%, #eef2e3 100%);
   }
 
   .welcome::before {
@@ -166,15 +143,92 @@ const photos = [
   .welcome__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: clamp(2.5rem, 6vw, 5rem);
-    align-items: start;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: center;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 900px) {
     .welcome__grid {
       grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: clamp(2.5rem, 5vw, 5rem);
     }
   }
+
+  /* ------------------------------------------------------------- Collage */
+
+  .welcome__collage {
+    position: relative;
+    min-height: 27rem;
+    isolation: isolate;
+  }
+
+  @media (min-width: 900px) {
+    .welcome__collage {
+      min-height: clamp(30rem, 44vw, 38rem);
+    }
+  }
+
+  .welcome__wave {
+    position: absolute;
+    display: block;
+    background: #cfe5ef;
+    border-radius: 48% 52% 56% 44% / 54% 46% 54% 46%;
+    pointer-events: none;
+  }
+
+  .welcome__wave--back {
+    top: 6%;
+    right: 5%;
+    width: 38%;
+    height: 54%;
+    transform: rotate(-14deg);
+    opacity: 0.9;
+  }
+
+  .welcome__wave--front {
+    bottom: 7%;
+    left: 4%;
+    width: 30%;
+    height: 34%;
+    transform: rotate(12deg);
+    opacity: 0.75;
+  }
+
+  .welcome__shot {
+    position: absolute;
+    margin: 0;
+    overflow: hidden;
+    background: var(--color-bg-muted);
+    box-shadow: 0 24px 50px -28px rgba(14, 26, 21, 0.45);
+  }
+
+  .welcome__shot :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .welcome__shot--main {
+    top: 0;
+    left: 6%;
+    z-index: 2;
+    width: 76%;
+    aspect-ratio: 4 / 3;
+    border-radius: 4px;
+  }
+
+  .welcome__shot--small {
+    left: 0;
+    bottom: 0;
+    z-index: 3;
+    width: 43%;
+    aspect-ratio: 3 / 4;
+    border: 7px solid #f8f3e7;
+    border-radius: 4px;
+  }
+
+  /* --------------------------------------------------------------- Copy */
 
   .welcome__copy {
     max-width: 40rem;
@@ -182,17 +236,17 @@ const photos = [
 
   .welcome__title {
     margin-top: var(--space-3);
-    margin-bottom: var(--space-6);
-    font-size: clamp(1.95rem, 4.2vw, 3.4rem);
-    line-height: 1.02;
+    margin-bottom: var(--space-5);
+    font-size: clamp(1.95rem, 3.8vw, 3.2rem);
+    line-height: 1.05;
     letter-spacing: var(--tracking-tighter);
     text-wrap: balance;
   }
 
   .welcome__prose {
-    max-width: 56ch;
+    max-width: 58ch;
     font-size: var(--text-base);
-    line-height: var(--leading-relaxed);
+    line-height: 1.72;
     color: var(--color-text-muted);
   }
 
@@ -209,15 +263,14 @@ const photos = [
   .welcome__lead {
     color: var(--color-text);
     font-size: var(--text-lg);
-    line-height: 1.55;
+    line-height: 1.62;
   }
 
-  /* Capitular editorial: una sola letra, sin adornos. */
   .welcome__lead::first-letter {
     float: left;
     padding-right: 0.08em;
     font-family: var(--font-display);
-    font-size: 3.4em;
+    font-size: 3.2em;
     line-height: 0.78;
     color: var(--color-accent);
   }
@@ -226,21 +279,21 @@ const photos = [
     display: flex;
     align-items: center;
     gap: var(--space-4);
-    margin-top: var(--space-7);
+    margin-top: var(--space-6);
     padding-top: var(--space-4);
     border-top: 1px solid var(--color-line);
   }
 
   .welcome__signature {
     display: block;
-    width: clamp(7rem, 12vw, 10rem);
+    width: clamp(7rem, 11vw, 9.5rem);
     height: auto;
     background: transparent;
     opacity: 0.88;
   }
 
   .welcome__signature-caption {
-    max-width: 16rem;
+    max-width: 15rem;
     font-family: var(--font-grotesk);
     font-size: var(--text-2xs);
     font-weight: var(--weight-medium);
@@ -249,135 +302,52 @@ const photos = [
     color: var(--color-text-subtle);
   }
 
-  /* --------------------------------------------------------------- Mosaico */
-
-  .welcome__gallery {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-auto-rows: clamp(9rem, 15vw, 13rem);
-    gap: var(--space-3);
-  }
-
-  @media (min-width: 640px) {
-    .welcome__gallery {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .welcome__shot--big,
-    .welcome__shot--wide {
-      grid-column: span 2;
-    }
-
-    .welcome__shot--big {
-      grid-row: span 2;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .welcome__gallery {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      grid-auto-rows: clamp(8rem, 10vw, 11rem);
-    }
-
-    .welcome__shot--big {
-      grid-column: span 2;
-      grid-row: span 2;
-    }
-
-    .welcome__shot--wide {
-      grid-column: span 2;
-    }
-  }
-
-  .welcome__shot {
-    position: relative;
-    margin: 0;
-    overflow: hidden;
-    border-radius: var(--radius-lg);
-    background: var(--color-bg-muted);
-  }
-
-  .welcome__shot :global(img) {
-    transition: transform var(--duration-slower) var(--ease-out);
-  }
-
-  .welcome__shot:hover :global(img) {
-    transform: scale(1.035);
-  }
-
   .welcome__cta {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    display: inline-flex;
+    align-items: center;
     gap: var(--space-2);
-    min-height: 10rem;
-    padding: var(--space-5);
-    color: var(--color-text-inverse);
-    background: var(--color-accent);
-    border-radius: var(--radius-lg);
-    transition: transform var(--transition-base), background-color var(--transition-base);
-  }
-
-  .welcome__cta:hover {
-    transform: translateY(-3px);
-    background: var(--color-accent-deep, #123c2d);
-  }
-
-  .welcome__cta-eyebrow {
+    min-height: 2.75rem;
+    margin-top: var(--space-6);
     font-family: var(--font-grotesk);
     font-size: var(--text-2xs);
     font-weight: var(--weight-semibold);
-    letter-spacing: var(--tracking-wider);
+    letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
-    color: var(--color-accent-soft);
+    color: var(--color-accent);
   }
 
-  .welcome__cta strong {
-    font-family: var(--font-display);
-    font-size: var(--text-lg);
-    font-weight: var(--weight-normal);
-    line-height: var(--leading-snug);
-    letter-spacing: var(--tracking-tight);
-    text-wrap: balance;
+  .welcome__cta:hover {
+    text-decoration: underline;
   }
 
-  .welcome__cta-arrow {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.2rem;
-    height: 2.2rem;
-    margin-top: auto;
-    color: var(--color-text-inverse);
-    border: 1px solid var(--on-dark-border-strong, rgba(255, 255, 255, 0.35));
-    border-radius: var(--radius-full);
-  }
-
-  /*
-   * En móvil ancho (360–639 px) el mosaico pasa a dos columnas: la foto
-   * principal sigue a ancho completo y el CTA cierra la rejilla. Ahorra tres
-   * pantallas de scroll sin convertir las fotos en miniaturas.
-   */
-  @media (min-width: 360px) and (max-width: 639px) {
-    .welcome__gallery {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-auto-rows: 11rem;
+  @media (max-width: 899px) {
+    .welcome__collage {
+      min-height: 25rem;
     }
 
-    .welcome__shot--big,
-    .welcome__shot--wide,
-    .welcome__cta {
-      grid-column: span 2;
+    .welcome__shot--main {
+      left: 8%;
+      width: 74%;
     }
 
-    .welcome__shot--big {
-      grid-row: span 2;
+    .welcome__shot--small {
+      width: 42%;
     }
   }
 
-  @media (max-width: 359px) {
-    .welcome__gallery {
-      grid-auto-rows: 12rem;
+  @media (max-width: 479px) {
+    .welcome__collage {
+      min-height: 20rem;
+    }
+
+    .welcome__shot--main {
+      left: 6%;
+      width: 80%;
+    }
+
+    .welcome__shot--small {
+      width: 45%;
+      border-width: 5px;
     }
   }
 </style>

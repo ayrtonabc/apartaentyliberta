@@ -28,8 +28,6 @@
  *     veces seguidas no refuerza, hace que la página parezca relleno.
  */
 import { type Locale, getLocaleFromUrl, t } from "~/lib/i18n";
-import { bookingUrl } from "~/data/booking";
-import ReviewLogo from "~/components/ui/ReviewLogo.astro";
 
 const locale: Locale = getLocaleFromUrl(Astro.url);
 const tr = t(locale);
@@ -42,20 +40,7 @@ const videoLabel =
       ? "Drohnenansicht des Szeląg-Sees und der Apartamenty Liberta"
       : "Drone view of Lake Szeląg Wielki and Apartamenty Liberta";
 
-/**
- * El buscador de la portada entrega las fechas directamente a Booking.com.
- *
- * No hay motor propio ni API: el formulario es un GET a la ficha oficial con
- * `checkin`, `checkout` y `group_adults`. Booking abre en una pestaña nueva para
- * que el visitante no pierda la web del alojamiento.
- */
-const bookingAction = bookingUrl(locale);
-const bookingNote =
-  locale === "pl"
-    ? "Rezerwacja przez Booking.com"
-    : locale === "de"
-      ? "Buchung über Booking.com"
-      : "Booking through Booking.com";
+
 ---
 
 <section class="hero" data-hero>
@@ -100,51 +85,7 @@ const bookingNote =
     <div class="hero__scrim"></div>
   </div>
 
-  <div class="hero__inner">
-    <div class="container hero__container">
-      <p class="hero__eyebrow">
-        <span class="hero__dot" aria-hidden="true"></span>
-        {tr.hero.eyebrow}
-      </p>
-
-      <h1 class="hero__title">{tr.hero.title}</h1>
-
-      <p class="hero__subtitle">{tr.hero.subtitle}</p>
-
-      <!-- Consulta rápida de fechas -->
-      <form
-        class="hero__quick"
-        method="get"
-        action={bookingAction}
-        target="_blank"
-      >
-        <div class="hero__field">
-          <label for="hero-in">{tr.form.checkIn}</label>
-          <input type="date" id="hero-in" name="checkin" required />
-        </div>
-        <span class="hero__arrow" aria-hidden="true">→</span>
-        <div class="hero__field">
-          <label for="hero-out">{tr.form.checkOut}</label>
-          <input type="date" id="hero-out" name="checkout" required />
-        </div>
-        <div class="hero__field hero__field--sm">
-          <label for="hero-guests">{tr.form.guests}</label>
-          <input type="number" id="hero-guests" name="group_adults" min="1" max="8" value="6" />
-        </div>
-        <input type="hidden" name="group_children" value="0" />
-        <input type="hidden" name="no_rooms" value="1" />
-        <input type="hidden" name="selected_currency" value="PLN" />
-        <button class="btn btn--primary hero__submit" type="submit">
-          {tr.cta.checkAvailability}
-        </button>
-      </form>
-
-      <p class="hero__booking-note">
-        <ReviewLogo source="booking" />
-        <span>{bookingNote}</span>
-      </p>
-    </div>
-  </div>
+  <h1 class="sr-only">{tr.hero.title}</h1>
 </section>
 
 <style>
@@ -159,7 +100,7 @@ const bookingNote =
      * Así en un portátil de 720 px de alto todo entra sin scroll, y en un
      * monitor grande la portada no se queda corta.
      */
-    min-height: min(100svh, 52rem);
+    min-height: min(78svh, 46rem);
     padding-top: calc(var(--header-height) + var(--space-6));
     padding-bottom: var(--space-5);
     color: #fff;

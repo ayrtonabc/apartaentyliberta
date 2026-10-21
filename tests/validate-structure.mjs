@@ -53,8 +53,6 @@ const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
 check(Boolean(allDeps["@astrojs/sitemap"]), "@astrojs/sitemap instalado");
 check(Boolean(allDeps["@astrojs/node"]), "@astrojs/node instalado");
 check(Boolean(allDeps.astro), "astro instalado");
-check(Boolean(allDeps.zod), "zod instalado");
-check(Boolean(allDeps.resend), "resend instalado");
 check(Boolean(allDeps.sharp), "sharp instalado");
 check(
   /^>=\s*22\./.test(pkg.engines?.node ?? ""),

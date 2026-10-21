@@ -28,12 +28,6 @@
     "rename:hero": "node scripts/rename-hero-images.mjs",
     "compress": "node scripts/compress-dist.mjs",
     "prune": "node scripts/prune-dist.mjs",
-    "audit:shots": "node scripts/audit-shots.mjs",
-    "audit:styles": "node scripts/audit-computed.mjs",
-    "audit:hero": "node scripts/measure-hero.mjs",
-    "audit:hero:sweep": "node scripts/measure-hero-sweep.mjs",
-    "audit:header": "node scripts/verify-header.mjs",
-    "audit:lang": "node scripts/verify-lang-switcher.mjs",
     "test:structure": "node tests/validate-structure.mjs",
     "test:syntax": "node tests/validate-syntax.mjs",
     "test:routes": "node tests/validate-routes.mjs",
@@ -46,9 +40,7 @@
     "@astrojs/sitemap": "^3.2.1",
     "astro": "^6.4.8",
     "astro-compress": "^2.2.1",
-    "resend": "^4.0.0",
-    "sharp": "^0.33.5",
-    "zod": "^3.23.8"
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",

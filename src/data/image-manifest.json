@@ -12,19 +12,6 @@
     ],
     "fallback": "/assets/responsive/assets/hero/hero-1-1360.webp"
   },
-  "assets/hero/hero-2.webp": {
-    "width": 1360,
-    "height": 766,
-    "mtimeMs": 1788907536792.2334,
-    "lqip": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAABQBACdASoUAAsAPu1kqU2ppaOiMAgBMB2JYgCdMvIC8QBWBu78zbjHAkFAAP5VV8e8wuhQlvhhUUfbeiYnDaaMZhClF/UAZhYZKsLt4tKphmuSm1XOAAAA",
-    "widths": [
-      480,
-      768,
-      1100,
-      1360
-    ],
-    "fallback": "/assets/responsive/assets/hero/hero-2-1360.webp"
-  },
   "assets/hero/hero-3.webp": {
     "width": 1360,
     "height": 1020,
@@ -37,71 +24,6 @@
       1360
     ],
     "fallback": "/assets/responsive/assets/hero/hero-3-1360.webp"
-  },
-  "assets/hero/hero-4.webp": {
-    "width": 1360,
-    "height": 1020,
-    "mtimeMs": 1788907571517.735,
-    "lqip": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAACwAwCdASoUAA8APu1iqU2ppaQiMAgBMB2JZgCdACPv66ENrmpGQAD97fpqF4KeHpsjPOgJp53Niozd8BSO7mkm1VC+/f4UGHZtqigAAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1360
-    ],
-    "fallback": "/assets/responsive/assets/hero/hero-4-1360.webp"
-  },
-  "assets/hero/hero-5.webp": {
-    "width": 1672,
-    "height": 941,
-    "mtimeMs": 1788975762943.9463,
-    "lqip": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAAAQBACdASoUAAsAPu1kqk4ppaQiMAgBMB2JYgCdMoKAAAj1GI6+f22wiAD+dFgs1gyek+86Cjp8YLmzcKD1hkZ0yxhgtp4LNmcVPkOldxnfNFAA",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400,
-      1672
-    ],
-    "fallback": "/assets/responsive/assets/hero/hero-5-1672.webp"
-  },
-  "assets/hero/hero-apartments.jpg": {
-    "width": 1579,
-    "height": 996,
-    "mtimeMs": 1788975001656.266,
-    "lqip": "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACQAwCdASoUAA0APu1kq04ppaQiMAgBMB2JYwAAV36ZZ9Ub5EIAAMuhnbiSw5uNJP16MSqxzsBxG3vdEzdEFgdtAQt3Dh0YAAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400,
-      1579
-    ],
-    "fallback": "/assets/responsive/assets/hero/hero-apartments-1579.webp"
-  },
-  "assets/hero/hero-beach.jpg": {
-    "width": 608,
-    "height": 384,
-    "mtimeMs": 1788905066231.6863,
-    "lqip": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAACwAwCdASoUAA0APu1iqU2ppaOiMAgBMB2JZgC+SB5zAqaMZHfSgAD+kUU3VOHtejP9CrFz7erkhQi+gKXUldEVNZZc34AA",
-    "widths": [
-      480,
-      608
-    ],
-    "fallback": "/assets/responsive/assets/hero/hero-beach-608.webp"
-  },
-  "assets/hero/hero-lake.jpg": {
-    "width": 1400,
-    "height": 933,
-    "mtimeMs": 1788905067304.4683,
-    "lqip": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAACwAwCdASoUAA0APu1kqU2ppaQiMAgBMB2JYgC06CHWrXLXWNyNOAD+6unWfGb4sLxNrMwjdkBqdZw6lrNCHTqsIAA=",
-    "widths": [
-      480,
-      768,
-      1100,
-      1400
-    ],
-    "fallback": "/assets/responsive/assets/hero/hero-lake-1400.webp"
   },
   "assets/apartments/liberta-i/bania-goralska.jpg": {
     "width": 1448,

@@ -163,6 +163,17 @@ const photos = [
       </div>
 
       <div class="welcome__copy" data-reveal style="--reveal-delay:90ms">
+        <img
+          class="welcome__heart"
+          src="/assets/witaj/vectorcorazon.svg"
+          alt=""
+          width="1462"
+          height="1591"
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+        />
+
         <h2 class="eyebrow welcome__eyebrow" id="welcome-title">{copy.eyebrow}</h2>
 
         <div class="welcome__prose">
@@ -384,7 +395,36 @@ const photos = [
   /* --------------------------------------------------------------- Copy */
 
   .welcome__copy {
+    position: relative;
+    z-index: 1;
     max-width: 40rem;
+  }
+
+  /*
+   * Corazón vectorial del propietario, detrás del texto. Es un SVG de 2 KB,
+   * no una foto: acompaña sin pesar y sin tapar la lectura.
+   */
+  .welcome__heart {
+    position: absolute;
+    top: -16%;
+    right: -26%;
+    z-index: -1;
+    width: min(58rem, 142%);
+    height: auto;
+    max-width: none;
+    background: transparent;
+    opacity: 0.58;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  @media (max-width: 899px) {
+    .welcome__heart {
+      top: -10%;
+      right: -34%;
+      width: 150%;
+      opacity: 0.45;
+    }
   }
 
   .welcome__eyebrow {
